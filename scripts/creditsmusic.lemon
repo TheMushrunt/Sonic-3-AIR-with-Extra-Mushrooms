@@ -1,0 +1,176 @@
+global u8 CREDITS_MUSIC
+
+function void determineCreditsMusic()
+{
+	if (CREDITS_MUSIC == 0) // Zone Medley
+	{
+		playMusic(MUSIC_CREDITSMEDLEY)
+	}
+	else if (CREDITS_MUSIC <= 2) // Credits
+	{
+		if (Game.getSetting(SETTING_AUDIO_OUTRO) == 0) // If the person has the ending music set to SSZ
+		{
+			Audio.stopChannel(0) // cut the music because it's gonna sound weird
+			if (CREDITS_MUSIC == 2) // use S3 Final Credits
+				Audio.playAudio("26")
+			else
+				Audio.playAudio("26_proto") // use S3 Proto Credits
+		}
+		else if (Game.getSetting(SETTING_AUDIO_OUTRO) == 1 && CREDITS_MUSIC == 1) // If you want to use the S3 Final credits for ending and S3 Proto for credits
+		{
+			Audio.stopChannel(0) // cut the music because it might sound weird
+			Audio.playAudio("26_proto")
+		}
+		else if (Game.getSetting(SETTING_AUDIO_OUTRO) == 2 && CREDITS_MUSIC == 2) // Vice versa as previous condition
+		{
+			Audio.stopChannel(0) // cut the music because it might sound weird
+			Audio.playAudio("26")
+		}
+		else
+			playMusic(MUSIC_ENDING)
+	}
+	else // Continue Ending music
+	{
+		playMusic(MUSIC_ENDING)
+	}
+}
+
+// Sonic/Tails DDZ Best Ending
+
+//# address-hook(0x05dfee) end(0x05e084)
+function void fn05dfee()
+{
+	objA0.update_address = 0x05e08a
+	objA0.mapping_offset = 0x060486
+	objA0.sprite_attributes = 0x026e
+	objA0.sprite_priority = 0x0380
+	objA0.animation.sprite = 0x01
+	objA0.box_size.x = 0x20
+	objA0.box_size.y = 0x14
+	objA0.render_flags |= render_flag.FLIP_X
+	objA0.position.x.u16 = 0x0220 + getScreenExtend()
+	objA0.position.y.u16 = 0xb0
+	objA0.velocity.x = -0x100 - (getScreenExtend() * 0x40 / 40)		// Faster plane needed
+
+	fn06001e()
+	determineCreditsMusic()
+
+#if STANDALONE
+	// Reset frame counter so we can use it to get the current credits music playback position
+	level.framecounter = 0
+
+	// Start skippable cutscene again, to reset the timer
+	Game.startSkippableCutscene()
+#endif
+
+	// "spawnSimpleChildObjects(0x0601ca)" replaced by:
+	spawnSimpleChildObjects(0x05ecb4, 2)
+
+	// "spawnChildObjects(0x0601d0)" replaced by:
+	spawnChildObject(0x05ebf0, 0x00, 28, 0)
+
+	u8[0xfffffab8] &= ~0x01
+
+	// Spawn the Master Emerald
+	if (allocDynamicObjectStd())
+	{
+		objA1.update_address = 0x05de60
+		u16[A1 + 0x46] = A0.u16
+		objA1.position.x.u16 = 0x0190 + getScreenExtend()
+		objA1.position.y.u16 = 0xdc
+		u8[A1 + 0x2c] = 0xff
+	}
+
+	Kosinski.addToDMAQueue(0x162914, 0x4dc0)
+}
+
+// Sonic/Tails Other Endings
+
+//# address-hook(0x05e1c2) end(0x05e282)
+function void fn05e1c2()
+{
+	objA0.base_state = 0x02
+	objA0.render_flags |= render_flag.FLIP_X
+	objA0.position.x.u16 = 0xc0 + getScreenExtend()
+	objA0.position.y.u16 = 0xe0
+	fn0685e2()
+
+	if (outro.ending_type != 2)
+	{
+		determineCreditsMusic()
+
+	#if STANDALONE
+		// Reset frame counter so we can use it to get the current credits music playback position
+		level.framecounter = 0
+
+		// Start skippable cutscene again, to reset the timer
+		Game.startSkippableCutscene()
+	#endif
+	}
+
+	A1 = 0xffffb000
+	objA1.render_flags |= render_flag.FLIP_X
+	u8[A1 + 0x2a] |= char.flag.FACING_LEFT
+	u8[A1 + 0x0a] &= ~0x80
+	u8[A1 + 0x2e] = 0x83
+	u8[A1 + 0x20] = char.state.STANDING
+	if (isMainCharacter(CHARACTER_TAILS))
+	{
+		A2 = 0xffffcc0a
+		u32[A2] = 0x0160a6
+		u16[A2 + 0x30] = A1.u16
+	}
+
+	fn05fd88()
+
+	// "spawnChildObjects(0x0601ba)" replaced by:
+	spawnChildObject(0x05ea52, 0x00, -32, 43)
+	if (_equal())
+	{
+		u8[A1 + 0x38] |= 0x04
+	}
+
+	if (outro.ending_type >= 0)
+	{
+		// "spawnSimpleChildObjects(0x060214)" replaced by:
+		spawnSimpleChildObjects(0x05e504, 5)	// The birds
+
+		// "spawnSimpleChildObjects(0x06021a)" replaced by:
+		spawnSimpleChildObjects(0x05e612, 2)	// The dolphins
+	}
+
+	Kosinski.addToDMAQueue(0x163418, 0x3c60)
+	Kosinski.addToDMAQueue(0x162914, 0x4dc0)
+	Kosinski.addToDMAQueue(0x160d8c, 0x5fe0)
+}
+
+// Knuckles Ending
+
+//# address-hook(0x05b1a2) end(0x05b1e6)
+function void fn05b1a2()
+{
+	u16[0xfffffa86] += 0x02
+	u8[0xfffffacc] = 0
+#if STANDALONE
+	camera.position.x.u16 = -getScreenExtend()		// Center the credits
+#endif
+	camera.position.y = 0
+	scrolloffset.y.both = 0
+	u16[0xfffffaae] = 0
+
+	if (isMainCharacter(CHARACTER_KNUCKLES))
+	{
+		// Create the object that fades out music and starts the credits medley afterwards
+		if (allocDynamicObjectStd())
+		{
+			determineCreditsMusic()
+		}
+	}
+
+	fn05b514()
+
+	u16[0xfffffc02] = 0x0eee
+	u16[0xfffffc22] = 0x00ee
+	
+	addPatternLoadingCue(0x05b1ec)
+}
