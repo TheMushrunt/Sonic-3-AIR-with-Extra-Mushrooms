@@ -1,0 +1,14 @@
+{
+	"bg_title_screen_0": { "File": "title_background1.bmp", "Center": "16,8" },
+	"bg_title_screen_1": { "File": "title_background2.bmp", "Center": "16,8" },
+	"bg_title_screen_2": { "File": "title_background3.bmp", "Center": "16,8" },
+	"bg_title_screen_3": { "File": "title_background4.bmp", "Center": "16,8" },
+	"bg_title_screen_4": { "File": "title_background5.bmp", "Center": "16,8" },
+	"bg_title_screen_5": { "File": "title_background6.bmp", "Center": "16,8" },
+	"bg_title_screen_6": { "File": "title_background7.bmp", "Center": "16,8" },
+	"bg_title_screen_7": { "File": "title_background8.bmp", "Center": "16,8" },
+	"bg_title_screen_8": { "File": "title_background9.bmp", "Center": "16,8" },
+	"bg_title_screen_9": { "File": "title_background10.bmp", "Center": "16,8" },
+	"bg_title_screen_10": { "File": "title_background11.bmp", "Center": "16,8" },
+	"bg_title_screen_11": { "File": "title_background12.bmp", "Center": "16,8" }
+}
