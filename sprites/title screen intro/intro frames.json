@@ -1,0 +1,17 @@
+{
+	//SEGA
+	"sega_logo":  { "File": "sega_logo.png" },
+	// intro frames
+	"Sonic_Intro_0":  { "File": "intro1.png" },
+	"Sonic_Intro_1":  { "File": "intro2.png" },
+	"Sonic_Intro_2":  { "File": "intro3.png" },
+	"Sonic_Intro_3":  { "File": "intro4.png" },
+	"Sonic_Intro_4":  { "File": "intro5.png" },
+	"Sonic_Intro_5":  { "File": "intro6.png" },
+	"Sonic_Intro_6":  { "File": "intro7.png" },
+	"Sonic_Intro_7":  { "File": "intro8.png" },
+	"Sonic_Intro_8":  { "File": "intro9.png" },
+	"Sonic_Intro_9":  { "File": "intro10.png" },
+	"Sonic_Intro_10":  { "File": "intro11.png" },	
+	"Sonic_Intro_11":  { "File": "intro12.png" }
+}
