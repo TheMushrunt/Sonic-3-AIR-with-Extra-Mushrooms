@@ -196,11 +196,13 @@ function void Character.updateJumpMoves()
 					#if STANDALONE
 						if (Input.buttonPressed(BUTTON_Y))
 						{
-							if (!isSuperActive && char.invuln.countdown == 0 && SHTS == 1 || !isSuperActive && SHTS == 0)
+							if (!isSuperActive && SHTS == 0 && !Mods.isModActive("Sonic 3: D.A. Garden Edition"))
 							{
 								if (Character.performSuperTransformation())
 									return
 							}
+							else if (!Mods.isModActive("Sonic 3: D.A. Garden Edition"))
+								base.Character.updateJumpMoves()
 						}
 					#endif
 					if (input_pressed & CONTROL_ABC)
@@ -233,29 +235,32 @@ function void Character.updateJumpMoves()
 				if (Game.getSetting(SETTING_DROPDASH) && char.character == CHARACTER_SONIC && !competition_mode.active)
 				{
 					if (AUTODD == 1)
-						bool chargeDropDash = (control.player1.state & CONTROL_ABC) && (AUTODD == 1 || (char.bonus_effect & char.bonus.INVINCIBLE) || sonic.dropdash_counter > 0) && ((char.double_jump_state == 0 || !char.double_jump_state && AUTODD == 1) && super.active == 0 || (char.double_jump_state || !char.double_jump_state) && (super.active != 0 || (((char.bonus_effect & char.bonus.ELEMENTAL_SHIELDS) == 0 || (char.bonus_effect & char.bonus.INVINCIBLE)) && AUTODD == 1)))
-					else
-						chargeDropDash = (control.player1.state & CONTROL_ABC) && ((char.bonus_effect & char.bonus.ELEMENTAL_SHIELDS) == 0 || (char.bonus_effect & char.bonus.INVINCIBLE) || sonic.dropdash_counter > 0) && char.double_jump_state
-					if (chargeDropDash)
 					{
-						if (sonic.dropdash_counter < DROPDASH_FULLCHARGE)
+						bool chargeDropDash = (control.player1.state & CONTROL_ABC) && (AUTODD == 1 || (char.bonus_effect & char.bonus.INVINCIBLE) || sonic.dropdash_counter > 0) && ((char.double_jump_state == 0 || !char.double_jump_state && AUTODD == 1) && super.active == 0 || (char.double_jump_state || !char.double_jump_state) && (super.active != 0 || (((char.bonus_effect & char.bonus.ELEMENTAL_SHIELDS) == 0 || (char.bonus_effect & char.bonus.INVINCIBLE)) && AUTODD == 1)))
+						
+						if (chargeDropDash)
 						{
-							// Drop dash charging
-							++sonic.dropdash_counter
-							if (sonic.dropdash_counter == DROPDASH_FULLCHARGE)
+							if (sonic.dropdash_counter < DROPDASH_FULLCHARGE)
 							{
-								// Fully charged now
-								char.state = char.state.SONIC_DROPDASH
-								Audio.playAudio("dropdash_charge", AudioContext.CONTEXT_SOUND)
+								// Drop dash charging
+								++sonic.dropdash_counter
+								if (sonic.dropdash_counter == DROPDASH_FULLCHARGE)
+								{
+									// Fully charged now
+									char.state = char.state.SONIC_DROPDASH
+									Audio.playAudio("dropdash_charge", AudioContext.CONTEXT_SOUND)
+								}
 							}
 						}
+						else if (sonic.dropdash_counter > 0)
+						{
+							// Abort drop dash
+							sonic.dropdash_counter = 0
+							char.state = char.state.ROLLING
+						}
 					}
-					else if (sonic.dropdash_counter > 0)
-					{
-						// Abort drop dash
-						sonic.dropdash_counter = 0
-						char.state = char.state.ROLLING
-					}
+					else
+						base.Character.updateJumpMoves()
 				}
 			#endif
 			}
@@ -269,6 +274,36 @@ function void Character.updateJumpMoves()
 		}
 	}
 }
+
+function void SonicPressedJumpInMidAir()
+{
+	char.flags &= ~char.flag.CONTROL_LOCK
+	char.double_jump_state = 1
+	if ((!super.active || (super.active > 0xff && (Game.getSetting(SETTING_SUPER_SONIC_ABILITY)))))
+	{
+		if (char.bonus_effect & char.bonus.SHIELD_LIGHTNING)
+		{
+		#if STANDALONE
+			if (super.active)
+				u8[0xffffcbc0 + 0x20] = 1
+			else
+		#endif
+				u8[0xffffcce8 + 0x20] = 1
+			char.double_jump_state = 0
+
+		#if STANDALONE
+			if (super.active)
+				char.velocity.y = -0x680	// Slightly increasing double jump height for Super Sonic
+			else
+		#endif
+				char.velocity.y = -0x580
+			playSound(SFX_LIGHTNINGJUMP)
+		}
+		else base.SonicPressedJumpInMidAir()
+	}
+	else base.SonicPressedJumpInMidAir()
+}
+
 
 function bool isExtraSlot()
 {
