@@ -95,7 +95,8 @@ function void LBZFading(u8 scenario)
 			u16[0xfffffc00 + 0x3c * 2] = 0x0e8a
 			u16[0xfffffc00 + 0x3d * 2] = 0x0e48
 			u16[0xfffffc00 + 0x3e * 2] = 0x0e46
-			Object.TriggerUnloading()
+			if (!LBZ2SKY)
+				Object.TriggerUnloading()
 		}
 		++u16[A0 + 0x48]
 	}
