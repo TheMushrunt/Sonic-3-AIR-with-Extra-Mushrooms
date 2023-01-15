@@ -1217,7 +1217,6 @@ function void EM.checkCheats()
 	{
 		++EM_CHAOSEMERALDS
 		global.chaos_emeralds = 7 // Give the Chaos Emeralds
-		global.traded_emeralds = 0 // I'm not exactly sure what the point of Traded Emeralds are when you have Super Emeralds, but I'd rather not risk it.
 		Audio.playAudio(0x2B) // Chaos Emerald Sound
 		System.writeDisplayLine("7 CHAOS EMERALDS IN HAND") // Make-believes reborn
 		for (u8 i = 1; i <= 7; i++)
@@ -1237,6 +1236,7 @@ function void EM.checkCheats()
 		Audio.playAudio(0x2B) // Chaos Emerald Sound
 		Audio.playAudio(0xAC) // Continue Sound
 		global.super_emeralds = 7 // Give the Super Emeralds
+		global.traded_emeralds = 7 // Gives all Traded Emeralds so the Super Rings do the color cycling
 		System.writeDisplayLine("7 SUPER EMERALDS IN HAND") // Legends blurred and torn
 		for (u8 i = 1; i <= 7; i++)
 		{
