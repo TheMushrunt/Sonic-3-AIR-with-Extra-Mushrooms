@@ -1,0 +1,1246 @@
+global u8 LS_BG
+global u8 LS_FONT
+global u8 LS_BOSS
+global u8 ST_STYLE
+global u8 LS_HCZ
+global u8 LS_ICZ
+global u8 LS_MHZ
+global u8 ScaredHaters
+global u8 LS_MUSIC
+global u8 EM_CHAOSEMERALDS
+global u8 EM_EXTRALIVES
+global u8 EM_EXTRACONTINUES
+global u8 LS_ZONEORDER
+global u8 EM_2PSTAGES
+
+function u64 getLevelSelectNames(u8 zone)
+{
+	if (zone == 0) // AIZ
+		return "angel island"
+	else if (zone == 1) // HCZ
+	{
+		if (LS_HCZ == 0)
+			return "hydrocity"
+		else if (LS_HCZ == 1)
+			return "hydro city"
+		else if (LS_HCZ == 2)
+			return "hydrossity"
+		else
+			return "toilet town"
+	}
+	else if (zone == 2) // MGZ
+		return "marble garden"
+	else if (zone == 3) // CNZ
+		return "carnival night"
+	else if (zone == 4) // ICZ/FBZ
+	{
+		if (LS_ZONEORDER)
+			return "flying battery"
+		else
+		{
+			if (LS_ICZ == 0)
+				return "icecap"
+			else if (LS_ICZ == 1)
+				return "ice cap"
+			else
+				return "mount shiver"
+		}
+	}
+	else if (zone == 5) // LBZ/ICZ
+	{
+		if (LS_ZONEORDER)
+		{
+			if (LS_ICZ == 0)
+				return "icecap"
+			else if (LS_ICZ == 1)
+				return "ice cap"
+			else
+				return "mount shiver"
+		}
+		else
+			return "launch base"
+	}
+	else if (zone == 6) // MHZ/LBZ
+	{
+		if (LS_ZONEORDER)
+			return "launch base"
+		else
+		{
+			if (LS_MHZ == 0)
+				return "mushroom valley"
+			else if (LS_MHZ == 1)
+				return "mushroom hill"
+			else
+				return "mushroom forest"
+		}
+	}
+	else if (zone == 7) // FBZ/MHZ
+	{
+		if (LS_ZONEORDER)
+		{
+			if (LS_MHZ == 0)
+				return "mushroom valley"
+			else if (LS_MHZ == 1)
+				return "mushroom hill"
+			else
+				return "mushroom forest"
+		}
+		else
+			return "flying battery"
+	}
+	else if (zone == 8) // SOZ
+		return "sandopolis"
+	else if (zone == 9) // LRZ
+		return "lava reef"
+	else if (zone == 10) // HPZ
+		return "hidden palace"
+	else if (zone == 11) // SSZ
+		return "sky sanctuary"
+	else if (zone == 12) // DEZ
+		return "death egg"
+	else if (zone == 13) // DDZ
+		return "the doomsday"
+	else if (zone == 14) // BONUS
+		return "bonus stage"
+	else if (zone == 15) // SPECIAL
+		return "special stage"
+}
+
+function u64 getLevelSelect2PNames(u8 zone)
+{
+	if (zone == 0) // ALZ
+		return "azure lake"
+	else if (zone == 1) // BPZ
+		return "balloon park"
+	else if (zone == 2) // CGZ
+		return "chrome gadget"
+	else if (zone == 3) // DPZ
+		return "desert palace"
+	else if (zone == 4) // EMZ
+		return "endless mine"
+	else if (zone == 5) // Altar
+		return "hidden palace altar"
+	else if (zone == 6) // Ending
+		return "game ending"
+}
+function void ScareAwayTheHaters()
+{
+	if (Mods.isModActive("Sonic 3 Complete Sound Test") || Mods.isModActive("extended level select"))
+	{
+		if (Mods.getModPriority("Sonic 3 A.I.R. with Extra Mushrooms") > Mods.getModPriority("Sonic 3 Complete Sound Test"))
+		{
+			playMusic(MUSIC_CTRL_STOP)
+			ScaredHaters = 1
+			Standalone.playAudio(0xB2)
+		}
+		else if (Mods.getModPriority("Sonic 3 A.I.R. with Extra Mushrooms") > Mods.getModPriority("extended level select"))
+		{
+			playMusic(MUSIC_CTRL_STOP)
+			ScaredHaters = 1
+			Standalone.playAudio(0xB2)
+		}
+	}
+	else
+	{
+		if (ScaredHaters != 1)
+		{
+			playLevelSelectMusic()
+			EM_CHAOSEMERALDS = 0
+			EM_2PSTAGES = 0
+		}
+	}
+}
+
+function void playLevelSelectMusic()
+{
+	if (LS_MUSIC != 0)
+		playMusic(MUSIC_CTRL_STOP)
+	if (LS_MUSIC == 1)
+		Audio.playAudio("em_levelselect", AudioContext.CONTEXT_MUSIC)
+	else if (LS_MUSIC == 2)
+		if Mods.isModActive("Custom Theme for Data Select & Level Select")
+			playMusic(0xfe)
+		else
+			Audio.playAudio("em_levelselect", AudioContext.CONTEXT_MUSIC)
+	else if (LS_MUSIC == 3)
+		Audio.playAudio("custom_levelselect", AudioContext.CONTEXT_MUSIC)
+	else
+		playMusic(MUSIC_DATASELECT)
+}
+
+function void DrawLevelSelectBG()
+{
+	u64 prefix_key // origins or not
+	u64 suffix_key // S2/3, S3C, S3A (in S3C), S&K (in S3C), EM, or EM (alt)
+	if (Mods.isModActive("Origins Title + Menu Backgrounds") || Mods.isModActive("Consistent Sonic 3"))
+		prefix_key = "origins_"
+	if (LS_BG == 1) // S3C
+		suffix_key = "s3c"
+	else if (LS_BG == 2) // S3A
+		suffix_key = "s3a"
+	else if (LS_BG == 3) // S&K
+		suffix_key = "s&k"
+	else if (LS_BG == 4) // EM
+		suffix_key = "priorityissue"
+	else
+		suffix_key = "em"
+	Renderer.drawCustomSprite(stringformat("%sls_%s", prefix_key, suffix_key), getScreenExtend() - 40, 0, 0x00, 0, 0x1000)
+}
+
+function void DrawSpritesToLevelSelect()
+{
+	u16 beginningOfText = getScreenHeight()/2 - 64
+
+	// kid you not, this is probably the best way i could've handled the font selection system
+	u64 FONT_LS
+	u64 FONT_LS_Y
+	if (LS_FONT == 1)
+	{
+		FONT_LS = "ls_font_3c"
+		FONT_LS_Y = "ls_font_y_3c"
+	}
+	else if (LS_FONT == 2)
+	{
+		FONT_LS = "ls_font_custom"
+		FONT_LS_Y = "ls_font_y_custom"
+	}
+	else
+	{
+		FONT_LS = "ls_font"
+		FONT_LS_Y = "ls_font_y"
+	}
+	// determines what indicates a boss act in level select
+	u64 getBossText
+	if (LS_BOSS == 0) // act 3
+		getBossText = "   3"
+	else if (LS_BOSS == 1) // act x
+		getBossText = "   x"
+	else if (LS_BOSS == 2) // act boss
+		getBossText = "boss"
+	else // eggman icon
+		getBossText = "  {} "
+	// determines name for seventh zone
+	if (ScaredHaters == 1)
+	{
+		Renderer.drawCustomSprite("fixpriority", getScreenWidth()-200, 112, 0x00, 0, 0xFFFE)
+		Renderer.drawCustomSprite("livemario", 0, 112, 0x00, 0, 0xFFFE)
+		if (Mods.isModActive("Origins Title + Menu Backgrounds") || Mods.isModActive("Consistent Sonic 3"))
+			Renderer.drawCustomSprite("origins_ls_priorityissue", getScreenExtend() - 40, 0, 0x00, 0, 0x1000)
+		else
+			Renderer.drawCustomSprite("ls_priorityissue", getScreenExtend() - 40, 0, 0x00, 0, 0x1000)
+		Renderer.drawText(FONT_LS, 8, beginningOfText, "it seems there was some issues involving: ", 0xFFFFFFFF, 1, 0, 0xFFFF, true)
+		if (Mods.isModActive("Sonic 3 Complete Sound Test"))
+		{
+			if (Mods.getModPriority("Sonic 3 A.I.R. with Extra Mushrooms") > Mods.getModPriority("Sonic 3 Complete Sound Test"))
+				Renderer.drawText(FONT_LS, 8, beginningOfText + 8, "*'sonic 3 complete sound test'", 0x00FFFFFF, 1, 0, 0xFFFF, true)
+		}
+		if (Mods.isModActive("extended level select"))
+		{
+			if (Mods.isModActive("Sonic 3 Complete Sound Test"))
+			{
+				if (Mods.getModPriority("Sonic 3 A.I.R. with Extra Mushrooms") > Mods.getModPriority("extended level select"))
+				{
+					beginningOfText = beginningOfText + 8
+					Renderer.drawText(FONT_LS, 8, beginningOfText + 8, "*'extended level select'", 0x00FFFFFF, 1, 0, 0xFFFF, true)
+				}
+			}
+			else
+			{
+				if (Mods.getModPriority("Sonic 3 A.I.R. with Extra Mushrooms") > Mods.getModPriority("extended level select"))
+				{
+					Renderer.drawText(FONT_LS, 8, beginningOfText + 8, "*'extended level select'", 0x00FFFFFF, 1, 0, 0xFFFF, true)
+				}
+			}
+		}
+		Renderer.drawText(FONT_LS, 8, beginningOfText + 16, "please make the mod(s) higher in priority to:", 0xFFFFFFFF, 1, 0, 0xFFFF, true)
+		Renderer.drawText(FONT_LS, 8, beginningOfText + 24, "'sonic 3 a.i.r. with extra mushrooms'", 0xFFFF00FF, 1, 0, 0xFFFF, true)
+		Renderer.drawText(FONT_LS, 8, beginningOfText + 32, "if you wish to use that level select menu.", 0xFFFFFFFF, 1, 0, 0xFFFF, true)
+		Renderer.drawText(FONT_LS, 8, beginningOfText + 40, "alternatively: disable the mod(s) if you want", 0xFFFFFFFF, 1, 0, 0xFFFF, true)
+		Renderer.drawText(FONT_LS, 8, beginningOfText + 48, "to experience the extra mushrooms level select.", 0xFFFFFFFF, 1, 0, 0xFFFF, true)
+	}
+	if (LS_BG != 0)
+		DrawLevelSelectBG()
+	// render the text
+	if (ScaredHaters == 0)
+	{
+		if (EM_2PSTAGES)
+		{
+			if (levelselect.selection == 0x00)
+				Renderer.drawText(FONT_LS_Y, 24, 8, getLevelSelect2PNames(0), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			else
+				Renderer.drawText(FONT_LS, 24, 8, getLevelSelect2PNames(0), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			if (levelselect.selection == 0x01)
+				Renderer.drawText(FONT_LS_Y, 24, 32, getLevelSelect2PNames(1), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			else
+				Renderer.drawText(FONT_LS, 24, 32, getLevelSelect2PNames(1), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			if (levelselect.selection == 0x02)
+				Renderer.drawText(FONT_LS_Y, 24, 56, getLevelSelect2PNames(2), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			else
+				Renderer.drawText(FONT_LS, 24, 56, getLevelSelect2PNames(2), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			if (levelselect.selection == 0x03)
+				Renderer.drawText(FONT_LS_Y, 24, 80, getLevelSelect2PNames(3), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			else
+				Renderer.drawText(FONT_LS, 24, 80, getLevelSelect2PNames(3), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			if (levelselect.selection == 0x04)
+				Renderer.drawText(FONT_LS_Y, 24, 104, getLevelSelect2PNames(4), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			else
+				Renderer.drawText(FONT_LS, 24, 104, getLevelSelect2PNames(4), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			if (levelselect.selection == 0x05)
+				Renderer.drawText(FONT_LS_Y, 24, 128, getLevelSelect2PNames(5), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			else
+				Renderer.drawText(FONT_LS, 24, 128, getLevelSelect2PNames(5), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			if (levelselect.selection == 0x06)
+				Renderer.drawText(FONT_LS_Y, 24, 152, getLevelSelect2PNames(6), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			else
+				Renderer.drawText(FONT_LS, 24, 152, getLevelSelect2PNames(6), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+		}
+		else
+		{
+			if (levelselect.selection == 0x00)
+			{
+				Renderer.drawText(FONT_LS_Y, 24, 8, getLevelSelectNames(0), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS_Y, 144, 8, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 144, 16, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			else if (levelselect.selection == 0x01)
+			{
+				Renderer.drawText(FONT_LS_Y, 24, 8, getLevelSelectNames(0), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 144, 8, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS_Y, 144, 16, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			else
+			{
+				Renderer.drawText(FONT_LS, 24, 8, getLevelSelectNames(0), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 144, 8, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 144, 16, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			if (levelselect.selection == 0x02)
+			{
+				Renderer.drawText(FONT_LS_Y, 24, 32, getLevelSelectNames(1), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS_Y, 144, 32, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 144, 40, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			else if (levelselect.selection == 0x03)
+			{
+				Renderer.drawText(FONT_LS_Y, 24, 32, getLevelSelectNames(1), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 144, 32, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS_Y, 144, 40, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			else
+			{
+				Renderer.drawText(FONT_LS, 24, 32, getLevelSelectNames(1), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 144, 32, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 144, 40, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			if (levelselect.selection == 0x04)
+			{
+				Renderer.drawText(FONT_LS_Y, 24, 56, getLevelSelectNames(2), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS_Y, 144, 56, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 144, 64, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			else if (levelselect.selection == 0x05)
+			{
+				Renderer.drawText(FONT_LS_Y, 24, 56, getLevelSelectNames(2), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 144, 56, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS_Y, 144, 64, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			else
+			{
+				Renderer.drawText(FONT_LS, 24, 56, getLevelSelectNames(2), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 144, 56, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 144, 64, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			if (levelselect.selection == 0x06)
+			{
+				Renderer.drawText(FONT_LS_Y, 24, 80, getLevelSelectNames(3), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS_Y, 144, 80, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 144, 88, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			else if (levelselect.selection == 0x07)
+			{
+				Renderer.drawText(FONT_LS_Y, 24, 80, getLevelSelectNames(3), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 144, 80, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS_Y, 144, 88, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			else
+			{
+				Renderer.drawText(FONT_LS, 24, 80, getLevelSelectNames(3), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 144, 80, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 144, 88, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			if (levelselect.selection == 0x08)
+			{
+				Renderer.drawText(FONT_LS_Y, 24, 104, getLevelSelectNames(4), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS_Y, 144, 104, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 144, 112, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			else if (levelselect.selection == 0x09)
+			{
+				Renderer.drawText(FONT_LS_Y, 24, 104, getLevelSelectNames(4), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 144, 104, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS_Y, 144, 112, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			else
+			{
+				Renderer.drawText(FONT_LS, 24, 104, getLevelSelectNames(4), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 144, 104, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 144, 112, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			if (levelselect.selection == 0x0a)
+			{
+				Renderer.drawText(FONT_LS_Y, 24, 128, getLevelSelectNames(5), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS_Y, 144, 128, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 144, 136, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			else if (levelselect.selection == 0x0b)
+			{
+				Renderer.drawText(FONT_LS_Y, 24, 128, getLevelSelectNames(5), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 144, 128, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS_Y, 144, 136, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			else
+			{
+				Renderer.drawText(FONT_LS, 24, 128, getLevelSelectNames(5), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 144, 128, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 144, 136, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			if (levelselect.selection == 0x0c)
+			{
+				Renderer.drawText(FONT_LS_Y, 24, 152, getLevelSelectNames(6), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS_Y, 144, 152, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 144, 160, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			else if (levelselect.selection == 0x0d)
+			{
+				Renderer.drawText(FONT_LS_Y, 24, 152, getLevelSelectNames(6), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 144, 152, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS_Y, 144, 160, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			else
+			{
+				Renderer.drawText(FONT_LS, 24, 152, getLevelSelectNames(6), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 144, 152, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 144, 160, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			if (levelselect.selection == 0x0e)
+			{
+				Renderer.drawText(FONT_LS_Y, 24, 176, getLevelSelectNames(7), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS_Y, 144, 176, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 144, 184, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			else if (levelselect.selection == 0x0f)
+			{
+				Renderer.drawText(FONT_LS_Y, 24, 176, getLevelSelectNames(7), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 144, 176, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS_Y, 144, 184, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			else
+			{
+				Renderer.drawText(FONT_LS, 24, 176, getLevelSelectNames(7), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 144, 176, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 144, 184, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			if (levelselect.selection == 0x10)
+			{
+				Renderer.drawText(FONT_LS_Y, 24, 200, getLevelSelectNames(8), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS_Y, 144, 200, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 144, 208, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			else if (levelselect.selection == 0x11)
+			{
+				Renderer.drawText(FONT_LS_Y, 24, 200, getLevelSelectNames(8), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 144, 200, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS_Y, 144, 208, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			else
+			{
+				Renderer.drawText(FONT_LS, 24, 200, getLevelSelectNames(8), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 144, 200, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 144, 208, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			if (levelselect.selection == 0x12)
+			{
+				Renderer.drawText(FONT_LS_Y, 176, 8, getLevelSelectNames(9), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS_Y, 296, 8, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 296, 16, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 296-24, 24, getBossText, 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			else if (levelselect.selection == 0x13)
+			{
+				Renderer.drawText(FONT_LS_Y, 176, 8, getLevelSelectNames(9), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 296, 8, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS_Y, 296, 16, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 296-24, 24, getBossText, 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			else if (levelselect.selection == 0x14)
+			{
+				Renderer.drawText(FONT_LS_Y, 176, 8, getLevelSelectNames(9), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 296, 8, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 296, 16, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS_Y, 296-24, 24, getBossText, 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			else
+			{
+				Renderer.drawText(FONT_LS, 176, 8, getLevelSelectNames(9), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 296, 8, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 296, 16, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 296-24, 24, getBossText, 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			if (levelselect.selection == 0x15)
+				Renderer.drawText(FONT_LS_Y, 176, 32, getLevelSelectNames(10), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			else
+				Renderer.drawText(FONT_LS, 176, 32, getLevelSelectNames(10), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			if (levelselect.selection == 0x16)
+			{
+				Renderer.drawText(FONT_LS_Y, 176, 56, getLevelSelectNames(11), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS_Y, 296, 56, "s", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 296, 64, "k", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			else if (levelselect.selection == 0x17)
+			{
+				Renderer.drawText(FONT_LS_Y, 176, 56, getLevelSelectNames(11), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 296, 56, "s", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS_Y, 296, 64, "k", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			else
+			{
+				Renderer.drawText(FONT_LS, 176, 56, getLevelSelectNames(11), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 296, 56, "s", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 296, 64, "k", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			if (levelselect.selection == 0x18)
+			{
+				Renderer.drawText(FONT_LS_Y, 176, 80, getLevelSelectNames(12), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS_Y, 296, 80, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 296, 88, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 296-24, 96, getBossText, 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			else if (levelselect.selection == 0x19)
+			{
+				Renderer.drawText(FONT_LS_Y, 176, 80, getLevelSelectNames(12), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 296, 80, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS_Y, 296, 88, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 296-24, 96, getBossText, 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			else if (levelselect.selection == 0x1b)
+			{
+				Renderer.drawText(FONT_LS_Y, 176, 80, getLevelSelectNames(12), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 296, 80, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 296, 88, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS_Y, 296-24, 96, getBossText, 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			else
+			{
+				Renderer.drawText(FONT_LS, 176, 80, getLevelSelectNames(12), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 296, 80, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 296, 88, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 296-24, 96, getBossText, 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			if (levelselect.selection == 0x1a)
+				Renderer.drawText(FONT_LS_Y, 176, 104, getLevelSelectNames(13), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			else
+				Renderer.drawText(FONT_LS, 176, 104, getLevelSelectNames(13), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			if (levelselect.selection == 0x1c)
+			{
+				Renderer.drawText(FONT_LS_Y, 176, 128, getLevelSelectNames(14), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS_Y, 296, 128, "g", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 296, 136, "r", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 296, 144, "s", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			else if (levelselect.selection == 0x1d)
+			{
+				Renderer.drawText(FONT_LS_Y, 176, 128, getLevelSelectNames(14), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 296, 128, "g", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS_Y, 296, 136, "r", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 296, 144, "s", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			else if (levelselect.selection == 0xff)
+			{
+				Renderer.drawText(FONT_LS_Y, 176, 128, getLevelSelectNames(14), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 296, 128, "g", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 296, 136, "r", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS_Y, 296, 144, "s", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			else
+			{
+				Renderer.drawText(FONT_LS, 176, 128, getLevelSelectNames(14), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 296, 128, "g", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 296, 136, "r", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 296, 144, "s", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			if (levelselect.selection == 0x1e)
+			{
+				Renderer.drawText(FONT_LS_Y, 176, 152, getLevelSelectNames(15), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS_Y, 296, 152, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 296, 160, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			else if (levelselect.selection == 0x1f)
+			{
+				Renderer.drawText(FONT_LS_Y, 176, 152, getLevelSelectNames(15), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 296, 152, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS_Y, 296, 160, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+			else
+			{
+				Renderer.drawText(FONT_LS, 176, 152, getLevelSelectNames(15), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 296, 152, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(FONT_LS, 296, 160, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+			}
+		}
+		
+		// sound test values
+		// this determines whether the text will be highlighted or not, since this isn't a zone in the game (no worrying about an act 2)
+		u64 determineSTcolor
+		if (levelselect.selection == 0x20)
+			determineSTcolor = FONT_LS_Y
+		else
+			determineSTcolor = FONT_LS
+		if (ST_STYLE == 1)
+		{
+			Renderer.drawText(determineSTcolor, 264, 176, "<   >", 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+			if (levelselect.soundtest < 0x0a)
+			{
+				Renderer.drawText(determineSTcolor, 272, 176, "00" , 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+				Renderer.drawText(determineSTcolor, 288, 176,(stringformat("%d", levelselect.soundtest)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+			}
+			else if (levelselect.soundtest < 0x64)
+			{
+				Renderer.drawText(determineSTcolor, 272, 176, "0" , 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+				Renderer.drawText(determineSTcolor, 280, 176,(stringformat("%d", levelselect.soundtest)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+			}
+			else
+				Renderer.drawText(determineSTcolor, 272, 176,(stringformat("%d", levelselect.soundtest)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+		}
+		else
+		{
+			Renderer.drawText(determineSTcolor, 272, 176, "*  *", 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+			if (levelselect.soundtest < 0x10)
+			{
+				Renderer.drawText(determineSTcolor, 280, 176, "0" , 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+				Renderer.drawText(determineSTcolor, 288, 176,(stringformat("%x", levelselect.soundtest)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+			}
+			else
+				Renderer.drawText(determineSTcolor, 280, 176,(stringformat("%x", levelselect.soundtest)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+		}
+		Renderer.drawText(determineSTcolor, 176, 176, "sound test", 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+	}
+	//Renderer.drawCustomSprite("ls_text", 0, 0, 0x00, 0, 0x1000)
+	if (levelselect.characters == 0)
+	{
+		Renderer.drawCustomSprite("continue_icon_sonic", getScreenWidth()-104, getScreenHeight()-8, 0x00, 0, 0x9f7e)
+		Renderer.drawCustomSprite("continue_icon_tails", (getScreenWidth()-104)-16, getScreenHeight()-8, 0x00, 0, 0x9f7e)
+	}
+	else if (levelselect.characters == 1)
+	{
+		Renderer.drawCustomSprite("continue_icon_sonic", getScreenWidth()-104, getScreenHeight()-8, 0x00, 0, 0x9f7e)
+	}
+	else if (levelselect.characters == 2)
+	{
+		Renderer.drawCustomSprite("continue_icon_tails", getScreenWidth()-104, getScreenHeight()-8, 0x00, 0, 0x9f7e)
+	}
+	else if (levelselect.characters == 3)
+	{
+		Renderer.drawCustomSprite("continue_icon_knuckles", getScreenWidth()-104, getScreenHeight()-8, 0x00, 0, 0x9f7e)
+	}
+	else if (levelselect.characters == 4)
+	{
+		Renderer.drawCustomSprite("continue_icon_knuckles", getScreenWidth()-104, getScreenHeight()-8, 0x00, 0, 0x9f7e)
+		Renderer.drawCustomSprite("continue_icon_tails", (getScreenWidth()-104)-16, getScreenHeight()-8, 0x00, 0, 0x9f7e)
+	}
+	else if (levelselect.characters > 4)
+	{
+		// TODO: (PROPER) Extra Slot Support
+		// probably coming whenever that new base is released. glad they're documenting it and stuff though
+		Renderer.drawCustomSprite("unknown_extraslot", (getScreenWidth()-104)-11, (getScreenHeight()-8)-24, 0x00, 0, 0x9f7e)
+	}
+	u8 miles_check = (global.region_code & 0x80) ? 0x39ab6a : 0x39aa18
+	if (levelselect.selection < 0x05 && EM_2PSTAGES)
+		Renderer.drawCustomSprite(stringformat("ls_icon_%d_2p", levelselect.selection), getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+	else if (levelselect.selection < 0x10 && levelselect.selection > 0x07 && LS_ZONEORDER && !EM_2PSTAGES)
+		Renderer.drawCustomSprite(stringformat("ls_icon_%d_a", levelselect.selection/2), getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+	else if (levelselect.selection < 0x20 && levelselect.selection != 0x1b && levelselect.selection != 0x14 && !EM_2PSTAGES)
+		Renderer.drawCustomSprite(stringformat("ls_icon_%d", levelselect.selection/2), getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+	else
+	{
+		if (levelselect.selection == 0x05 && EM_2PSTAGES)
+			Renderer.drawCustomSprite("ls_icon_10", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+		if (levelselect.selection == 0x14)
+			Renderer.drawCustomSprite("ls_icon_9", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+		else if (levelselect.selection == 0x1b)
+			Renderer.drawCustomSprite("ls_icon_12", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+		else if (levelselect.selection == 0xff)
+			Renderer.drawCustomSprite("ls_icon_14", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+	}
+	// sound test	
+	if (levelselect.selection >= 0x00)
+		if (levelselect.characters == 0 || levelselect.characters == 1)
+			if (Mods.isModActive("Mario (SHC 2022)"))
+				Renderer.drawCustomSprite("ls_mario", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+			else
+				Renderer.drawSprite("ls_sonic", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+		else if (levelselect.characters == 2)
+			if miles_check == 0x39ab6a
+				Renderer.drawCustomSprite("ls_tails", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+			else
+				Renderer.drawCustomSprite("ls_miles", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+		else if (levelselect.characters == 3 || levelselect.characters == 4)
+			Renderer.drawCustomSprite("ls_kte", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+		else
+			Renderer.drawCustomSprite("ls_unknown", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+			
+	Renderer.drawCustomSprite("ls_emblem", getScreenWidth()-88, getScreenHeight()-56, 0x00, 0, 0x9f7e)
+}
+
+function void LevelSelect.init()
+{
+	// Disable active display for now
+	VDP.Config.setActiveDisplay(false)
+
+	fn0011ca()
+
+	// Configure VDP registers
+	VDP.Config.enableHInt(false)
+	VDP.Config.setNameTableBasePlaneA(0xc000)
+	VDP.Config.setNameTableBasePlaneB(0xe000)
+	VDP.Config.setBackdropColor(0)
+	VDP.Config.setRenderingModeConfiguration(false)
+	VDP.Config.setPlayfieldSizeInPixels(512, 256)
+	VDP.Config.setVerticalScrolling(false, 0)	// Horizontal scrolling mode without scroll mask
+
+	zeroMemory(0xffffac00, 0x400)
+	zeroMemory(0xffffb000, 0x2000)
+
+	u16[0xfffffb00] = 0
+	u32[0xfffffbfc] = 0xfffffb00
+	//Nemesis.loadDataToVRAM(0x0ca5e0, LevelSelect.TextTiles.targetInVRAM)		// Main Level Select Font
+
+	Enigma.decompress(0x0cab54, 0xffff0000, (sprite_attribute.PALETTE.LINE3 | (LevelSelect.Background.targetInVRAM >> 0)))
+	copyRectToVRAM(0xffff0000, 0xe000, 0x28, 0x1c)
+
+	zeroMemory(0xffff0000, 0x460 * 2)
+
+	A3 = 0xffff0000
+	A1 = 0x0080e6
+	A5 = 0x0080c4
+	D0 = 0
+	/*
+	D1.u16 = 0x10
+
+	while (D1.s16 >= 0)
+	{
+		D3.u16 = u16[(A5+=2)-2]
+		A2 = A3 + D3.s16
+		D2 = u8[(A1+=1)-1]
+		D3.u16 = D2.u16
+
+		while (D2.s16 >= 0)
+		{
+			u16[(A2+=2)-2] = u8[(A1+=1)-1]
+			--D2.s16
+		}
+
+		D2.u16 = 0x0d - D3.u16
+		while (D2.s16 >= 0)
+		{
+			u16[(A2+=2)-2] = 0
+			--D2.s16
+		}
+
+		u16[A2] = 0x11
+		A2 = A2 + 0x50
+		u16[A2] = 0x12
+		--D1.s16
+	}
+
+	u16[A2] = 0
+	A2 = A2 - 0x50
+	u16[A2] = 0x1a
+	u16[0xffff018a] = 0x13
+	u16[0xffff01da] = 0x14
+
+	copyRectToVRAM(0xffff0000, 0xc000, 0x28, 0x1c)
+	Renderer.drawCustomSprite("ls_text", 0, 0, 0x00, 0, 0x1000)
+	*/
+
+	D3 = 0
+	fn007f62()
+
+	ScareAwayTheHaters()
+
+	DrawSpritesToLevelSelect()
+
+	global.characters = levelselect.characters
+	u16[0xffffff02] = 0
+	global.level_started = 0
+	u16[0xfffff7f0] = 0
+
+	A2 = 0x0081b0
+	LevelTilesAnim.Default()
+
+	Level.loadNonfadingPaletteData(0x04)
+
+	copyMemory(0xfffffcc0, 0xfffffc40, 0x20)
+	zeroMemory(0xfffffc40, 0x20)
+
+	global.demo_countdown = 1799	// 30 seconds (minus one frame)
+	competition_mode.active = 0
+	camera.position.x = 0
+	camera.position.y = 0
+	global.active_saveslot = 0
+	level.giantrings_clear = 0
+	checkpoint.number = 0
+	global.stage_type = 0
+	bluespheres.minigame_mode = 0
+
+	u16[0xffffffe4] = 0
+	u16[0xffffffe6] = 0
+	global.frame_state = 0x16
+
+#if STANDALONE
+	// Corrections for widescreen
+	for (u16 base = 0xe000; base < 0xee00; base += 0x80)
+	{
+		for (u16 x = 0; x < 0x30; x += 2)
+		{
+			setVRAM(base + x + 0x50, getVRAM(base + x + 0x08))
+		}
+	}
+
+	// Write sound test digits (they are missing otherwise)
+	VDP.setupVRAMWrite(0xcb46)
+
+#endif
+
+	waitForNextFrame()
+
+	// Re-enable active display again
+	VDP.Config.setActiveDisplay(true)
+}
+function bool LevelSelect.innerUpdate()
+{
+	Renderer.resetSprites()
+	DrawSpritesToLevelSelect()
+	
+#if STANDALONE
+	// Corrections for widescreen
+	//  -> Actually no need to do this each frame, but I like to load level select save states and want it to be corrected after initialization
+	for (u16 base = 0xe000; base < 0xee00; base += 0x80)
+	{
+		for (u16 x = 0; x < 0x30; x += 2)
+		{
+			setVRAM(base + x + 0x50, getVRAM(base + x + 0x08))
+		}
+	}
+
+	// Foreground scroll offset
+#endif
+
+#if !STANDALONE
+	set_status_register(0x2700)
+#endif
+	D3 = 0
+	fn007f62()
+	fn007e64()
+	D3.u16 = 0x6000
+	fn007f62()
+#if !STANDALONE
+	set_status_register(0x2300)
+#endif
+
+	A2 = 0x0081b0
+	LevelTilesAnim.Default()		
+	if ((control.pad1.pressed | control.pad2.pressed) & CONTROL_START)
+	{
+		if (global.lock_on_state != 0)
+		{
+			if (levelselect.characters < CHARS_KNUCKLES_ALONE)
+				levelselect.characters = CHARS_SONIC_ALONE
+		}
+
+		global.characters = levelselect.characters
+	#if STANDALONE
+		// Handle Knuckles & Tails
+		useKnucklesAndTails = (global.characters == CHARS_KNUCKLES_AND_TAILS)
+		global.characters = min(global.characters, 3)
+	#endif
+
+		D0.u16 = u16[0x007d22 + levelselect.selection * 2]
+		if (D0.u16 & 0x8000)
+		{
+			global.game_mode = 0
+			return true
+		}
+
+		if (D0.u16 != 0x5555)
+		{
+		if (ScaredHaters != 1)
+		{
+			// Start game
+			Standalone.playAudio(0xaf)
+			lives_counter = 3
+			global.sk_bluespheres = 0
+		#if STANDALONE
+			player.next_life_score = 5000
+			unused.player2.next_life_score = 5000
+		#endif
+
+			if (D0.u16 == 0x4000 || D0.u16 == 0x4001)
+			{
+				// Start Blue Spheres
+				if (D0.u16 == 0x4000)
+				{
+					// Blue Spheres from Sonic 3
+					if (global.lock_on_state != 0)
+					{
+						global.sk_bluespheres = 1
+					}
+				}
+				else if (D0.u16 == 0x4001)
+				{
+					// Blue Spheres from Sonic & Knuckles
+					global.sk_bluespheres = 1
+				}
+
+				// Start Blue Spheres
+				global.game_mode = 0x34
+
+			#if STANDALONE
+				if (control.pad1.state & CONTROL_A)
+				{
+					// This is needed to make the special stage selection (incl. 8th stage) work
+					//  -> You need to start a special stage form level select by pressing A + Start
+					//  -> Current sound test selection tells the game which stage to start
+					//  -> See "BlueSpheres.getNextOpenStageIndex()" function for more
+					debug_mode.unlocked = 1
+				}
+
+			#else
+				// Tried to start a Sonic 3 stage in S&K ?
+				if (global.lock_on_state != 0)
+				{
+					if (global.zone_act != 0x0400 && global.zone_act < 0x0700)
+					{
+						global.zone_act = 0x0700
+						global.zone_act.apparent = 0x0700
+						checkpoint.zone_act = 0x0700
+						checkpoint.zone_act.apparent = 0x0700
+					}
+				}
+			#endif
+				return false
+			}
+			else
+			{
+				// Normal levels
+				if (fn007d6c())
+				{
+					return false
+				}
+			}
+		}
+	}
+	}
+#if STANDALONE
+	else if (control.pad1.pressed & CONTROL_B || Input.buttonPressed(BUTTON_BACK))
+	{
+		playSound(0xad)
+
+		u32 backupA0 = A0
+		FadeOutScreenBlocking()
+		A0 = backupA0
+
+		// Do not fade out music in this case, Data Select music is meant to kept playing
+		Game.returnToMainMenu()
+		yieldExecution()
+		return false
+	}
+	if (Input.buttonPressed(BUTTON_Y))
+	{
+		if (levelselect.selection != 0x20)
+		{
+			levelselect.selection = 0
+			if (!EM_2PSTAGES)
+			{
+				EM_2PSTAGES = 1
+				Audio.playAudio(0x52)
+			}
+			else
+			{
+				EM_2PSTAGES = 0
+				Audio.playAudio(0x7B)
+			}
+		}
+	}
+#endif
+	return true
+}
+function void fn007f62()
+{
+	A4 = 0xffff0000
+	A5 = 0x008040
+	A3 = A5 + levelselect.selection * 4
+	D0 = u32(u8[A3]) * 0x50 + u8[A3 + 1]
+	A1 = A4 + D0.s16
+
+	D1 = u32(u8[A3]) * 0x80 + u8[A3 + 1]
+	D1.u16 += 0xc000
+	//VDP.setupVRAMWrite(D1.u16)
+
+	for (u8 i = 0; i < 0x0f; ++i)
+	{
+		D0.u16 = u16[A1] + D3.u16
+		//VDP.writeData16(D0.u16)
+		A1 += 2
+	}
+
+	A3 += 2
+	D0 = u8[A3]
+	if (D0.u8 != 0)
+	{
+		D0 = u32(D0.u16) * 0x50 + u8[A3 + 1]
+		A1 = A4 + D0.u16
+
+		D1 = 0xc000 + u8[A3] * 0x80 + u8[A3 + 1]
+		//VDP.setupVRAMWrite(D1.u16)
+
+		D0.u16 = u16[A1] + D3.u16
+		//VDP.writeData16(D0.u16)
+		A1 += 2
+	}
+}
+//# translated(0x007d6c) end(0x007e62)
+function bool fn007d6c()
+{
+	if (true) // i'm doing this for the sake of keeping it looking decent to look at
+	{
+		if (levelselect.selection == 0x1c) // Gachapon
+		{
+			D0.u16 = 0x1300
+			Nemesis.loadDataToVRAM(0x1927fe, 0x9280)
+		}
+		else if (levelselect.selection == 0x1d) // Rotating
+			D0.u16 = 0x1500
+		else if (levelselect.selection == 0xff) // Spheres (please don't ask why i chose 0xff)
+			D0.u16 = 0x1400
+	}
+	if (EM_2PSTAGES)
+	{
+		if (levelselect.selection == 0x00) // ALZ
+			D0.u16 = 0x0e00
+		else if (levelselect.selection == 0x01) // BPZ
+			D0.u16 = 0x0f00
+		else if (levelselect.selection == 0x02) // CGZ
+			D0.u16 = 0x1000
+		else if (levelselect.selection == 0x03) // DPZ
+			D0.u16 = 0x1100
+		else if (levelselect.selection == 0x04) // EMZ
+			D0.u16 = 0x1200
+		else if (levelselect.selection == 0x05) // Altar
+		{
+			D0.u16 = 0x1701
+			fn0618ac()
+		}
+		else if (levelselect.selection == 0x06) // Ending
+			D0.u16 = 0x0d01
+	}
+	else if (LS_ZONEORDER)
+	{
+		if (levelselect.selection == 0x08) // ICZ 1
+			D0.u16 = 0x0400 // send to FBZ 1
+		else if (levelselect.selection == 0x09) // ICZ 2
+			D0.u16 = 0x0401 // send to FBZ 2
+		else if (levelselect.selection == 0x0a) // LBZ 1
+			D0.u16 = 0x0500 // send to ICZ 1
+		else if (levelselect.selection == 0x0b) // LBZ 2
+			D0.u16 = 0x0501 // send to ICZ 2
+		else if (levelselect.selection == 0x0c) // MHZ 1
+			D0.u16 = 0x0600 // send to LBZ 1
+		else if (levelselect.selection == 0x0d) // MHZ 2
+			D0.u16 = 0x0601 // send to LBZ 2
+		else if (levelselect.selection == 0x0e) // FBZ 1
+			D0.u16 = 0x0700 // send to MHZ 1
+		else if (levelselect.selection == 0x0f) // FBZ 2
+			D0.u16 = 0x0701 // send to MHZ 2
+	}
+	return base.fn007d6c()
+}
+function void fn007e64()
+{
+	bool skipPart = false
+	if ((control.pad1.pressed & (CONTROL_UP | CONTROL_DOWN)) == 0)
+	{
+		--u16[0xffffff80]
+		skipPart = (s16[0xffffff80] >= 0)
+	}
+
+	if (!skipPart)
+	{
+		u16[0xffffff80] = 11
+		if (control.pad1.state & CONTROL_UP)
+		{
+			if (levelselect.selection == 0x20 && EM_2PSTAGES)
+				levelselect.selection = 0x07
+			if (levelselect.selection == 0x1c)
+				levelselect.selection = 0x1a
+			else if (levelselect.selection == 0x1a)
+				levelselect.selection = 0x1b
+			else if (levelselect.selection == 0x1b)
+				levelselect.selection = 0x19
+			else if (levelselect.selection == 0xff)
+				levelselect.selection = 0x1d
+			else if (levelselect.selection == 0x1e)
+				levelselect.selection = 0xff
+			else
+			{
+				--levelselect.selection
+				if (s16(levelselect.selection) < 0)
+					levelselect.selection = 0x20
+			}
+		}
+		if (control.pad1.state & CONTROL_DOWN)
+		{
+			if (levelselect.selection == 0x06 && EM_2PSTAGES)
+				levelselect.selection = 0x1f
+			if (levelselect.selection == 0x1a)
+				levelselect.selection = 0x1c
+			else if (levelselect.selection == 0x1b)
+				levelselect.selection = 0x1a
+			else if (levelselect.selection == 0x19)
+				levelselect.selection = 0x1b
+			else if (levelselect.selection == 0x1d)
+				levelselect.selection = 0xff
+			else if (levelselect.selection == 0xff)
+				levelselect.selection = 0x1e
+			else
+			{
+				++levelselect.selection
+				if (levelselect.selection > 0x20)
+					levelselect.selection = 0
+			}
+		}
+		return
+	}
+
+	if (levelselect.selection == 0x20)
+	{
+		// Sound test
+		if (control.pad1.pressed & CONTROL_LEFT)
+		{
+			if (levelselect.soundtest > 0)
+				--levelselect.soundtest
+		}
+		if (control.pad1.pressed & CONTROL_RIGHT)
+		{
+			levelselect.soundtest = (levelselect.soundtest + 1) & 0xff
+		}
+		if (control.pad1.pressed & CONTROL_A)
+		{
+			if (ST_STYLE == 0)
+				levelselect.soundtest = (levelselect.soundtest + 0x10) & 0xff
+			else
+				levelselect.soundtest = (levelselect.soundtest + 0x0a) & 0xff
+		}
+		if (Input.buttonPressed(BUTTON_Y))
+		{
+			if (ST_STYLE == 0)
+				levelselect.soundtest = (levelselect.soundtest - 0x10) & 0xff
+			else
+				levelselect.soundtest = (levelselect.soundtest - 0x0a) & 0xff
+		}
+		if (control.pad1.pressed & CONTROL_C)
+		{
+			if (ScaredHaters == 0)
+			{
+				if (LS_MUSIC != 0 && (levelselect.soundtest < 0x33 || levelselect.soundtest >= 0xf0)) // 0xf0 fix provided by Lean
+					playMusic(MUSIC_CTRL_STOP)
+				if (LS_MUSIC != 0 && levelselect.soundtest == 0xfe)
+					playLevelSelectMusic()
+				else
+					playMusic(levelselect.soundtest)
+			}
+			EM.checkCheats()
+		}
+		if (control.pad1.pressed & CONTROL_B)
+		{
+			playMusic(0xe3)
+		}
+	}
+	else
+	{
+		if (control.pad1.pressed & (CONTROL_LEFT | CONTROL_RIGHT) && !EM_2PSTAGES)
+		{
+			if (levelselect.selection == 0x1b)
+				levelselect.selection = 0x07
+			else if (levelselect.selection == 0x08)
+				levelselect.selection = 0x1a
+			else if (levelselect.selection == 0x1a)
+				levelselect.selection = 0x08
+			else if (levelselect.selection == 0x09)
+				levelselect.selection = 0x1a
+			else if (levelselect.selection == 0xff)
+				levelselect.selection = 0x0b
+			else
+				levelselect.selection = u8[0x007f22 + levelselect.selection]
+		}
+
+		if (control.pad1.pressed & CONTROL_C)
+		{
+			u8 maxCharacterSelection = 3
+		#if STANDALONE
+			// Knuckles & Tails
+			if (Game.isSecretUnlocked(SECRET_KNUX_AND_TAILS))
+			{
+				maxCharacterSelection = 4
+			}
+		#endif
+
+			++levelselect.characters
+			if (levelselect.characters > maxCharacterSelection)
+				levelselect.characters = 0
+		}
+	}
+}
+
+function void EM.checkCheats()
+{
+	// Chaos/Super Emerald checking
+	if (EM_CHAOSEMERALDS == 0 && levelselect.soundtest == 0x04)
+		++EM_CHAOSEMERALDS
+
+	if (EM_CHAOSEMERALDS == 1 && levelselect.soundtest == 0x01)
+		++EM_CHAOSEMERALDS
+
+	if (EM_CHAOSEMERALDS == 2 && levelselect.soundtest == 0x02)
+		++EM_CHAOSEMERALDS
+
+	else if (EM_CHAOSEMERALDS == 3 && levelselect.soundtest == 0x06)
+	{
+		++EM_CHAOSEMERALDS
+		global.chaos_emeralds = 7 // Give the Chaos Emeralds
+		global.traded_emeralds = 0 // I'm not exactly sure what the point of Traded Emeralds are when you have Super Emeralds, but I'd rather not risk it.
+		Audio.playAudio(0x2B) // Chaos Emerald Sound
+		System.writeDisplayLine("7 CHAOS EMERALDS IN HAND") // Make-believes reborn
+		for (u8 i = 1; i <= 7; i++)
+		{
+			u8[0xffffffb2 + (i - 1)] = 0x01
+		}
+	}
+	else if (EM_CHAOSEMERALDS == 4 && levelselect.soundtest == 0x04)
+		++EM_CHAOSEMERALDS
+	else if (EM_CHAOSEMERALDS == 5 && levelselect.soundtest == 0x01)
+		++EM_CHAOSEMERALDS
+	else if (EM_CHAOSEMERALDS == 6 && levelselect.soundtest == 0x02)
+		++EM_CHAOSEMERALDS
+	else if (EM_CHAOSEMERALDS == 7 && levelselect.soundtest == 0x06)
+	{
+		++EM_CHAOSEMERALDS
+		Audio.playAudio(0x2B) // Chaos Emerald Sound
+		Audio.playAudio(0xAC) // Continue Sound
+		global.super_emeralds = 7 // Give the Super Emeralds
+		System.writeDisplayLine("7 SUPER EMERALDS IN HAND") // Legends blurred and torn
+		for (u8 i = 8; i <= 15; i++)
+		{
+			u8[0xffffffb2 + (i - 1)] = 0x01
+		}
+	}
+}

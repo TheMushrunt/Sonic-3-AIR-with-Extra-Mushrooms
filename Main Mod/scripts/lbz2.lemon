@@ -1,0 +1,147 @@
+global u8 LBZ2SKY // Early Sky Fade
+global u8 SKIPLBZ2 // Skippable Cutscene
+global u8 LBZ2SFS // Sky Fade Speed
+global u8 SODEFALL // Sonic Origins sounds for End Cutscene
+global u8 EBA // Easier Big Arms
+
+//# address-hook(0x0744a4) end(0x0744e2)
+function void fn0744a4()
+{
+	if (EBA == 1) // EBA makes the velocity lower to make it easier to hit when it's doing the ground attack
+		objA0.velocity.y += 0x35
+	else // Default Big Arms velocity
+		objA0.velocity.y += 0x40
+	UpdateMovementStraightSimple()
+	if (objA0.velocity.y >= 0)
+	{
+    //BOTTOM OF SCREEN MOVING
+		D0.u16 = camera.foreground.y.u16 + 0xd0
+		if (D0.u16 <= objA0.position.y.u16)
+		{
+			objA0.base_state = 0x16
+			objA0.position.y.u16 = D0.u16 - 5
+			objA0.velocity.y = 0
+			objA0.countdown_value = 0x1f
+			objA0.countdown_callback = 0x0744ea
+		}
+	}
+}
+
+//# address-hook(0x072b96) end(0x072bb6)
+function void fn072b96()
+{
+	if (LBZ2SFS || LBZ2SKY == 1) // If the user wants the sky to fade during the act clear stuff
+	{
+		if (LBZ2SKY && LBZ2SFS == 1) // Slow fade
+			LBZFading(0)
+		else if (LBZ2SKY && LBZ2SFS == 2) // Fast fade
+			LBZFading(1)
+	}
+	if (!level.results_done)
+	return
+	if (SKIPLBZ2 == 1)
+		Game.startSkippableCutscene()
+	base.fn072b96()
+}
+
+#if STANDALONE
+//# address-hook(0x072e30)
+function void fn072e30()
+{
+	if (LBZ2SFS || !LBZ2SKY) // If the user wants the sky to fade in the post-boss cutscene
+	{
+		if (!LBZ2SKY && LBZ2SFS == 1) // Slow fade
+			LBZFading(0)
+		else if (!LBZ2SKY && LBZ2SFS == 2) // Fast fade
+			LBZFading(1)
+	}
+	else // This hopefully prevents stuff from breaking, if not then I've messed up and misunderstood code I didn't write.
+	{
+		if (u16[A0 + 0x48] == 48)
+			Object.TriggerUnloading()
+		++u16[A0 + 0x48]
+	}
+}
+#endif
+
+function void fleeingegg() // support for Minor Sonic 3 Tweaks's Fleeing Eggman
+{
+	if (SODEFALL == 1)
+		playSound(0x60)
+	base.fleeingegg()
+}
+
+function void LBZFading(u8 scenario)
+{
+	if (scenario == 0) // Slow
+	{
+		if (u16[A0 + 0x48] == 16)
+		{
+			u16[0xfffffc00 + 0x3b * 2] = 0x0a88
+			u16[0xfffffc00 + 0x3c * 2] = 0x0a46
+			u16[0xfffffc00 + 0x3d * 2] = 0x0824
+			u16[0xfffffc00 + 0x3e * 2] = 0x0622
+		}
+		else if (u16[A0 + 0x48] == 32)
+		{
+			u16[0xfffffc00 + 0x3b * 2] = 0x0cac
+			u16[0xfffffc00 + 0x3c * 2] = 0x0c68
+			u16[0xfffffc00 + 0x3d * 2] = 0x0c46
+			u16[0xfffffc00 + 0x3e * 2] = 0x0a44
+		}
+		else if (u16[A0 + 0x48] == 48)
+		{
+			u16[0xfffffc00 + 0x3b * 2] = 0x0ece
+			u16[0xfffffc00 + 0x3c * 2] = 0x0e8a
+			u16[0xfffffc00 + 0x3d * 2] = 0x0e48
+			u16[0xfffffc00 + 0x3e * 2] = 0x0e46
+			if (!LBZ2SKY)
+				Object.TriggerUnloading()
+		}
+		++u16[A0 + 0x48]
+	}
+	else // Fast
+	{
+		if (u16[A0 + 0x48] == 0)
+		{
+			u16[0xfffffc00 + 0x3b * 2] = 0x0a88
+			u16[0xfffffc00 + 0x3c * 2] = 0x0a46
+			u16[0xfffffc00 + 0x3d * 2] = 0x0824
+			u16[0xfffffc00 + 0x3e * 2] = 0x0622
+		}
+		else if (u16[A0 + 0x48] == 16)
+		{
+			u16[0xfffffc00 + 0x3b * 2] = 0x0cac
+			u16[0xfffffc00 + 0x3c * 2] = 0x0c68
+			u16[0xfffffc00 + 0x3d * 2] = 0x0c46
+			u16[0xfffffc00 + 0x3e * 2] = 0x0a44
+		}
+		else if (u16[A0 + 0x48] == 32)
+		{
+			u16[0xfffffc00 + 0x3b * 2] = 0x0ece
+			u16[0xfffffc00 + 0x3c * 2] = 0x0e8a
+			u16[0xfffffc00 + 0x3d * 2] = 0x0e48
+			u16[0xfffffc00 + 0x3e * 2] = 0x0e46
+		}
+		++u16[A0 + 0x48]
+	}
+}
+
+// it'd be really funny to include support for LBZ Fleeing Eggman Recreation but i honestly just do not think that mod is very GOOD.
+// sorry to anyone who uses it
+
+function void DoLBZTransition() // support for S3C LBZ Transition
+{
+	if (SODEFALL == 1)
+		playMusic(MUSIC_CTRL_FADEOUT)
+	base.DoLBZTransition()
+}
+function void fn0057a2() // support for S3C LBZ transition, part 2
+{
+	if (SODEFALL == 1)
+	{
+		if (global.zone == 0x06)
+			Audio.playAudio("em_deathegg_fall")
+	}
+	base.fn0057a2()
+}

@@ -1,0 +1,11 @@
+{
+	"ls_priorityissue": { "File": "ls_priorityissue.png"},
+	"ls_s3c": { "File": "ls_s3c.png"},
+	"ls_s3a": { "File": "ls_s3a.png"},
+	"ls_em": { "File": "ls_em.png"},
+	"origins_ls_priorityissue": { "File": "origins_ls_priorityissue.png", "Center": "12,8"},
+	"origins_ls_s3c": { "File": "origins_ls_s3c.png", "Center": "12,8"},
+	"origins_ls_s3a": { "File": "origins_ls_s3a.png", "Center": "12,8"},
+	"origins_ls_em": { "File": "origins_ls_em.png", "Center": "12,8"},
+	"ls_s&k": { "File": "ls_s&k.png"}
+}

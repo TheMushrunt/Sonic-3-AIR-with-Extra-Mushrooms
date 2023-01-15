@@ -1,0 +1,63 @@
+//# address-hook(0x00db44) end(0x00dbb2)
+function void RenderHUD()
+{
+	if (NO_HUD == 0)
+	{
+		base.RenderHUD()
+		if (!debug_mode.state)
+		{
+			if (INF_LIVES_DISPLAY == 1 && NO_HUD == 0 || (Mods.isModActive("Achievements Plus") && !Game.getSetting(SETTING_INFINITE_LIVES)) && SETTING_ACHIEVEPLUS_COINS_HUD)
+			{
+				s16 baseX = global.level_started
+				if (baseX < 0)
+				{
+					baseX += 8
+					if !(global.zone_act == 0x0a01) // Fix for Origins SSZ Cutscene
+						global.level_started = baseX
+				}
+				baseX += 0x0f
+				s16 baseY = 0x08
+				u16 renderQueue = 0xe000
+				if (SETTING_ACHIEVEPLUS_COINS_HUD)
+				{
+					if (Game.getSetting(SETTING_INFINITE_LIVES) || (Mods.isModActive("Achievements Plus") && !Game.getSetting(SETTING_INFINITE_LIVES)))
+					{
+						if (!isExtraSlot()) // Disables the HUD display when Infinite Lives are on with the HUD display and you're using an Extra Slot. ESCU still isn't out so I am big stupid and don't know how to add full support for Extra Slots still.
+						{
+							bool useMobilePosition = HUD.useMobileLivesDisplay()
+							u16 px = useMobilePosition ? baseX : (getScreenWidth() - baseX - 0x30)
+							u16	py = useMobilePosition ? 200 : baseY
+
+							HUD.drawSprite(getCharacterLivesIcon(getMainCharacter()), px, py, renderQueue)
+							++renderQueue
+							if (Mods.isModActive("Sawnic")) // Compatibility.
+								if (IsP1Sawnic() && (u8[0xffffb02b] & char.bonus.ELEMENTAL_SHIELDS))
+									DrawItems()
+
+							if (lives_counter >= 10)
+							HUD.drawSmallDigit(u16((lives_counter / 10) % 10), px + 0x20, py + 8, renderQueue)
+							HUD.drawSmallDigit(u16(lives_counter % 10), px + 0x28, py + 8, renderQueue)
+						}
+					}
+					else base.RenderHUD()
+				}
+				else base.RenderHUD()
+			}
+		}
+	}
+}
+
+function bool isExtraSlot()
+{
+	return base.isExtraSlot()
+}
+
+function bool IsP1Sawnic()
+{
+	return base.IsP1Sawnic()
+}
+
+function void DrawItems()
+{
+	base.DrawItems()
+}

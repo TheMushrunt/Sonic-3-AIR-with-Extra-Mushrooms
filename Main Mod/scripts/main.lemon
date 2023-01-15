@@ -1,0 +1,1676 @@
+global u8 TS_BRANDING
+global u8 TS_KNUCKLES
+global u8 OPTIONS_GFX
+global u8 startPress
+global u8 drawTrademark
+global u8 pbutt_timer
+global u8 TS_STARTBUTTON
+global u8 trademark_alpha
+global u8 TS_SOUNDS
+global u8 NO_HUD
+global u8 INF_LIVES_DISPLAY
+global u64 DAGE_version // support for D.A. Garden edition
+global u8 EM_MODDED_GFX
+global s16 modded_sonic_frame
+global u8 TS_COPYRIGHT
+global u8 EM_OGB_DISPLAY
+global u8 EM_TM_R_DISPLAY
+global u8 NO_SECRETS_ON_3AIRMENU
+global u8 TS_ANIMATED_BG
+
+include levelselect
+include misc
+include lbz2
+include creditsmusic
+include aizspeedup
+include pausescreen
+
+constant u16 TitleScreen.Intro_Background.targetInVRAM	= 0x0000
+constant u16 TitleScreen.IntroBuffer.targetInVRAM		= 0x6000
+constant u16 TitleScreen.Characters.targetInVRAM		= 0x8000
+constant u16 TitleScreen.AndKnucklesTitle.targetInVRAM	= 0x9800
+constant u16 TitleScreen.Banner.targetInVRAM			= 0xa000
+constant u16 TitleScreen.Menu.targetInVRAM				= 0xd000
+
+// Extra Mushrooms Rich Presence, for fun
+// it only displays when using the Title Screen options, for fairness.
+
+function void extraMushroomsTS.discordRPC() // Title Screen
+{
+	Game.setDiscordDetails("with Extra Mushrooms")
+	Game.setDiscordState("Title Screen")
+	Game.setDiscordLargeImage("sonic3air")
+}
+function void extraMushroomsLS.discordRPC() // Level Select
+{
+	Game.setDiscordDetails("with Extra Mushrooms")
+	Game.setDiscordState("Level Select")
+	Game.setDiscordLargeImage("menus")
+}
+function void extraMushroomsDS.discordRPC() // Data Select
+{
+	Game.setDiscordDetails("with Extra Mushrooms")
+	Game.setDiscordState("Data Select")
+	Game.setDiscordLargeImage("menus")
+}
+function void extraMushroomsCM.discordRPC() // Competition
+{
+	Game.setDiscordDetails("with Extra Mushrooms")
+	Game.setDiscordState("Competition Mode")
+	Game.setDiscordLargeImage("gamemode_competition")
+}
+
+function void MainMenuBG.Run()
+{
+	global.game_mode = 0x0c
+	global.zone_act = 0x0d01
+	if (NO_SECRETS_ON_3AIRMENU != 1)
+		u8 bros_chancetime = 1 + (System.rand() % 250)
+	if (bros_chancetime >= 10 && bros_chancetime <= 20 && NO_SECRETS_ON_3AIRMENU != 2)
+		Audio.playAudio("wega_storm")
+	// Load the required level patterns for the outro
+	//  -> This is essentially the same as "fn007812", but without the call to "waitForNextFrame", and hard-coded 0x1cfb44 to simplify things
+	{
+		A4 = MainGame.getLevelDataPointer()
+		A1 = 0x1cfb44
+		D4.u16 = u16[A1]
+		Kosinski.addToDMAQueue(A1, 0x0000)
+		while (true)
+		{
+			global.frame_state = 0x0c
+			Kosinski.ProcessDecompressionQueue()
+
+			LoadRequiredSpritePatterns()
+			Kosinski.ProcessModules()
+			if (kosinski.waiting_modules == 0)
+				break
+		}
+	}
+	// Load level chunks and stuff
+	fn01c2b0()
+
+	// Load plane contents
+	camera.foreground.x.u16 = 0x0280
+	camera.foreground.y.u16 = 0
+	camera.background.x.u16 = 0
+	camera.background.y.u16 = 0x0800
+	fillPlane_DefaultUncropped(0xc000, camera.foreground.x.u16, camera.foreground.y.u16, 512, getScreenHeight())
+	fillPlane_DefaultUncropped(0xe000, camera.background.x.u16, camera.background.y.u16, 512, getScreenHeight())
+	camera.foreground.x.u16 += 22		// Move camera a few pixels to the right by default
+	u16 cameraForegroundX = camera.foreground.x.u16
+	u16 cameraBackgroundX = camera.background.x.u16
+
+	// Flip the right half of certain lines in plane B, to make the ocean waves look more seamless
+	constant array<u16> LINE_VRAM_ADDRESS =
+	{
+		0xec40, 0xecc0, 0xedc0
+	}
+	for (u16 lineIndex = 0; lineIndex < 3; ++lineIndex)
+	{
+		u16 addr = LINE_VRAM_ADDRESS[lineIndex]
+		for (u16 i = 0; i < 0x20; i += 2)
+		{
+			u16 pattern1 = getVRAM(addr + i)
+			u16 pattern2 = getVRAM(addr + 0x3e - i)
+			setVRAM(addr + i, pattern2 ^ 0x800)
+			setVRAM(addr + 0x3e - i, pattern1 ^ 0x800)
+		}
+	}
+
+	// Write vertical scroll offsets to VSRAM
+	VDP.setupVSRAMWrite(0)
+	VDP.writeData16(0x4c)								// Foreground vertical scroll offset (Angel Island)
+	VDP.writeData16(camera.background.y.u16 & 0xff)		// Background vertical scroll offset (sky & ocean)
+
+	// Setup palette
+	copyPaletteDataFromTable(0x03, 0xfc00)
+	copyMemory(0xfffffc20, 0x05b16e, 0x20)
+
+	u32[0xffffa800] = 0x00738000		// Basically a timer for the animation; don't start at 0, that doesn't look all that nice
+	while (true)
+	{
+		Renderer.resetSprites()
+		Renderer.drawCustomSprite("sonic3air_logo", MainMenuBG.logoPosition, 11, 0, 0, 0xa000)
+		if (!Mods.isModActive("Sonic 3: D.A. Garden Edition"))
+		{
+			u8 emYPos = 21
+			if (Mods.isModActive("Consistent Sonic 3"))
+				emYPos += 3
+			Renderer.drawCustomSprite("extramushrooms", MainMenuBG.logoPosition-84, emYPos, 0, 0, 0xfffe)
+		}
+		else
+		{
+			u8 emYPos = 38
+			Renderer.drawCustomSprite("title_screen_air", MainMenuBG.logoPosition, 11 + 20, 0, 0, 0xa000)
+			Renderer.drawCustomSprite("extramushrooms", MainMenuBG.logoPosition-84, emYPos, 0, 0, 0xfffe)
+			Letters.Main()
+			PrintVersionNumber()
+		}
+		if (bros_chancetime >= 10 && bros_chancetime <= 20 && NO_SECRETS_ON_3AIRMENU != 2) // face my wega storm
+			Renderer.drawCustomSprite("wega", MainMenuBG.logoPosition-64, 0, 0, 0, 0x1000)
+		if (bros_chancetime >= 50 && bros_chancetime <= 100 && NO_SECRETS_ON_3AIRMENU != 3)
+			Renderer.drawCustomSprite("bros", MainMenuBG.logoPosition, 69, 0, 0, 0x1001) // i'm brosing out rn
+		drawMenuBG(cameraForegroundX, cameraBackgroundX)
+
+		yieldExecution()
+		++level.framecounter
+	}
+}
+
+function void drawMenuBG(u16 cameraForegroundX, u16 cameraBackgroundX)
+{
+	// Ocean palette effect
+		if (!Mods.isModActive("Sonic 3: D.A. Garden Edition"))
+			fn05928c()
+		VDP.copyToCRAMbyDMA(0xfffffc00, 0x0000, 0x80)
+
+		// Scrolling for water and clouds
+		{
+			camera.foreground.x.u16 = cameraForegroundX + MainMenuBG.scrollOffset
+			u16[0xffffee98] = cameraBackgroundX + MainMenuBG.scrollOffset
+
+			fn05b0a8()
+			u32[0xffffa800] -= 0x0200	// Partially undo the scrolling progress, to make it slightly slower
+
+			A4 = 0x05b15a
+			A5 = 0xffffa804
+			A1 = 0xffffe000		// Location of linewise scroll offsets
+			D0.u16 = 0x0300		// camera.background.y.u16 - 0x0500
+			D1.u16 = getScreenHeight() - 1
+			D3.u16 = camera.foreground.x.u16
+			fn04f0de()
+
+			// Manual correction for two lines with broken scrolling (also in outro)
+			u16[0xffffe0ee] = u16[0xffffe0f2]
+			u16[0xffffe16e] = u16[0xffffe172]
+			VDP.copyToVRAMbyDMA(0xffffe000, 0xf000, getScreenHeight() * 4)
+		}
+		if (!Mods.isModActive("Sonic 3: D.A. Garden Edition"))
+		{
+			copyMemory(0xfffffc40, 0x0a97bc, 0x20)
+			copyMemory(0xfffffc60, 0x0a983c, 0x20)
+		}
+		else
+		{
+			// copied code from D.A. Garden's AIR menu scripts.
+			u32[0xfffffc40] = 0x00000EEE
+			u32[0xfffffc44] = 0x0AEE068E
+			u32[0xfffffc48] = 0x066A0646
+			u32[0xfffffc4c] = 0x06220424
+			
+			u32[0xfffffc50] = 0x0EE004C2
+			u32[0xfffffc54] = 0x04820460
+			u32[0xfffffc58] = 0x0408040C
+			u32[0xfffffc5c] = 0x004206A0
+			
+			u32[0xfffffc60] = 0x00000CEE
+			u32[0xfffffc64] = 0x0CCE0ACE
+			u32[0xfffffc68] = 0x08CE0AAE
+			u32[0xfffffc6c] = 0x0CAE0E8E
+			
+			u32[0xfffffc70] = 0x0EEE0CEE
+			u32[0xfffffc74] = 0x0C8C06C6	
+			u32[0xfffffc78] = u32[0xfffffc60]
+			u32[0xfffffc7c] = u32[0xfffffc64]
+		}
+}
+
+// for Compatibility with D.A. Garden...
+function void Letters.Main()
+{
+	base.Letters.Main()
+}
+function void PrintVersionNumber()
+{
+	base.PrintVersionNumber()
+}
+
+function void OriginsMenu()
+{
+	if (control.pad1.pressed & CONTROL_START || control.pad1.pressed & CONTROL_A || control.pad1.pressed & CONTROL_C)
+	{
+		if (startPress >= 1)
+			OptionInit()
+		else
+		{
+			++startPress
+			if (TS_SOUNDS >= 2) // Origins/Extra Sound check
+				Standalone.playAudio(0x9C) // Super Emerald obtained sound
+		}
+	}
+	else if (control.pad1.pressed & CONTROL_B || Input.buttonPressed(BUTTON_BACK))
+	{
+		if  (startPress > 0)
+		{
+			if (TS_SOUNDS == 3) // Extra Sound check
+				Standalone.playAudio(0x52) // Moving spike sound, a la S3 Complete
+			--startPress
+			titlescreen.selection = 0
+		}
+		else
+			if (TS_SOUNDS == 3) // Extra Sound check
+				Standalone.playAudio(0x7B) // Eggman moving on Data Select sound
+	}
+}
+
+function string getStartText()
+{
+	string prefix_key = "" // nothing, Origins, or S3C
+	string suffix_key = "" // push button, push start, or touch to start
+	// prefix checking
+	if (OPTIONS_GFX <= 2) // Origins
+		prefix_key = "so"
+	else // S3C
+		prefix_key = "s3c"
+	// suffix checking
+	if (TS_STARTBUTTON == 0) // press button
+		suffix_key = "press_button"
+	else if (TS_STARTBUTTON == 1) // press start
+		suffix_key = "press_start"
+	else if (TS_STARTBUTTON == 2) // touch to start
+		suffix_key = "touch_to_start"
+	else // press any button
+		suffix_key = "press_any_button"
+	// return phase
+	if (OPTIONS_GFX != 0) // if you aren't using S3 options graphics
+		return stringformat("%s_%s", prefix_key, suffix_key)
+	else
+		return stringformat("%s", suffix_key)
+}
+
+function string getOptionsText()
+{
+	string prefix_key = "" // nothing, S2 Origins, or S3C
+	string ex_key = "" // whether it's using ex options or not
+	string op_num = 0 // 1 or 2
+	// prefix checking
+	if (OPTIONS_GFX == 2) // S2 Origins
+		prefix_key = "s2"
+	else // S3C
+		prefix_key = "s3c"
+	// ex options checking
+	if (!Mods.isModActive("Sonic 3: D.A. Garden Edition"))
+	{
+		if (titlescreen.selection == 2 || titlescreen.selection == 3)
+			ex_key = "ex"
+	}
+	else
+	{
+		if (OPTIONS_GFX > 1)
+			ex_key = "_dagarden_"
+		else
+			ex_key = "dagarden_"
+	}
+	// option number checking
+	if (titlescreen.selection % 2 == 0) // 1 player/sound test
+		op_num = 1
+	else // competition/s3air menu
+		op_num = 2
+	// return phase
+	if (OPTIONS_GFX > 1) // if you aren't using S3 or S3 Origins
+		return stringformat("%s%soptions_%d", prefix_key, ex_key, op_num)
+	else
+		return stringformat("%soptions_%d", ex_key, op_num)
+}
+
+function void OptionInit()
+{
+	EntryFunctions.sharedInit()
+	debug_mode.enabled.u8 = Game.getSetting(SETTING_DEBUG_MODE)
+	if (TS_SOUNDS == 3) // Extra Sound check
+		if (Game.isSecretUnlocked(SECRET_DEBUGMODE) || ((!Game.isSecretUnlocked(SECRET_DEBUGMODE)) && titlescreen.selection != 2))
+			if (!Mods.isModActive("Sonic 3 Complete Sound Test"))
+				playSound(0x63) // Checkpoint sound
+	if (TS_SOUNDS >= 2 && Mods.isModActive("Sonic 3 Complete Sound Test"))
+		if (titlescreen.selection != 2 && TS_SOUNDS == 3)
+			playSound(0x63) // Checkpoint sound
+		else if (titlescreen.selection == 2 && TS_SOUNDS >= 2)
+			Standalone.playAudio(0x7B) // Eggman moving on Data Select sound
+	if (TS_SOUNDS >= 2) // Origins/Extra Sound check
+		if (!(Game.isSecretUnlocked(SECRET_DEBUGMODE)) && titlescreen.selection == 2)
+				Standalone.playAudio(0x7B) // Eggman moving on Data Select sound
+	D0 = titlescreen.selection
+	if (D0.u8 == 0 && TS_BRANDING != 1 || Mods.isModActive("Sonic 3: D.A. Garden Edition") && TS_BRANDING == 1)
+	{
+		// Data Select
+		FadeOutScreenBlocking()
+		extraMushroomsDS.discordRPC()
+		System.setupCallFrame("EntryFunctions.dataSelect")
+	}
+	else if (D0.u8 == 1 && TS_BRANDING != 1 && !Mods.isModActive("Sonic 3: D.A. Garden Edition"))
+	{
+		// Competition Mode
+		FadeOutScreenBlocking()
+		extraMushroomsCM.discordRPC()
+		System.setupCallFrame("EntryFunctions.competitionMode")			
+	}
+	else if (D0.u8 == 2 && TS_BRANDING != 1)
+	{
+		// Level Select
+		if (Mods.isModActive("Sonic 3 Complete Sound Test"))
+		{
+			FadeOutScreenBlocking()
+			Game.returnToMainMenu()
+			Audio.fadeOutChannel(0, 0x40)
+			yieldExecution()
+		}
+		else
+			if (Game.isSecretUnlocked(SECRET_DEBUGMODE))
+			{
+				extraMushroomsLS.discordRPC()
+				System.setupCallFrame("EntryFunctions.levelSelect")
+			}
+	}
+	else
+	{
+		FadeOutScreenBlocking()
+		Game.returnToMainMenu()
+		Audio.fadeOutChannel(0, 0x40)
+		yieldExecution()
+	}
+	return
+}
+
+//# address-hook(0x00db44) end(0x00dbb2)
+function void RenderHUD()
+{
+	if (NO_HUD == 0)
+		base.RenderHUD()
+	s16 baseX = global.level_started
+	if (baseX < 0x00)
+	{
+		baseX += 0x08
+		if !(global.zone_act == 0x0a01 || IsP1Sawnic()) // Fix for Origins SSZ Cutscene
+			global.level_started = baseX
+	}
+	baseX += 0x0f
+	s16 baseY = 0x08
+	u16 renderQueue = 0xe000
+	if (!debug_mode.state)
+	{
+		if (INF_LIVES_DISPLAY && NO_HUD == 0 && !Mods.isModActive("Achievements Plus HUD Compatibility") && !Mods.isModActive("Achievements Plus"))
+		{
+			if (Game.getSetting(SETTING_INFINITE_LIVES))
+			{
+				bool useMobilePosition = HUD.useMobileLivesDisplay()
+				u16 px = useMobilePosition ? (getScreenWidth() - baseX - 0x30) : baseX
+				u16	py = useMobilePosition ? baseY : 200
+				if (!isExtraSlot()) // Disables the HUD display when Infinite Lives are on with the HUD display and you're using an Extra Slot. ESCU still isn't out so I am big stupid and don't know how to add full support for Extra Slots still.
+				{
+					HUD.drawSprite(getCharacterLivesIcon(getMainCharacter()), px, py, renderQueue)
+					++renderQueue
+					if (Mods.isModActive("Sawnic")) // Compatibility.
+						if (IsP1Sawnic() && (u8[0xffffb02b] & char.bonus.ELEMENTAL_SHIELDS))
+							DrawItems()
+					if (INF_LIVES_DISPLAY == 1)
+					{
+						if (lives_counter >= 10)
+							HUD.drawSmallDigit(u16((lives_counter / 10) % 10), px + 0x20, py + 8, renderQueue)
+						HUD.drawSmallDigit(u16(lives_counter % 10), px + 0x28, py + 8, renderQueue)
+					}
+					else
+						HUD.drawSprite("inflives", px + 0x26, py + 8, renderQueue)
+				}
+			}
+		}
+	}
+}
+
+function bool isExtraSlot() // Function taken from Sawnic. This is (probably) the only way the code will work without Sawnic currently. (It might be code from ESCU since iCloudius was involved with programming assistance?)
+{
+	if (u8[0xffffE654] != 0 || System.getGlobalVariableValueByName("XtraChar") != 0)
+		return true
+	else
+		return false
+}
+
+function bool IsP1Sawnic() // Not a function taken from Sawnic. This is easier to account for since it only activates when Sawnic is on (usually.)
+{
+	if (Mods.isModActive("Sawnic"))
+		return base.IsP1Sawnic()
+	else
+		return false
+}
+
+function void DrawItems()
+{
+	base.DrawItems()
+}
+
+//# address-hook(0x003af0) end(0x003b12)
+function void Menu.FadeInAfterInit()
+{
+	u8 lastGameMode = global.game_mode
+
+	SetPaletteFadedOut(0x003f)
+	D4.u16 = 0x15
+	while (D4.s16 >= 0)
+	{
+		global.frame_state = 0x12
+		waitForNextFrame()
+
+		FadeInPalette()
+		LoadRequiredSpritePatterns()
+		--D4.s16
+
+	#if STANDALONE
+		// SEGA logo
+		if (global.game_mode == 0x04)
+		{
+			Renderer.resetSprites()
+			if (EM_OGB_DISPLAY == 1)
+				Renderer.drawCustomSprite("original_game_by", getScreenWidth() / 2 - 85, 60, 0x00, 0, 0x2000, 0, u16(u8[0xfffffc01] & 0x0e) * 96 / 0x0e)
+			if (EM_TM_R_DISPLAY == 1)
+				Renderer.drawCustomSprite("origins_copyright", getScreenWidth()/2 + 77, 83, 0x00, 0, 0x2000, 0, 255)
+			else if (EM_TM_R_DISPLAY == 2)
+				Renderer.drawCustomSprite("genesis_trademark", getScreenWidth()/2 + 80, 88, 0x00, 0, 0x2000, 0, 255)
+			if (EM_MODDED_GFX == 1)
+				Renderer.drawCustomSprite("sega_logo", getScreenExtend() - 40, 0, 0x00, 0, 0x2000, 0, 255)
+		}
+
+		else base.Menu.FadeInAfterInit()
+
+	#endif
+	}
+}
+
+//-------------------------------------------------------//
+// SEGA Logo Screen                                      //
+//-------------------------------------------------------//
+
+global s16 airHighlightAnimationTimer
+
+//# address-hook(0x00440c) end(0x0044fe)
+function void fn00440c()
+{
+	pbutt_timer = 0
+	trademark_alpha = 0
+	D7.u16 = D0.u16
+	A2 = 0x004500 + D0.s16 * 12
+	D3.u16 = 0x2c60
+	D0 = u32[A2]
+	A2 += 4
+
+	if (D7.u16 >= 7)
+	{
+		if (D7.u16 > 7)
+		{
+			Kosinski.decompress(D0 & 0x00ffffff, 0xffff0000)
+			D3.u16 = A1.u16 >> 1
+		}
+
+		u16 targetInVRAM = (titleintro.buffer == 0) ? TitleScreen.Intro_Background.targetInVRAM : TitleScreen.IntroBuffer.targetInVRAM
+		updateSpritePattern(0xffff0000, targetInVRAM, D3.u16)
+	}
+
+	A0 = u32[A2]
+	A2 += 4
+	copyMemory(0xfffffc80, A0, 0x40)
+
+	A1 = 0xffff8000
+	A0 = u32[A2]
+	A2 += 4
+	D0.u16 = (titleintro.buffer == 0 || D7.u16 < 7) ? (TitleScreen.Intro_Background.targetInVRAM >> 5) : (TitleScreen.IntroBuffer.targetInVRAM >> 5)
+	Enigma.Decompress()
+	if (D7.u16 < 7)
+	{
+	#if !STANDALONE
+		if ((global.region_code & 0x80) == 0)
+	#endif
+		{
+			u32[0xffff83ac] = 0
+		}
+	}
+
+#if !STANDALONE
+	set_status_register(0x2700)
+#endif
+	copyRectToVRAM(0xffff8000, (titleintro.buffer == 0) ? 0xc000 : 0xe000, 0x28, 0x1c)
+#if !STANDALONE
+	set_status_register(0x2300)
+#endif
+}
+
+
+
+//-------------------------------------------------------//
+// Title Screen Main Function                            //
+//-------------------------------------------------------//
+
+//# address-hook(0x003e32) end(0x004342)
+function void TitleScreen()
+{
+	extraMushroomsTS.discordRPC()
+	playMusic(MUSIC_CTRL_FADEOUT)
+	kosinski.queue_size = 0
+	zeroMemory(0xffffff10, 0x6c)
+#if GAMEAPP
+	// Setup region code according to settings
+	global.region_code = Game.getSetting(SETTING_REGION_CODE)
+#endif
+	startPress = 0
+	drawTrademark = 0
+	ClearPatternLoadingQueue()
+	global.zone_act = 0
+	FadeOutScreenBlocking()
+
+#if STANDALONE
+	u32 ptr = 0x003e32
+	zeroMemory(ptr, 8)
+#else
+	set_status_register(0x2700)
+#endif
+
+	VDP.Config.enableHInt(false)
+	VDP.Config.setNameTableBasePlaneA(0xc000)
+	VDP.Config.setNameTableBasePlaneB(0xe000)
+	VDP.Config.setPlayfieldSizeInPixels(512, 256)
+	VDP.Config.setupWindowPlane(false, 0)			// Disable window plane
+	VDP.Config.setVerticalScrolling(false, 0xff)	// Good old horizontal scrolling mode
+	VDP.Config.setBackdropColor(0)
+	VDP.Config.setRenderingModeConfiguration(false)
+
+	water.fullscreen = 0
+	level.water_present = 0
+
+	fn0011ca()
+
+	zeroMemory(0xffffac00, 0x400)
+	zeroMemory(0xffffb000, 0x2000)
+	zeroMemory(0xfffff700, 0x100)
+	zeroMemory(0xffffee00, 0x100)
+
+#if STANDALONE
+	Renderer.resetSprites()
+
+	// Move planes a bit to the right
+	for (u8 i = 0; i < getScreenHeight(); ++i)
+		u32[0xffffe000 + i*4] = getScreenExtend() * 0x10001
+#endif
+
+	fn01aa6e()
+
+	zeroMemory(0xfffffc00, 0x100)
+
+	checkpoint.number = 0
+	global.stage_type = 0
+	debug_mode.state = 0
+	global.rolling_demo = 0
+	u16[0xfffff634] = 0
+	competition_mode.active = 0
+	global.level_started = 0
+	debug_mode.enabled.u8 = 0
+	competition_mode.active = 0
+	u16[0xffffffe4] = 0
+	u16[0xffffffe6] = 0
+	bluespheres.minigame_mode = 0
+	global.demo_countdown = 359		// 6 seconds (minus one frame)
+	u16[0xfffffb00] = 0
+	u32[0xfffffbfc] = 0xfffffb00
+
+#if STANDALONE
+	if (Game.getSetting(SETTING_TITLE_SCREEN))
+#else
+	if (global.lock_on_state != 0)
+#endif
+	{
+		// Sonic & Knuckles title screen
+		TitleScreen_SK()
+		return
+	}
+
+	Kosinski.decompress(0x350d26, 0xffff0000)	// After this, A1 points to where uncompressed data ends
+	updateSpritePattern(0xffff0000, TitleScreen.Intro_Background.targetInVRAM, A1.u16 >> 1)
+
+	Enigma.decompress(0x34f6a0, 0xffff8000, (TitleScreen.Intro_Background.targetInVRAM >> 5))
+
+#if !STANDALONE
+	if ((global.region_code & 0x80) == 0)
+#endif
+	u32[0xffff83ac] = 0
+	if (!EM_MODDED_GFX)
+		copyRectToVRAM(0xffff8000, 0xc000, 0x28, 0x1c)
+	copyMemory(0xfffffc80, 0x00460c, 0x20)
+
+	global.demo_countdown = 240		// 4 seconds
+	VDP.Config.setActiveDisplay(true)
+	Menu.FadeInAfterInit()
+
+#if STANDALONE
+	// Stop any music that might be playing or restarting (this can happen after aborting a rolling demo)
+	playMusic(MUSIC_CTRL_STOP)
+#endif
+	playMusic(0xff)
+
+	global.demo_countdown = 180		// 3 seconds
+	while (global.demo_countdown != 0)
+	{
+		global.frame_state = 0x14
+		waitForNextFrame()
+	@EntryPoint_003fd2:
+
+		if (control.pad1.pressed & CONTROL_START)
+			break
+
+	#if STANDALONE
+		Renderer.resetSprites()
+		if (EM_OGB_DISPLAY == 1)
+			Renderer.drawCustomSprite("original_game_by", getScreenWidth() / 2 - 85, 60, 0x00, 0, 0x2000, 0, 96)
+		if (EM_TM_R_DISPLAY == 1)
+			Renderer.drawCustomSprite("origins_copyright", getScreenWidth()/2 + 77, 83, 0x00, 0, 0x2000, 0, 255)
+		else if (EM_TM_R_DISPLAY == 2)
+			Renderer.drawCustomSprite("genesis_trademark", getScreenWidth()/2 + 80, 88, 0x00, 0, 0x2000, 0, 255)
+		if (EM_MODDED_GFX == 1)
+			Renderer.drawCustomSprite("sega_logo", getScreenExtend() - 40, 0, 0x00, 0, 0x2000, 0, 255)
+	#endif
+	}
+
+#if !STANDALONE
+	playMusic(0xfe)
+#endif
+
+	// While loop: SEGA logo background fade from white to black
+	A1 = 0x00459c
+	while (true)
+	{
+		global.frame_state = 0x02
+		waitForNextFrame()
+
+		//copyMemory(0xfffffc00, A1, 0x0e)
+		if (u16[A1] == 0)
+			break
+
+		A1 += 0x0e
+
+	#if STANDALONE
+		Renderer.resetSprites()
+		if (u8[0xfffffc01] & 0x0e)
+			if (EM_OGB_DISPLAY == 1)
+				Renderer.drawCustomSprite("original_game_by", getScreenWidth() / 2 - 85, 60, 0x00, 0, 0x2000, 0, u16(u8[0xfffffc01] & 0x0e) * 96 / 0x0e)
+			if (EM_TM_R_DISPLAY == 1)
+				Renderer.drawCustomSprite("origins_copyright", getScreenWidth()/2 + 77, 83, 0x00, 0, 0x2000, 0, u16(u8[0xfffffc01] & 0x0e) * 255 / 0x0e)
+			else if (EM_TM_R_DISPLAY == 2)
+				Renderer.drawCustomSprite("genesis_trademark", getScreenWidth()/2 + 80, 88, 0x00, 0, 0x2000, 0, u16(u8[0xfffffc01] & 0x0e) * 255 / 0x0e)
+			if (EM_MODDED_GFX == 1)
+				Renderer.drawCustomSprite("sega_logo", getScreenExtend() - 40, 0, 0x00, 0, 0x2000, 0, u16(u8[0xfffffc01] & 0x0e) * 255 / 0x0e)
+	#endif
+	}
+
+	outro.wait_time = 0
+	u16[0xfffff662] = 0
+	titleintro.buffer = 0xff
+	titleintro.frames = 0
+	titleintro.animstep = 1
+	D0 = 1
+	fn00440c()
+
+	global.demo_countdown = (global.region_code & 0x40) ? 750 : 900
+#if STANDALONE
+	// Slightly increase the wait time until demo starts
+	global.demo_countdown += 20
+#endif
+
+	Kosinski.addToDecompressionQueue(0x351c86, 0xffff0000)
+	playMusic(MUSIC_TITLESCREEN)
+
+	// While loop: Intro sequence with Sonic running towards the camera
+	while (true)
+	{
+		global.frame_state = 0x04
+		Kosinski.ProcessDecompressionQueue()
+
+		waitForNextFrame()
+
+	#if STANDALONE
+		// Overwrite two frames with custom widescreen versions
+		if (!EM_MODDED_GFX)
+		{
+			if (titleintro.animstep == 7)
+			{
+				Renderer.drawCustomSprite("intro_wideframe1", getScreenExtend() - 40, 0, 0x00, 0, 0x5000)
+			}
+			else if (titleintro.animstep == 8)
+			{
+				Renderer.drawCustomSprite("intro_wideframe2", getScreenExtend() - 40, 0, 0x00, 0, 0x5000)
+			}
+		}
+		else
+			Renderer.drawCustomSprite((stringformat("Sonic_Intro_%d", titleintro.animstep-1)), getScreenExtend() - 40, 0, 0x00, 0, 0xfffe)
+		if (control.pad1.pressed)
+		{
+			u8[ptr] = control.pad1.pressed
+			++ptr
+		}
+	#endif
+
+		fn0043d4()
+		UpdateGameObjects()
+		RenderSprites()
+		LoadRequiredSpritePatterns()
+
+		if (control.pad1.pressed & CONTROL_START)
+			break
+
+		if (titleintro.animstep >= 12)
+			break
+	}
+
+	// White screen
+	titleintro.animstep = 12
+	if (!EM_MODDED_GFX)
+		fillMemory_u16(0xfffffc00, 0x80, 0x0eee)
+	else
+		Renderer.drawCustomSprite("Sonic_Intro_11", getScreenExtend() - 40, 0, 0x00, 0, 0xffff)
+#if STANDALONE
+	titleintro.frames = 15
+	for (u8 k = 0; k < titleintro.frames; ++k)
+	{
+		global.frame_state = 0x04
+		waitForNextFrame()
+	}
+
+	// This is to make sure screen stays white in the next frame even if skipping the intro
+	VDP.Config.setActiveDisplay(false)
+#else
+	titleintro.frames = 3
+	global.frame_state = 0x04
+	waitForNextFrame()
+#endif
+
+	// Fill the planes with decompressed screen content
+	Kosinski.decompress(0x359fc6, 0xffff0000)	// After this, A1 points to where uncompressed data ends
+	updateSpritePattern(0xffff0000, TitleScreen.Intro_Background.targetInVRAM, A1.u16 >> 1)
+
+	if (!EM_MODDED_GFX)
+	{
+		Enigma.decompress(0x350018, 0xffff8000, (sprite_attribute.PRIORITY | (TitleScreen.Intro_Background.targetInVRAM >> 5)))
+		copyRectToVRAM(0xffff8000, 0xc000, 0x28, 0x1c)
+	}
+	else
+	{
+		Enigma.decompress(0x350018, 0xffff8000, 0)
+		copyRectToVRAM(0xffffc000, 0xc000, 0x28, 0x1c)
+		Renderer.drawCustomSprite("Sonic_Intro_11", getScreenExtend() - 40, 0, 0x00, 0, 0xffff)
+	}
+	
+	Enigma.decompress(0x350112, 0xffff8000, (sprite_attribute.PALETTE.LINE2 | (TitleScreen.Intro_Background.targetInVRAM >> 5)))
+	copyRectToVRAM(0xffff8000, 0xe000, 0x28, 0x1c)
+
+	global.frame_state = 0x04
+	waitForNextFrame()
+
+#if STANDALONE
+	VDP.Config.setActiveDisplay(true)
+#endif
+
+	copyMemory(0xfffffc80, 0x0047ac, 0x80)
+
+	// Load patterns used in title screen
+	{
+		// Large banner
+		Nemesis.loadDataToVRAM(0x35026c, TitleScreen.Banner.targetInVRAM)
+
+		// Menu options, copyright info
+		Nemesis.loadDataToVRAM(0x004d2a, TitleScreen.Menu.targetInVRAM)
+
+		// Wiggling finger, winking eye, twinkle, Tails & Tornado in BG
+		Nemesis.loadDataToVRAM(0x2c49cc, TitleScreen.Characters.targetInVRAM)
+
+		// "& Knuckles"
+		Nemesis.loadDataToVRAM(0x0d6498, TitleScreen.AndKnucklesTitle.targetInVRAM)
+	}
+
+	u32[0xffffb000] = 0x00482c		// Banner ("Sonic 3 - Sonic The Hedgehog")
+	u32[0xffffb04a] = 0x004a5c		// Menu items
+	u32[0xffffb0de] = 0x004a1e		// Copyright info
+	u32[0xffffb128] = 0x004ae4		// Sonic's hand wagging
+	u32[0xffffb172] = 0x004b54		// Sonic's eye blinking
+	u32[0xffffb1bc] = 0x004bb2		// Tails in the Tornado
+	u32[0xffffb206] = 0x00496a		// "& Knuckles" logo append
+	titleintro.frames = 0
+
+	#if STANDALONE
+		global.whiteflash_timeout = 25
+		airHighlightAnimationTimer = 0
+
+		// This is needed for the background to be shown in first frame at all (when VDP sprite rendering seems to be disabled)
+		if (!TS_ANIMATED_BG)
+		{
+			if (!Mods.isModActive("Sonic 3: D.A. Garden Edition"))
+				Renderer.drawCustomSprite("bg_title_screen", getScreenExtend() - 40, 0, 0x00, 0, 0x1100)
+			else
+				Renderer.drawCustomSprite("bg_title_screen_new", getScreenExtend() - 40, 0, 0x00, 0, 0x1100)
+		}
+		else
+		{
+			++level.framecounter
+			u16 animFrame = (level.framecounter/(19/2)) % 12
+			if (!Mods.isModActive("Sonic 3: D.A. Garden Edition"))
+				u64 key = stringformat("bg_title_screen_%d", animFrame)
+			else
+				key = stringformat("bg_title_screen_new_%d", animFrame)
+			Renderer.drawCustomSprite(key, getScreenExtend() - 40, 0, 0x00, 0, 0x1100)
+		}
+	#endif
+
+	while (true)
+	{
+		global.frame_state = 0x04
+		waitForNextFrame()
+	@EntryPoint:
+
+		UpdateGameObjects()
+		RenderSprites()
+		LoadRequiredSpritePatterns()
+
+	#if STANDALONE
+		// Allow the player to press Start before the logo animation is finished already; only wait for the short white flash to finish
+		if (global.whiteflash_timeout > 0)
+			continue
+	#else
+		if (u32[0xffffb094] == 0)
+			continue
+	#endif
+		if (!Mods.isModActive("Sonic 3: D.A. Garden Edition"))
+		{
+			if (global.demo_countdown == 0)
+				if (TS_BRANDING != 2)
+					break
+		}
+		if (TS_BRANDING == 2)
+			OriginsMenu()
+		else
+			if (control.pad1.pressed & CONTROL_START)
+				OptionInit()
+	}
+
+	// Start rolling demo
+	playSound(MUSIC_CTRL_FADEOUT)
+
+	u16[0xffffef7a] = global.demo_number
+	D0.u16 = (global.demo_number & 0x07) * 2
+	D0.u16 = u16[0x004344 + D0.u16]
+	global.zone_act = D0.u16
+	global.zone_act.apparent = D0.u16
+	checkpoint.zone_act = D0.u16
+
+	++global.demo_number
+	if (global.lock_on_state == 0)
+	{
+		if (global.demo_number == 3)		// Skip Knuckles in MHZ demo
+		{
+			global.demo_number = 4
+		}
+		else if (global.demo_number >= 7)	// We've got 7 demos in total
+		{
+			global.demo_number = 0
+		}
+	}
+	else
+	{
+		if (global.demo_number >= 3)		// Restrict to first four demos
+		{
+			global.demo_number = 0
+		}
+	}
+
+	if (D0.s16 < 0)
+	{
+		// Blue Spheres rolling demo
+		global.game_mode = 0x34
+		global.next_bluespheres = 1
+		global.sk_bluespheres = 1
+		global.zone = 0x07
+		u16[0xffffffb0] = 0
+		u32[0xffffffb2] = 0
+		u16[0xffffffb6] = 0
+		u8[0xffffffb8] = 0
+		u8[0xffffffb3] = 0x02
+	}
+	else
+	{
+		// Normal Game rolling demo
+		global.game_mode = 0x08
+	}
+
+	global.rolling_demo = 1
+	lives_counter = 3
+	unused.lives_counter.player2 = 3
+	ring_counter = 0
+	timer.alldata = 0
+	player.score = 0
+	ring_counter.player2 = 0
+	timer.alldata.player2 = 0
+	player2.score = 0
+	player.next_life_score = 5000
+	unused.player2.next_life_score = 5000
+}
+
+
+
+// Called from VInt
+
+//# address-hook(0x0007ba) end(0x0007d8)
+function void fn0007ba()
+{
+	fn004352()
+	fn000c50()
+
+	titlescreen.backup.control.pad1 = control.pad1
+	fn0017d8()
+
+	if (global.demo_countdown != 0)
+		--global.demo_countdown
+
+#if STANDALONE
+	// White flash effect fade
+	if (global.whiteflash_timeout > 0)
+	{
+		--global.whiteflash_timeout
+
+		u16 blendFactor = u16(global.whiteflash_timeout) * 0xff / 25
+		blendFactor = 0xff - (0xff - blendFactor) * (0xff - blendFactor) / 0xff
+		u32 paletteAddress = (water.fullscreen) ? 0xfffff080 : 0xfffffc00
+
+		for (u8 i = 0; i < 0x40; ++i)
+		{
+			u32 originalColor = unpackColor(u16[paletteAddress + i * 2])
+			u32 color = blendColors_BGR32(originalColor, 0xffffff, blendFactor)
+			if (i & 0x0f)
+				color |= 0xff000000
+			Renderer.setPaletteEntry(i, color)
+		}
+
+		globalComponentTintColorR = 0xff - blendFactor
+		globalComponentTintColorG = 0xff - blendFactor
+		globalComponentTintColorB = 0xff - blendFactor
+		globalComponentAddedColorR = blendFactor
+		globalComponentAddedColorG = blendFactor
+		globalComponentAddedColorB = blendFactor
+	}
+#endif
+}
+
+//# address-hook(0x004352) end(0x0043d2)
+function void fn004352()
+{
+	// Used in small intro sequence after SEGA logo (Sonic running towards camera)
+	//  -> Update palette
+	//  -> Alternate between two frames displayed in both plane A and plane B at the same time
+
+	if (titleintro.frames != 0)
+	{
+		--titleintro.frames
+		return
+	}
+
+#if STANDALONE
+
+	titleintro.frames = 4
+	if (titleintro.animstep == 1)
+	{
+		titleintro.frames = 12
+	}
+	else if (titleintro.animstep >= 2 && titleintro.animstep <= 6)
+	{
+		titleintro.frames = 6
+	}
+	if (TS_BRANDING == 1)
+	{
+		if (titleintro.animstep >= 7 && titleintro.animstep <= 10)
+		{
+			titleintro.frames = 10
+		}
+		else if (titleintro.animstep == 11)
+		{
+			titleintro.frames = 6
+		}
+	}
+	else if (TS_BRANDING == 0 || TS_BRANDING == 2)
+	{
+		if (titleintro.animstep == 7)
+		{
+			titleintro.frames = 15
+		}
+		else if (titleintro.animstep == 8)
+		{
+			titleintro.frames = 12
+		}
+		else if (titleintro.animstep == 9)
+		{
+			titleintro.frames = 13
+		}
+		else if (titleintro.animstep == 10)
+		{
+			titleintro.frames = 10
+		}
+		else if (titleintro.animstep == 11)
+		{
+			titleintro.frames = 8
+		}
+	}
+	--titleintro.frames
+
+#else
+	titleintro.frames = 3
+#endif
+
+	if (titleintro.animstep >= 12)
+	{
+		copyMemory(0xfffffc00, 0xfffffc80, 0x80)
+
+		VDP.Config.setNameTableBasePlaneA(0xc000)
+		VDP.Config.setNameTableBasePlaneB(0xe000)
+	}
+	else
+	{
+		copyMemory(0xfffffc00, 0xfffffc80, 0x40)
+
+		titleintro.buffer ^= 0xff
+		if (titleintro.buffer != 0)
+		{
+			VDP.Config.setNameTableBasePlaneA(0xc000)
+			VDP.Config.setNameTableBasePlaneB(0xc000)
+		}
+		else
+		{
+			VDP.Config.setNameTableBasePlaneA(0xe000)
+			VDP.Config.setNameTableBasePlaneB(0xe000)
+		}
+	}
+}
+
+
+
+//-------------------------------------------------------//
+// Objects in Title Screen                               //
+//-------------------------------------------------------//
+
+// Banner ("Sonic 3 - Sonic The Hedgehog")
+
+//# address-hook(0x00482c) end(0x004866)
+function void fn00482c()
+{
+	objA0.mapping_offset = 0x3501e0
+	objA0.sprite_attributes = (sprite_attribute.PRIORITY | sprite_attribute.PALETTE.LINE3 | (TitleScreen.Banner.targetInVRAM >> 5))
+	objA0.sprite_priority = 0x80
+	objA0.box_size.x = 0x80
+	objA0.box_size.y = 0x40
+	objA0.position.x.u16 = 0x0120 + getScreenExtend()
+	objA0.position.y.u16 = 0xf0
+	objA0.velocity.y = 0x0400
+	u32[A0 + 0x30] = 0xffa00000
+
+	objA0.update_address = 0x00486c
+	fn00486c()
+}
+
+
+//# address-hook(0x00486c) end(0x0048d8)
+function void fn00486c()
+{
+	D2.u8 = u8[A0 + 0x34]
+	u32[A0 + 0x30] += objA0.velocity.y << 8
+	D0.u16 = u16[A0 + 0x30]
+	u8[A0 + 0x34] = 0
+	D1.u16 = 0x40
+
+	if (D0.u16 == 0 && objA0.velocity.y == 0xffa5)
+	{
+		objA0.update_address = 0x0048dc
+		u32[0xffffb094] = 0x004924		// Trademark
+	}
+	else
+	{
+		if (D0.s16 >= 0)
+		{
+
+			u8[A0 + 0x34] = 0xff
+			D1.u16 = 0xffc0
+		}
+
+		objA0.velocity.y += D1.u16
+		if (D2.u8 != u8[A0 + 0x34])
+		{
+			objA0.velocity.y >>= 1
+		}
+	}
+
+	D0.s16 = 0xd4 - s16[A0 + 0x30]
+	objA0.position.y.u16 = D0.u16
+	if (!EM_MODDED_GFX)
+	{
+		if (!TS_KNUCKLES)
+		{
+			// Move it down
+			objA0.position.y.u16 += 0x1c
+		}
+		else
+		{
+			// Movement of Sonic and the ring around him
+			if (scrolloffset.y.planeA != 0x10)
+			{
+				++scrolloffset.y.planeA
+			}
+		}
+	}
+	else
+	if (TS_KNUCKLES == 0)
+	{
+		// Move it down
+		objA0.position.y.u16 += 0x1c
+	}
+	fn0048dc()
+}
+
+
+//# address-hook(0x0048dc) end(0x0048fe)
+function void fn0048dc()
+{
+	--objA0.animation.timer
+	if (s8(objA0.animation.timer) < 0)
+	{
+		objA0.animation.timer = 9
+		objA0.animation.frame = (objA0.animation.frame + 4) & 0x1c
+	}
+
+	u32[0xfffffcda] = u32[0x004904 + objA0.animation.frame]
+	//DrawObject()
+
+#if STANDALONE
+	// Here is a good place to draw the widescreen background
+	if (!TS_ANIMATED_BG)
+	{
+		if (!Mods.isModActive("Sonic 3: D.A. Garden Edition"))
+			Renderer.drawCustomSprite("bg_title_screen", getScreenExtend() - 40, 0, 0x00, 0, 0x1100)
+		else
+			Renderer.drawCustomSprite("bg_title_screen_new", getScreenExtend() - 40, 0, 0x00, 0, 0x1100)
+	}
+	else
+	{
+		++level.framecounter
+		u16 animFrame = (level.framecounter/(19/2)) % 12
+		if (!Mods.isModActive("Sonic 3: D.A. Garden Edition"))
+			u64 key = stringformat("bg_title_screen_%d", animFrame)
+		else
+			key = stringformat("bg_title_screen_new_%d", animFrame)
+		Renderer.drawCustomSprite(key, getScreenExtend() - 40, 0, 0x00, 0, 0x1100)
+	}
+	++pbutt_timer
+	if (pbutt_timer > 55)
+		pbutt_timer = 0
+	u16 px = getScreenWidth() / 2 - 128
+	u16 py = objA0.position.y.u16 - 112
+	if (!Mods.isModActive("Deez Nut Title Screen"))
+	{	
+		if (!EM_MODDED_GFX)
+		{
+			if (Mods.isModActive("Sonic 3: D.A. Garden Edition"))
+			Renderer.drawCustomSprite("ts_emblem_air", px, py, 0x00, SPRITE_FLAG_PRIO, 0xa000)
+			else
+			{
+				if (TS_BRANDING != 1)
+				{
+					Renderer.drawCustomSprite("ts_emblem", px, py, 0x00, SPRITE_FLAG_PRIO, 0xa000)
+					if (drawTrademark == 1)
+					{
+						py = py + 4
+						px = getScreenWidth() / 2 + 97
+						if (TS_BRANDING == 2) // Origins trademark fade-in
+						{
+							if (trademark_alpha < 255)
+								trademark_alpha += 15
+							Renderer.drawCustomSprite("trademark", px, py, 0x00, SPRITE_FLAG_PRIO, 0xa000, 0, trademark_alpha)
+						}
+						else
+							Renderer.drawCustomSprite("trademark", px, py, 0x00, SPRITE_FLAG_PRIO, 0xa000)
+					}
+				}
+				else
+					Renderer.drawCustomSprite("ts_emblem_air", px, py, 0x00, SPRITE_FLAG_PRIO, 0xa000)
+			}
+		}
+		else
+		{
+			Renderer.drawCustomSprite("banner", px, py, 0x00, SPRITE_FLAG_PRIO, 0xa000)
+			if (drawTrademark == 1)
+			{
+				py = py + 4
+				px = getScreenWidth() / 2 + 97
+				if (TS_BRANDING == 2) // Origins trademark fade-in
+				{
+					if (trademark_alpha < 255)
+						trademark_alpha += 15
+					Renderer.drawCustomSprite("trademark", px, py, 0x00, SPRITE_FLAG_PRIO, 0xa000, 0, trademark_alpha)
+				}
+				else
+					Renderer.drawCustomSprite("trademark", px, py, 0x00, SPRITE_FLAG_PRIO, 0xa000)
+			}
+		}
+	}
+	else
+	{
+		px = getScreenWidth() / 2
+		py += 34
+		Renderer.drawCustomSprite("DeezNut", px , py, 0x00, SPRITE_FLAG_PRIO, 0xa000)
+	}
+	if (TS_KNUCKLES == 2)
+	{
+		px = getScreenWidth() / 2 - 88
+		if (TS_BRANDING == 1 || (Mods.isModActive("Deez Nut Title Screen") || Mods.isModActive("Sonic 3: D.A. Garden Edition") || EM_MODDED_GFX == 1))
+			if (Mods.isModActive("Deez Nut Title Screen"))
+				py = objA0.position.y.u16 - 43
+			else
+				py = objA0.position.y.u16 - 45
+		else
+			py = objA0.position.y.u16 - 53
+		Renderer.drawCustomSprite("extramushrooms", px, py, 0x00, SPRITE_FLAG_PRIO, 0x9f7e)
+	}
+	else if (TS_KNUCKLES == 1)
+	{
+		px = getScreenWidth() / 2 - 84
+		py = objA0.position.y.u16 - 48
+		Renderer.drawCustomSprite("andknuckles", px, py, 0x00, SPRITE_FLAG_PRIO, 0x9f7e)
+	}
+	if (TS_BRANDING == 1 || (Mods.isModActive("Deez Nut Title Screen") || Mods.isModActive("Sonic 3: D.A. Garden Edition") || EM_MODDED_GFX == 1))
+	{
+		px = getScreenWidth() / 2
+		py = objA0.position.y.u16 - 53
+		// Also draw the "Angel Island Revisited" text and others
+		++airHighlightAnimationTimer
+		s16 time = airHighlightAnimationTimer - 80
+
+		Renderer.drawCustomSprite("title_screen_air", px, py, 0x00, SPRITE_FLAG_PRIO, 0x9f7e)
+
+		if (time > 0)
+		{
+			if (time < 65)
+			{
+				u8 alpha = (time < 20) ? (time * 255 / 20) : ((65 - time) * 255 / 45)
+				Renderer.drawCustomSprite("title_screen_air_h", px, py, 0x00, SPRITE_FLAG_PRIO, 0x9f7f, 0, alpha)
+			}
+
+		if (TS_BRANDING == 1)
+			Renderer.drawCustomSprite("title_screen_start", getScreenWidth() / 2, 208 + max((50 - time) * 2, 0), 0x00, 0, 0x9f7e)
+		}
+		// Clear "Sonic The Hedgehog" text in VRAM
+		for (u16 x = 0xb000; x < 0xb700; x += 0x80)
+			for (u16 y = 0; y < 0x40; y += 2)
+				setVRAM(x + y, 0)
+	}
+	drawCopyrightText()
+	drawCustomTSSonic()
+#endif
+}
+
+function void drawCopyrightText()
+{
+	u64 getPrefix
+	u8 xSub = 104
+	u8 ySub = 20
+	if (TS_COPYRIGHT > 0) // if you want SEGA copyright/EUKA credit to appear
+	{
+		if (TS_COPYRIGHT == 1) // genesis copyright (SEGA 1994)
+			getPrefix = "genesis"
+		else if (TS_COPYRIGHT == 2) // air copyright (just the symbol in base EM)
+		{
+			getPrefix = "air"
+			xSub = 88
+			Renderer.drawCustomSprite("title_screen_cr", getScreenWidth() - xSub, getScreenHeight()-ySub, 0x00, 0, 0xFFFF)
+			xSub = 104
+		}
+		else if (TS_COPYRIGHT == 3)
+		{
+			xSub = 66
+			getPrefix = "origins"
+		}
+		else if (TS_COPYRIGHT == 4 || TS_COPYRIGHT == 5) // (new) blue spheres copyright (SEGA 2022)
+		{
+			getPrefix = "bs"
+			if (TS_COPYRIGHT == 5)
+			{
+				ySub = 20
+				Renderer.drawCustomSprite("genesis_sega", getScreenWidth() - xSub, getScreenHeight()-ySub, 0x00, 0, 0xFFFF)
+				ySub = 11
+			}
+		}
+		else // a hybrid of the (notable) versions of the copyright
+		{
+			getPrefix = "euka"
+			ySub = TS_COPYRIGHT == 7 ? 20 : 29
+			Renderer.drawCustomSprite("genesis_sega", getScreenWidth() - xSub, getScreenHeight()-ySub, 0x00, 0, 0xFFFF)
+			ySub = 11
+			if (TS_COPYRIGHT == 6)
+			{
+				Renderer.drawCustomSprite("bs_sega", getScreenWidth() - xSub, getScreenHeight()-ySub, 0x00, 0, 0xFFFF)
+				ySub = 20
+			}
+		}
+		Renderer.drawCustomSprite(stringformat("%s_sega", getPrefix), getScreenWidth()-xSub, getScreenHeight()-ySub, 0x00, 0, 0xFFFF)
+	}
+}
+
+function void drawCustomTSSonic()
+{
+	u16 sonicOffset = 99
+	// Movement of Sonic and the ring around him
+	if (TS_KNUCKLES != 0)
+		sonicOffset = 83
+	drawSonicFramesTS(sonicOffset)
+}
+
+function void drawSonicFramesTS(s16 offset)
+{
+	u16 xOffset = getScreenWidth() / 2 - 200
+	if (EM_MODDED_GFX == 1)
+	{
+		++modded_sonic_frame
+
+		if (modded_sonic_frame > 152)
+		{
+			modded_sonic_frame = 0
+		}
+
+		if (modded_sonic_frame < 1)
+		{
+			Renderer.drawCustomSprite("TitleScreen_Sonic_Base", xOffset, offset, 0x00, 0, 0x9f7d)		
+		}
+		else if (modded_sonic_frame > 40) && (modded_sonic_frame < 125)
+		{
+			if (modded_sonic_frame < 48)
+			{
+				Renderer.drawCustomSprite("TitleScreen_Sonic_Hand_0", xOffset, offset, 0x00, 0, 0x9f7d)
+			}
+			if (modded_sonic_frame > 47) && (modded_sonic_frame < 55)
+			{
+				Renderer.drawCustomSprite("TitleScreen_Sonic_Hand_1", xOffset, offset, 0x00, 0, 0x9f7d)
+			}		
+			if (modded_sonic_frame > 54) && (modded_sonic_frame < 62)
+			{
+				Renderer.drawCustomSprite("TitleScreen_Sonic_Hand_2", xOffset, offset, 0x00, 0, 0x9f7d)
+			}	
+			if (modded_sonic_frame > 61) && (modded_sonic_frame < 69)
+			{
+				Renderer.drawCustomSprite("TitleScreen_Sonic_Hand_3", xOffset, offset, 0x00, 0, 0x9f7d)
+			}	
+			if (modded_sonic_frame > 68) && (modded_sonic_frame < 76)
+			{
+				Renderer.drawCustomSprite("TitleScreen_Sonic_Hand_2", xOffset, offset, 0x00, 0, 0x9f7d)
+			}	
+			if (modded_sonic_frame > 75) && (modded_sonic_frame < 83)
+			{
+				Renderer.drawCustomSprite("TitleScreen_Sonic_Hand_1", xOffset, offset, 0x00, 0, 0x9f7d)
+			}
+			if (modded_sonic_frame > 82) && (modded_sonic_frame < 90)
+			{
+				Renderer.drawCustomSprite("TitleScreen_Sonic_Hand_2", xOffset, offset, 0x00, 0, 0x9f7d)
+			}
+			if (modded_sonic_frame > 89) && (modded_sonic_frame < 97)
+			{
+				Renderer.drawCustomSprite("TitleScreen_Sonic_Hand_3", xOffset, offset, 0x00, 0, 0x9f7d)
+			}
+			if (modded_sonic_frame > 96) && (modded_sonic_frame < 104)
+			{
+				Renderer.drawCustomSprite("TitleScreen_Sonic_Hand_2", xOffset, offset, 0x00, 0, 0x9f7d)
+			}
+			if (modded_sonic_frame > 103) && (modded_sonic_frame < 111)
+			{
+				Renderer.drawCustomSprite("TitleScreen_Sonic_Hand_1", xOffset, offset, 0x00, 0, 0x9f7d)
+			}
+			if (modded_sonic_frame > 110) && (modded_sonic_frame < 118)
+			{
+				Renderer.drawCustomSprite("TitleScreen_Sonic_Hand_2", xOffset, offset, 0x00, 0, 0x9f7d)
+			}
+			if (modded_sonic_frame > 117) && (modded_sonic_frame < 125)
+			{
+				Renderer.drawCustomSprite("TitleScreen_Sonic_Hand_3", xOffset, offset, 0x00, 0, 0x9f7d)
+			}																				
+		}	
+		else if (modded_sonic_frame > 0) && (modded_sonic_frame < 7)
+		{
+			Renderer.drawCustomSprite("TitleScreen_Sonic_Eye_0", xOffset, offset, 0x00, 0, 0x9f7d)	
+		}	
+		else if (modded_sonic_frame > 6) && (modded_sonic_frame < 13)
+		{
+			Renderer.drawCustomSprite("TitleScreen_Sonic_Eye_1", xOffset, offset, 0x00, 0, 0x9f7d)	
+		}
+		else if (modded_sonic_frame > 12) && (modded_sonic_frame < 19)
+		{
+			Renderer.drawCustomSprite("TitleScreen_Sonic_Eye_2", xOffset, offset, 0x00, 0, 0x9f7d)	
+		}
+		else if (modded_sonic_frame > 18)
+		{
+			Renderer.drawCustomSprite("TitleScreen_Sonic_Base", xOffset, offset, 0x00, 0, 0x9f7d)		
+		}
+	}
+}
+
+// Menu items
+
+//# address-hook(0x004a5c) end(0x004a82)
+function void fn004a5c()
+{
+	if (TS_BRANDING == 1)
+	{
+		UnloadObject()
+		return
+	}
+	objA0.position.x.u16 = 0xf0 + getScreenExtend()
+	objA0.position.y.u16 = 0x0140
+	objA0.mapping_offset = 0x004c9c
+	objA0.sprite_attributes = (sprite_attribute.PRIORITY | sprite_attribute.PALETTE.LINE2 | (TitleScreen.Menu.targetInVRAM >> 5))
+	titlescreen.selection &= 0x01
+	objA0.animation.sprite = titlescreen.selection
+
+	objA0.update_address = 0x004a88
+	fn004a88()
+}
+
+
+//# address-hook(0x004a88) end(0x004ade)
+function void fn004a88()
+{
+	D2 = titlescreen.selection
+
+	D0.u8 = (control.pad1.pressed | control.pad2.pressed)
+	if (TS_BRANDING != 1)
+	{
+		if (startPress >= 1 || TS_BRANDING == 0)
+		{
+			if (D0 & CONTROL_UP)
+			{
+				--D2.u8
+				if (D2.s8 < 0)
+				{
+					if (Mods.isModActive("Sonic 3: D.A. Garden Edition"))
+						D2.u8 = 1
+					else
+						D2.u8 = 3
+				}
+			}
+			if (D0 & CONTROL_DOWN)
+			{
+				++D2.u8
+				if (Mods.isModActive("Sonic 3: D.A. Garden Edition"))
+				{
+					if (D2.u8 >= 2)
+						D2 = 0
+				}
+				else
+				{
+					if (D2.u8 >= 4)
+						D2 = 0
+				}
+			}
+
+			objA0.animation.sprite = D2.u8
+			titlescreen.selection = D2.u8
+
+			if ((D0.u8 & (CONTROL_UP | CONTROL_DOWN)))
+			{
+				if (TS_SOUNDS >= 1)
+					playSound(SFX_CLICK)
+			}
+			//DrawObject()
+			string optionsText = getOptionsText()
+			if (titlescreen.selection % 2 != 0 && OPTIONS_GFX >= 2) // fix for vertical positioning
+				Renderer.drawCustomSprite(optionsText, getScreenWidth()/2-64, getScreenHeight()-30, 0x00, 0, 0xa001)
+			else 
+				Renderer.drawCustomSprite(optionsText, getScreenWidth()/2-64, getScreenHeight()-32, 0x00, 0, 0xa001)
+		}
+		else
+		{
+			string startText = getStartText()
+			if (pbutt_timer >= (55/2))
+				Renderer.drawCustomSprite(startText, getScreenWidth()/2-64, getScreenHeight()-24, 0x00, 0, 0xa001)
+		}
+	}
+}
+
+// Trademark
+
+//# address-hook(0x004924) end(0x004956)
+function void fn004924()
+{
+	objA0.mapping_offset = 0x3501e0
+	objA0.sprite_attributes = (sprite_attribute.PRIORITY | sprite_attribute.PALETTE.LINE3 | (TitleScreen.Banner.targetInVRAM >> 5))
+	objA0.position.x.u16 = 0x0188 + getScreenExtend()
+	objA0.position.y.u16 = 0xec
+	objA0.sprite_priority = 0x80
+	objA0.box_size.x = 0x0c
+	objA0.box_size.y = 0x04
+	objA0.animation.sprite = 1
+
+	if (TS_KNUCKLES == 0)
+	{
+		// Move it down
+		objA0.position.y.u16 += 0x1c
+	}
+
+	objA0.update_address = 0x00495c
+
+	fn00495c()
+}
+
+
+//# address-hook(0x00495c) end(0x004968)
+function void fn00495c()
+{
+	drawTrademark = 1
+}
+
+
+
+// "& Knuckles" logo -- all you need for a meme
+
+//# address-hook(0x00496a) end(0x004996)
+function void fn00496a()
+{
+	if (TS_KNUCKLES != 1)
+	{
+		UnloadObject()
+		return
+	}
+
+	objA0.mapping_offset = 0x0049ae
+	objA0.sprite_attributes = (sprite_attribute.PRIORITY | sprite_attribute.PALETTE.LINE3 | (TitleScreen.AndKnucklesTitle.targetInVRAM >> 5))
+	objA0.position.x.u16 = 0x0120 + getScreenExtend()
+	objA0.position.y.u16 = 0x0108
+	objA0.sprite_priority = 0x80
+	objA0.box_size.x = 0x54
+	objA0.box_size.y = 0x0c
+
+	objA0.update_address = 0x00499c
+	fn00499c()
+}
+
+
+//# address-hook(0x00499c) end(0x0049a8)
+function void fn00499c()
+{
+	D0.u16 = u16[0xffffb000 + 0x14] + 0x5c
+	objA0.position.y.u16 = D0.u16
+	//DrawObject()
+}
+
+
+
+// Copyright
+
+//# address-hook(0x004a56) end(0x004a56)
+function void fn004a56()
+{
+	//DrawObject()
+}
+
+// Sonic's hand wiggling
+
+//# address-hook(0x004b16) end(0x004b2e)
+function void fn004b16()
+{
+	D0.u16 = 0xdc - scrolloffset.y.planeA
+	objA0.position.y.u16 = D0.u16
+
+	Object.animationUpdate(0x004b34)
+	if (!EM_MODDED_GFX)
+		DrawObject()
+}
+
+// Sonic's eye blinking
+
+//# address-hook(0x004b86) end(0x004b9e)
+function void fn004b86()
+{
+	D0.u16 = 0xc8 - scrolloffset.y.planeA
+	objA0.position.y.u16 = D0.u16
+
+	Object.AlternativeAnimationUpdate(0x004ba4)
+	if (!EM_MODDED_GFX)
+		DrawObject()
+}
+
+// Tails in the Tornado
+
+//# address-hook(0x004be4) end(0x004c3e)
+function void fn004be4()
+{
+	if (u8[A0 + 0x30] == 0)
+	{
+		++objA0.position.x.u16
+		if (objA0.position.x.u16 == getScreenWidth()+240)
+		{
+			u8[A0 + 0x30] = 1
+			objA0.flags2a |= 0x01
+			objA0.position.y.u16 = 0xd0
+		}
+	}
+	else
+	{
+		--objA0.position.x.u16
+		if (objA0.position.x.u16 == 0)
+		{
+			u8[A0 + 0x30] = 0
+			objA0.flags2a &= ~0x01
+			objA0.position.y.u16 = 0xc0
+		}
+	}
+
+	Object.animationUpdate(0x004c44)
+	if (!EM_MODDED_GFX)
+		DrawObject()
+	else
+	{
+		u64 tornado
+		u16 tornado_timer = (global.framecounter >> (5/3)) % 6
+		if (u8[A0 + 0x30] == 1)
+		{
+			tornado = stringformat("tornado2_%d", tornado_timer)
+			Renderer.drawCustomSprite(tornado, objA0.position.x.u16-152, objA0.position.y.u16/4+21, 0x00, (objA0.render_flags & 0x00) || SPRITE_FLAG_PRIO, 0x1200)
+		}
+		else
+		{
+			tornado = stringformat("tornado_%d", tornado_timer)
+			Renderer.drawCustomSprite(tornado, objA0.position.x.u16-154, objA0.position.y.u16/4+9, 0x00, (objA0.render_flags & 0x00) || SPRITE_FLAG_PRIO, 0x1200)
+		}
+	}
+}

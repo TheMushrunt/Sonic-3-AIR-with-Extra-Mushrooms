@@ -1,0 +1,11 @@
+{
+	"mgz custom palette":
+	{
+		"File": "mgz custom palette.bin"
+	},
+       "sonic":
+       {
+              "File": "title screen sonic.bin",
+              "RomInject": "0x359FC6"
+       }
+}

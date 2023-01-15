@@ -1,0 +1,122 @@
+{
+	// infinite symbol for the lols
+	"inflives": {"File": "inflives.png"},
+	
+	// bonus rings
+	"monitor_icon_em_surprise": {"File": "surprisemonitor.bmp", "Center": "8,8" },
+
+	// title screen
+	"origins_copyright": { "File": "copyright.bmp"},
+	"genesis_trademark": { "File": "trademark.bmp"},
+	"trademark": { "File": "trademark.png"},
+	
+	// origins title screen "press button" text, with various options for cooler people than "press button" fans
+	"press_button": { "File": "press_button.png", "Rect": "0,0,128,8"},
+	"press_start": { "File": "press_button.png", "Rect": "0,8,128,8"},
+	"touch_to_start": { "File": "press_button.png", "Rect": "0,16,128,8"},
+	"press_any_button": { "File": "press_button.png", "Rect": "0,81,128,8"},
+
+	// origins versions
+	"so_press_button": { "File": "press_button.png", "Rect": "0,24,128,9"},
+	"so_press_start": { "File": "press_button.png", "Rect": "0,33,128,9"},
+	"so_touch_to_start": { "File": "press_button.png", "Rect": "0,42,128,9"},
+	"so_press_any_button": { "File": "press_button.png", "Rect": "0,89,128,9"},
+
+	// S3C font versions
+	"s3c_press_button": { "File": "press_button.png", "Rect": "0,51,128,10"},
+	"s3c_press_start": { "File": "press_button.png", "Rect": "0,61,128,10"},
+	"s3c_touch_to_start": { "File": "press_button.png", "Rect": "0,71,128,10"},
+	"s3c_press_any_button": { "File": "press_button.png", "Rect": "0,98,128,10"},
+
+	// S3 styled options
+	"options_1": { "File": "menu.png", "Rect": "0,0,116,24"},
+	"options_2": { "File": "menu.png", "Rect": "116,0,116,24"},
+	"exoptions_1": { "File": "exmenu.png", "Rect": "0,0,116,24"},
+	"exoptions_2": { "File": "exmenu.png", "Rect": "116,0,116,24"},
+	"dagarden_options_1": { "File": "dagardenmenu.png", "Rect": "0,0,116,24"},
+	"dagarden_options_2": { "File": "dagardenmenu.png", "Rect": "116,0,116,24"},
+
+	// S2 origins styled options
+	"s2options_1": { "File": "menu.png", "Rect": "232,0,112,24"},
+	"s2options_2": { "File": "menu.png", "Rect": "344,0,112,24"},
+	"s2exoptions_1": { "File": "exmenu.png", "Rect": "232,0,112,24"},
+	"s2exoptions_2": { "File": "exmenu.png", "Rect": "344,0,112,24"},
+	"s2_dagarden_options_1": { "File": "dagardenmenu.png", "Rect": "232,0,112,24"},
+	"s2_dagarden_options_2": { "File": "dagardenmenu.png", "Rect": "344,0,112,24"},
+
+	// S3C font for S2 origins styled options
+	"s3coptions_1": { "File": "menu.png", "Rect": "456,0,112,24"},
+	"s3coptions_2": { "File": "menu.png", "Rect": "568,0,112,24"},
+	"s3cexoptions_1": { "File": "exmenu.png", "Rect": "456,0,112,24"},
+	"s3cexoptions_2": { "File": "exmenu.png", "Rect": "568,0,112,24"},
+	"s3c_dagarden_options_1": { "File": "dagardenmenu.png", "Rect": "456,0,112,24"},
+	"s3c_dagarden_options_2": { "File": "dagardenmenu.png", "Rect": "568,0,112,24"},
+
+	"ts_emblem": { "File": "ts_emblem.png"},
+	"ts_emblem_air": { "File": "ts_emblem_air.png"},
+	"banner": { "File": "ts_emblem_air.png"},
+
+	//"extramushrooms": { "File": "subtitle.png", "Rect": "0,0,167,24"}, // this is the "genesis version" but now it's gone
+	"extramushrooms": { "File": "subtitle.png", "Rect": "0,28,167,28"}, // this was the air version but now it's the default
+	"andknuckles": { "File": "subtitle.png", "Rect": "0,56,167,24"}, // for fun!
+
+	// sega copyrights (SEGA 1994 EUKA 2022 on title screen by default)
+	"origins_sega": { "File": "sega.png", "Rect": "0,0,41,8"}, // just copyright and SEGA
+	"genesis_sega": { "File": "sega.png", "Rect": "0,8,88,8"}, // SEGA 1994
+	"air_sega": { "File": "sega.png", "Rect": "0,32,8,8"}, // this is just a copyright symbol because i unloaded the copyright object
+	"bs_sega": { "File": "sega.png", "Rect": "0,24,88,8"}, // SEGA 2022, from (New) Blue Spheres
+	"euka_sega": { "File": "sega.png", "Rect": "0,16,88,8"}, // because i don't like the default AIR version. sorry not sorry euka
+
+	// level select
+	"fixpriority": { "File": "fixpriority.png"},
+	"livemario": { "File": "livemario.png"},
+	"ls_emblem": { "File": "ls_emblem.png"},
+
+	// main 14 zone icons, including HPZ, SSZ, and DDZ
+	"ls_icon_0": { "File": "ls_zoneicons.png", "Rect": "0,0,32,24"},
+	"ls_icon_1": { "File": "ls_zoneicons.png", "Rect": "32,0,32,24"},
+	"ls_icon_2": { "File": "ls_zoneicons.png", "Rect": "64,0,32,24"},
+	"ls_icon_3": { "File": "ls_zoneicons.png", "Rect": "96,0,32,24"},
+	"ls_icon_4": { "File": "ls_zoneicons.png", "Rect": "128,0,32,24"},
+	"ls_icon_4_a": { "File": "ls_zoneicons.png", "Rect": "0,48,32,24"}, // S3A FBZ icon
+	"ls_icon_5": { "File": "ls_zoneicons.png", "Rect": "160,0,32,24"},
+	"ls_icon_5_a": { "File": "ls_zoneicons.png", "Rect": "128,0,32,24"}, // same as default zone 5 icon
+	"ls_icon_6": { "File": "ls_zoneicons.png", "Rect": "192,0,32,24"},
+	"ls_icon_6_a": { "File": "ls_zoneicons.png", "Rect": "160,0,32,24"}, // same as default zone 6 icon
+	"ls_icon_7": { "File": "ls_zoneicons.png", "Rect": "224,0,32,24"},
+	"ls_icon_7_a": { "File": "ls_zoneicons.png", "Rect": "192,0,32,24"}, // same as default zone 7 icon
+	"ls_icon_8": { "File": "ls_zoneicons.png", "Rect": "0,24,32,24"},
+	"ls_icon_9": { "File": "ls_zoneicons.png", "Rect": "32,24,32,24"},
+	"ls_icon_10": { "File": "ls_zoneicons.png", "Rect": "64,24,32,24"},
+	"ls_icon_11": { "File": "ls_zoneicons.png", "Rect": "96,24,32,24"},
+	"ls_icon_12": { "File": "ls_zoneicons.png", "Rect": "128,24,32,24"},
+	"ls_icon_13": { "File": "ls_zoneicons.png", "Rect": "160,24,32,24"},
+
+	// bonus and special stage icons
+	"ls_icon_14": { "File": "ls_zoneicons.png", "Rect": "192,24,32,24"},
+	"ls_icon_15": { "File": "ls_zoneicons.png", "Rect": "224,24,32,24"},
+
+	// 2P VS/Competition stages
+	"ls_icon_0_2p": { "File": "ls_zoneicons.png", "Rect": "32,48,32,24"},
+	"ls_icon_1_2p": { "File": "ls_zoneicons.png", "Rect": "64,48,32,24"},
+	"ls_icon_2_2p": { "File": "ls_zoneicons.png", "Rect": "96,48,32,24"},
+	"ls_icon_3_2p": { "File": "ls_zoneicons.png", "Rect": "128,48,32,24"},
+	"ls_icon_4_2p": { "File": "ls_zoneicons.png", "Rect": "160,48,32,24"},
+
+	// player icons
+	"ls_sonic": { "File": "ls_playericons.png", "Rect": "0,0,32,24"},
+	"ls_mario": { "File": "ls_playericons.png", "Rect": "0,24,32,24"},
+	"ls_tails": { "File": "ls_playericons.png", "Rect": "32,0,32,24"},
+	"ls_miles": { "File": "ls_playericons.png", "Rect": "32,24,32,24"},
+	"ls_kte": { "File": "ls_playericons.png", "Rect": "64,0,32,24"},
+	"unknown_extraslot": { "File": "unknownesc.png"},
+	"ls_unknown": { "File": "ls_playericons.png", "Rect": "96,0,32,24"},
+	"em_mighty_icon": { "File": "em_mighty.png"},
+	"em_ray_icon": { "File": "em_ray.png"},
+	"em_shadow_icon": { "File": "em_shadow.png"},
+	
+	// bros (has a random chance of appearing)
+	"bros": { "File": "bros.png" },
+	// wega
+	"wega": { "File": "wega bros.png"}
+}
