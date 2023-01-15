@@ -380,15 +380,16 @@ function void RenderHUD()
 	if (baseX < 0x00)
 	{
 		baseX += 0x08
-		if !(global.zone_act == 0x0a01 || IsP1Sawnic()) // Fix for Origins SSZ Cutscene
+		if !(global.zone_act == 0x0a01 || IsP1Sawnic()) // Fix for Origins SSZ Cutscene and Sawnic cutscenes
 			global.level_started = baseX
 	}
 	baseX += 0x0f
 	s16 baseY = 0x08
 	u16 renderQueue = 0xe000
+
 	if (!debug_mode.state)
 	{
-		if (INF_LIVES_DISPLAY && NO_HUD == 0 && !Mods.isModActive("Achievements Plus HUD Compatibility") && !Mods.isModActive("Achievements Plus"))
+		if (INF_LIVES_DISPLAY && NO_HUD == 0 && ((!Mods.isModActive("Achievements Plus HUD Compatibility") && !Mods.isModActive("Achievements Plus")) || (Mods.isModActive("Achievements Plus HUD Compatibility") && Mods.isModActive("Achievements Plus"))))
 		{
 			if (Game.getSetting(SETTING_INFINITE_LIVES))
 			{
@@ -397,22 +398,31 @@ function void RenderHUD()
 				u16	py = useMobilePosition ? baseY : 200
 				if (!isExtraSlot()) // Disables the HUD display when Infinite Lives are on with the HUD display and you're using an Extra Slot. ESCU still isn't out so I am big stupid and don't know how to add full support for Extra Slots still.
 				{
-					HUD.drawSprite(getCharacterLivesIcon(getMainCharacter()), px, py, renderQueue)
-					++renderQueue
-					if (Mods.isModActive("Sawnic")) // Compatibility.
-						if (IsP1Sawnic() && (u8[0xffffb02b] & char.bonus.ELEMENTAL_SHIELDS))
-							DrawItems()
-					if (INF_LIVES_DISPLAY == 1)
-					{
-						if (lives_counter >= 10)
-							HUD.drawSmallDigit(u16((lives_counter / 10) % 10), px + 0x20, py + 8, renderQueue)
-						HUD.drawSmallDigit(u16(lives_counter % 10), px + 0x28, py + 8, renderQueue)
-					}
-					else
-						HUD.drawSprite("inflives", px + 0x26, py + 8, renderQueue)
+					if (!Mods.isModActive("Achievements Plus HUD Compatibility"))
+						drawInfiniteLives(px, py, renderQueue)
 				}
 			}
 		}
+	}
+}
+
+function void drawInfiniteLives(u16 px, u16 py, u16 renderQueue)
+{
+	if (!Mods.isModActive("Achievements Plus HUD Compatibility"))
+	{
+		HUD.drawSprite(getCharacterLivesIcon(getMainCharacter()), px, py, renderQueue)
+		++renderQueue
+		if (Mods.isModActive("Sawnic")) // Compatibility.
+			if (IsP1Sawnic() && (u8[0xffffb02b] & char.bonus.ELEMENTAL_SHIELDS))
+				DrawItems()
+		if (INF_LIVES_DISPLAY == 1)
+		{
+			if (lives_counter >= 10)
+				HUD.drawSmallDigit(u16((lives_counter / 10) % 10), px + 0x20, py + 8, renderQueue)
+			HUD.drawSmallDigit(u16(lives_counter % 10), px + 0x28, py + 8, renderQueue)
+		}
+		else
+			HUD.drawSprite("inflives", px + 0x26, py + 8, renderQueue)
 	}
 }
 

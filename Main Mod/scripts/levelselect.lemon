@@ -747,13 +747,13 @@ function void LevelSelect.init()
 		}
 
 		u16[A2] = 0x11
-		A2 = A2 + 0x50
+		A2 += 0x50
 		u16[A2] = 0x12
 		--D1.s16
 	}
 
 	u16[A2] = 0
-	A2 = A2 - 0x50
+	A2 -= 0x50
 	u16[A2] = 0x1a
 	u16[0xffff018a] = 0x13
 	u16[0xffff01da] = 0x14
@@ -1238,9 +1238,9 @@ function void EM.checkCheats()
 		Audio.playAudio(0xAC) // Continue Sound
 		global.super_emeralds = 7 // Give the Super Emeralds
 		System.writeDisplayLine("7 SUPER EMERALDS IN HAND") // Legends blurred and torn
-		for (u8 i = 8; i <= 15; i++)
+		for (u8 i = 1; i <= 7; i++)
 		{
-			u8[0xffffffb2 + (i - 1)] = 0x01
+			u8[0xffffffb2 + (i - 1)] = 0x03
 		}
 	}
 }
