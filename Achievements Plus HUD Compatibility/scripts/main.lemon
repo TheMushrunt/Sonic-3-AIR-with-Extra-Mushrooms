@@ -45,7 +45,7 @@ function void drawInfiniteLives(u16 px, u16 py, u16 renderQueue)
 	if (Mods.isModActive("Sawnic")) // Compatibility.
 		if (IsP1Sawnic() && (u8[0xffffb02b] & char.bonus.ELEMENTAL_SHIELDS))
 			DrawItems()
-	if (INF_LIVES_DISPLAY == 1)
+	if (INF_LIVES_DISPLAY == 1 || !Game.getSetting(SETTING_INFINITE_LIVES))
 	{
 		if (lives_counter >= 10)
 			HUD.drawSmallDigit(u16((lives_counter / 10) % 10), px + 0x20, py + 8, renderQueue)
