@@ -7,5 +7,5 @@
 	"origins_ls_s3c": { "File": "origins_ls_s3c.png", "Center": "12,8"},
 	"origins_ls_s3a": { "File": "origins_ls_s3a.png", "Center": "12,8"},
 	"origins_ls_em": { "File": "origins_ls_em.png", "Center": "12,8"},
-	"ls_s&k": { "File": "ls_s&k.png"}
+	"ls_s&k": { "File": "ls_s&k.png", "Center": "48,8"}
 }

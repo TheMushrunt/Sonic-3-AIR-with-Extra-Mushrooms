@@ -138,6 +138,17 @@
 				}
 			},
 			{
+				"InternalName": "Use Base Level Select",
+				"DisplayName": "Use Base Level Select",
+				"Variable": "LS_FORCE_BASE",
+				"Category": "Level Select",
+				"DefaultValue": "0",
+				"Options": {
+					"0": "Off",
+					"1": "On"
+				}
+			},
+			{
 				"InternalName": "Level Select Zone Order",
 				"DisplayName": "Level Select Zone Order",
 				"Variable": "LS_ZONEORDER",
@@ -209,7 +220,9 @@
 					"0": "Unchanged/Default",
 					"1": "Extra Mushrooms",
 					"2": "csean07 Mod Track",
-					"3": "Moddable Music Track"
+					"3": "Moddable Music Track",
+					"4": "Blue Spheres Title Screen",
+					"5": "Sound Additions BS Screen"
 				}
 			},
 			{
