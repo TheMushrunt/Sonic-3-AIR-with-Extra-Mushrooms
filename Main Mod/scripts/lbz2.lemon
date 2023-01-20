@@ -3,6 +3,24 @@ global u8 SKIPLBZ2 // Skippable Cutscene
 global u8 LBZ2SFS // Sky Fade Speed
 global u8 SODEFALL // Sonic Origins sounds for End Cutscene
 global u8 EBA // Easier Big Arms
+global u16 BAH // Big Arms Hits
+
+//# address-hook(0x0742a8) end(0x074308)
+function void fn0742a8()
+{
+	base.fn0742a8()
+	boss.remaining_hits = BAH
+}
+
+function void DrawBossHealthBar(u8 boss.id, u8 bar.health, u8 bar.max)
+{
+	if Mods.isModActive("Bossbar")
+	{
+		if (boss.id == 0x74)
+			bar.max = BAH
+		base.DrawBossHealthBar(boss.id, bar.health, bar.max)
+	}
+}
 
 //# address-hook(0x0744a4) end(0x0744e2)
 function void fn0744a4()
