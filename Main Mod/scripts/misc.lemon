@@ -28,7 +28,7 @@ function u64 Monitor.getIconSpriteKey(u8 type)
 function void UpdatePaletteEffects.SuperForm.moddingVersion(u8 characterVersion)
 {
 	bool isHyperEffect = (super.active == 0xff || super.active.tails == 0xff)
-	if (super.palettefx.state & 0x80 && (ORIGINS_HYPER_FX % 2 != 0 || FASTER_SUPER_FADE) && (isHyperEffect || (!isHyperEffect && FASTER_SUPER_FADE)))
+	if (super.palettefx.state & 0x80 && (ORIGINS_HYPER_FX % 2 != 0) && (isHyperEffect || (!isHyperEffect && FASTER_SUPER_FADE)))
 	{
 		// Update ongoing palette effect
 		u8 character = getMainCharacter()
@@ -43,11 +43,18 @@ function void UpdatePaletteEffects.SuperForm.moddingVersion(u8 characterVersion)
 			nextFrame = (super.palettefx.frame.tails + 6) % (isHyperEffect ? 108 : 18)
 			blendFactor = super.palettefx.timer.tails * 0x100 / (isHyperEffect ? 0x07 : 0x0f)
 		}
-		if (nextFrame % 18 == 0)
-			blendFactor = 0x100 - blendFactor
-		else if (nextFrame % 18 == 12)
-			blendFactor = 0
-
+		if (isHyperEffect && character == CHARACTER_SONIC)
+		{
+			if (nextFrame % 4 == 0)
+				blendFactor = 0x100 - blendFactor
+		}
+		else
+		{
+			if (nextFrame % 18 == 0)
+				blendFactor = 0x100 - blendFactor
+			else if (nextFrame % 18 == 12)
+				blendFactor = 0
+		}
 		for (u8 underwater = 0; underwater < (level.water_present ? 2 : 1); ++underwater)
 		{
 			u32 offset = character * 0x40 + (underwater ? 0x300 : 0)
@@ -79,7 +86,6 @@ function void UpdatePaletteEffects.SuperForm.moddingVersion(u8 characterVersion)
 				}
 			}
 		}
-
 		if (characterVersion == 2)
 		{
 			// Super/Hyper Tails
@@ -104,7 +110,7 @@ function void UpdatePaletteEffects.SuperForm.moddingVersion(u8 characterVersion)
 		bool FasterSuperSonicFade = (FASTER_SUPER_FADE && character == CHARACTER_SONIC)
 		if (super.palettefx.timer < 0)
 		{
-			super.palettefx.timer = isHyperEffect ? 0x07 : FasterSuperSonicFade ? 0x0d : 0x0f
+			super.palettefx.timer = isHyperEffect ? 0x0e : FasterSuperSonicFade ? 0x0d : 0x0f
 			super.palettefx.frame = isHyperEffect ? nextFrame: FasterSuperSonicFade ? nextFrame*2: nextFrame
 		}
 	}
@@ -114,7 +120,7 @@ function void UpdatePaletteEffects.SuperForm.moddingVersion(u8 characterVersion)
 // removing alpha from Hyper stars
 function bool Standalone.onDrawVdpSprite(s16 px, s16 py, u8 size, u16 index, u16 renderQueue)
 {
-	if (ORIGINS_HYPER_FX >= 2 && objA0.update_address == 0x0193ec || objA0.update_address == 0x0193ca)
+	if (ORIGINS_HYPER_FX > 1 && objA0.update_address == 0x0193ec || objA0.update_address == 0x0193ca)
 	{
 		Renderer.drawVdpSpriteWithAlpha(px, py, size, index, renderQueue, 0xff)
 		return true
