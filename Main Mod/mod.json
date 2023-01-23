@@ -463,6 +463,17 @@
 				}
 			},
 			{
+				"InternalName": "Debug Pause to Level Select",
+				"DisplayName": "Debug Pause to Level Select",
+				"Variable": "DEBUG_PAUSE_TO_LS",
+				"Category": "Miscellaneous Stuff",
+				"DefaultValue": "1",
+				"Options": {
+					"0": "Off",
+					"1": "On"
+				}
+			},
+			{
 				"InternalName": "Pause Sound",
 				"DisplayName": "Pause Sound",
 				"Variable": "S3EM_PAUSE_SFX",
