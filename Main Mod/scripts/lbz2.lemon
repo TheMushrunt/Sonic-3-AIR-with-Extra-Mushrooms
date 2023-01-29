@@ -17,7 +17,12 @@ function void DrawBossHealthBar(u8 boss.id, u8 bar.health, u8 bar.max)
 	if Mods.isModActive("Bossbar")
 	{
 		if (boss.id == 0x74)
-			bar.max = BAH
+		{
+			if (boss.remaining_hits > 8)
+				bar.max = boss.remaining_hits
+			else
+				bar.max = 8
+		}
 		base.DrawBossHealthBar(boss.id, bar.health, bar.max)
 	}
 }
