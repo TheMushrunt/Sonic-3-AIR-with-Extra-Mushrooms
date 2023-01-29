@@ -287,7 +287,7 @@ function void SonicPressedJumpInMidAir()
 	char.double_jump_state = 1
 	if ((!super.active || (super.active < 0xff && (Game.getSetting(SETTING_SUPER_SONIC_ABILITY) == 1))) && !IsP1Sawnic())
 	{
-		if (char.bonus_effect & char.bonus.SHIELD_LIGHTNING)
+		if ((char.bonus_effect & char.bonus.SHIELD_LIGHTNING) && !((char.bonus_effect & char.bonus.INVINCIBLE) && (Game.getSetting(SETTING_SUPER_SONIC_ABILITY) != 1)))
 		{
 		#if STANDALONE
 			if (super.active)
@@ -305,6 +305,7 @@ function void SonicPressedJumpInMidAir()
 				char.velocity.y = -0x580
 			playSound(SFX_LIGHTNINGJUMP)
 		}
+
 		else base.SonicPressedJumpInMidAir()
 	}
 	else base.SonicPressedJumpInMidAir()
