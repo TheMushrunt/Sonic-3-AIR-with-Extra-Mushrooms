@@ -32,7 +32,7 @@ function void UpdatePaletteEffects.SuperForm.moddingVersion(u8 characterVersion)
 	{
 		// Update ongoing palette effect
 		u8 character = getMainCharacter()
-		u16 nextFrame = (super.palettefx.frame + 6) % (isHyperEffect ? 108 : 18)
+		u16 nextFrame = (super.palettefx.frame + 9) % (isHyperEffect ? 108 : 18)
 		if (character == CHARACTER_SONIC && isHyperEffect && ORIGINS_HYPER_FX % 2 != 0)
 			u16 blendFactor = super.palettefx.timer
 		else
@@ -45,7 +45,7 @@ function void UpdatePaletteEffects.SuperForm.moddingVersion(u8 characterVersion)
 		}
 		if (isHyperEffect && character == CHARACTER_SONIC)
 		{
-			if (nextFrame % 4 == 0)
+			if (nextFrame % 2 == 0)
 				blendFactor = 0x100 - blendFactor
 		}
 		else
@@ -97,7 +97,7 @@ function void UpdatePaletteEffects.SuperForm.moddingVersion(u8 characterVersion)
 			}
 
 			// Also update Sonic's colors, for the flickies
-			if (super.active.tails == 0xff)
+			if (super.active.tails == 0xff && !isExtraSlot())
 				UpdatePaletteEffects.UpdateSuperSonic.Smoothed(0xff)
 			return
 		}
