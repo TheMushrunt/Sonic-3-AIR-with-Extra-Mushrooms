@@ -14,6 +14,8 @@ global u8 LS_ZONEORDER
 global u8 EM_2PSTAGES
 global u8 LS_FORCE_BASE
 
+global u8 YOU_FUCKED_UP_KID
+
 constant array<u64> LSNames =
 {
 	"angel island", "[ZONE 2]", "marble garden", "carnival night", "[ZONE 5]", "launch base", "[ZONE 7]", "flying battery", "sandopolis",
@@ -233,6 +235,7 @@ function void playLevelSelectMusic()
 
 function void DrawLevelSelectBG()
 {
+	u16[0xfffffc00] = 0x0000
 	u64 prefix_key // origins or not
 	u64 suffix_key // S2/3, S3C, S3A (in S3C), S&K (in S3C), EM, or EM (alt)
 	if (Mods.isModActive("Origins Title + Menu Backgrounds") || Mods.isModActive("Consistent Sonic 3"))
@@ -286,9 +289,12 @@ function void DrawSpritesToLevelSelect()
 		Renderer.drawLSText(FONT_LS, FONT_LS_Y)
 	//Renderer.drawCustomSprite("ls_text", 0, 0, 0x00, 0, 0x1000)
 	if (ScaredHaters != 1)
-	{
-		Renderer.drawText(FONT_LS_Y, (getScreenWidth()-104)-48, getScreenHeight()-16,(stringformat("%x", (levelselect.characters / 10) % 10)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
-		Renderer.drawText(FONT_LS_Y, (getScreenWidth()-104)-40, getScreenHeight()-16,(stringformat("%x", levelselect.characters % 10)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+	{	
+		Renderer.drawText(FONT_LS_Y, (getScreenWidth()-104)-64, getScreenHeight()-16,"*  *", 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+		Renderer.drawText(FONT_LS_Y, (getScreenWidth()-104)-56, getScreenHeight()-16,(stringformat("%x", (levelselect.characters / 10) % 10)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+		Renderer.drawText(FONT_LS_Y, (getScreenWidth()-104)-48, getScreenHeight()-16,(stringformat("%x", levelselect.characters % 10)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+		
+		u8 ExtraSlotStart = 4
 		if (levelselect.characters == 0)
 		{
 			Renderer.drawCustomSprite("continue_icon_sonic", getScreenWidth()-104, getScreenHeight()-8, 0x00, 0, 0x9f7e)
@@ -306,16 +312,27 @@ function void DrawSpritesToLevelSelect()
 		{
 			Renderer.drawCustomSprite("continue_icon_knuckles", getScreenWidth()-104, getScreenHeight()-8, 0x00, 0, 0x9f7e)
 		}
-		else if (levelselect.characters == 4)
+		else if (levelselect.characters == 4 && Game.isSecretUnlocked(SECRET_KNUX_AND_TAILS))
 		{
+			++ExtraSlotStart
 			Renderer.drawCustomSprite("continue_icon_knuckles", getScreenWidth()-104, getScreenHeight()-8, 0x00, 0, 0x9f7e)
 			Renderer.drawCustomSprite("continue_icon_tails", (getScreenWidth()-104)-16, getScreenHeight()-8, 0x00, 0, 0x9f7e)
 		}
-		else if (levelselect.characters > 4)
+		else if (levelselect.characters > ExtraSlotStart)
 		{
 			// TODO: (PROPER) Extra Slot Support
 			// probably coming whenever that new base is released. glad they're documenting it and stuff though
-			Renderer.drawCustomSprite("unknown_extraslot", (getScreenWidth()-104)-11, (getScreenHeight()-8)-24, 0x00, 0, 0x9f7e)
+			if ((levelselect.characters == ExtraSlotStart+1) && Mods.isModActive("Extra Slot Mighty"))
+			{
+				Renderer.drawCustomSprite("Continue_icon_S3_alt", (getScreenWidth()-104), (getScreenHeight()-7), 0x00, 0, 0x9f7e)
+			}
+			else if ((levelselect.characters == ExtraSlotStart+2) && Mods.isModActive("Extra Slot Ray"))
+			{
+				u16[0xfffffc00 + 0x02] = 0x0eee
+				u16[0xfffffc00 + 0x1e] = 0x0222
+				Renderer.drawCustomSprite("continue_icon_Ray_S3_alt", (getScreenWidth()-104), (getScreenHeight()-9), 0x00, 0, 0x9f7e)
+			}
+			else Renderer.drawCustomSprite("unknown_extraslot", (getScreenWidth()-104)-11, (getScreenHeight()-8)-24, 0x00, 0, 0x9f7e)
 		}
 		u8 miles_check = (global.region_code & 0x80) ? 0x39ab6a : 0x39aa18
 		if (levelselect.selection < 0x05 && EM_2PSTAGES)
@@ -347,10 +364,16 @@ function void DrawSpritesToLevelSelect()
 					Renderer.drawCustomSprite("ls_tails", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
 				else
 					Renderer.drawCustomSprite("ls_miles", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
-			else if (levelselect.characters == 3 || levelselect.characters == 4)
+			else if (levelselect.characters == 3 || levelselect.characters == ExtraSlotStart)
 				Renderer.drawCustomSprite("ls_kte", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
 			else
-				Renderer.drawCustomSprite("ls_unknown", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+			{
+				if ((levelselect.characters == ExtraSlotStart+1) && Mods.isModActive("Extra Slot Mighty"))
+					Renderer.drawCustomSprite("ls_mighty", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+				else if ((levelselect.characters == ExtraSlotStart+2) && Mods.isModActive("Extra Slot Ray"))
+					Renderer.drawCustomSprite("ls_ray", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+				else Renderer.drawCustomSprite("ls_unknown", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+			}
 				
 		Renderer.drawCustomSprite("ls_emblem", getScreenWidth()-88, getScreenHeight()-56, 0x00, 0, 0x9f7e)
 	}
@@ -400,6 +423,11 @@ function void scareTheHaters(u64 FONT_LS)
 
 function void LevelSelect.init()
 {
+	loadCharacterPalette(3, 0x802180, 0)
+	loadCharacterPalette(4, 0x8021c0, 0)
+	loadCharacterPalette(5, 0x802200, 0)
+	if (YOU_FUCKED_UP_KID != 1)
+		YOU_FUCKED_UP_KID = 0
 	if (!LS_FORCE_BASE)
 	{
 		// Disable active display for now
@@ -492,163 +520,71 @@ function bool LevelSelect.innerUpdate()
 {
 	if (!LS_FORCE_BASE)
 	{
-	Renderer.resetSprites()
-	DrawSpritesToLevelSelect()
-	
-#if STANDALONE
-	// Corrections for widescreen
-	//  -> Actually no need to do this each frame, but I like to load level select save states and want it to be corrected after initialization
-	for (u16 base = 0xe000; base < 0xee00; base += 0x80)
-	{
-		for (u16 x = 0; x < 0x30; x += 2)
+		Renderer.resetSprites()
+		DrawSpritesToLevelSelect()
+		if ((control.pad1.pressed | control.pad2.pressed) & CONTROL_START)
 		{
-			setVRAM(base + x + 0x50, getVRAM(base + x + 0x08))
-		}
-	}
-
-	// Foreground scroll offset
-#endif
-
-#if !STANDALONE
-	set_status_register(0x2700)
-#endif
-	D3 = 0
-	fn007f62()
-	fn007e64()
-	D3.u16 = 0x6000
-	fn007f62()
-#if !STANDALONE
-	set_status_register(0x2300)
-#endif
-
-	A2 = 0x0081b0
-	LevelTilesAnim.Default()		
-	if ((control.pad1.pressed | control.pad2.pressed) & CONTROL_START)
-	{
-		if (global.lock_on_state != 0)
-		{
-			if (levelselect.characters < CHARS_KNUCKLES_ALONE)
-				levelselect.characters = CHARS_SONIC_ALONE
-		}
-
-		global.characters = levelselect.characters
-	#if STANDALONE
-		// Handle Knuckles & Tails
-		useKnucklesAndTails = (global.characters == CHARS_KNUCKLES_AND_TAILS)
-		global.characters = min(global.characters, 3)
-	#endif
-
-		D0.u16 = u16[0x007d22 + levelselect.selection * 2]
-		if (D0.u16 & 0x8000)
-		{
-			global.game_mode = 0
-			return true
-		}
-
-		if (D0.u16 != 0x5555)
-		{
-		if (ScaredHaters != 1)
-		{
-			// Start game
-			Standalone.playAudio(0xaf)
-			lives_counter = 3
-			global.sk_bluespheres = 0
-		#if STANDALONE
-			player.next_life_score = 5000
-			unused.player2.next_life_score = 5000
-		#endif
-
-			if (D0.u16 == 0x4000 || D0.u16 == 0x4001)
+			if ((levelselect.characters > 4 && Game.isSecretUnlocked(SECRET_KNUX_AND_TAILS)) || (levelselect.characters > 3 && !Game.isSecretUnlocked(SECRET_KNUX_AND_TAILS))  && YOU_FUCKED_UP_KID)
+				++YOU_FUCKED_UP_KID
+			if (D0.u16 != 0x5555)
 			{
-				// Start Blue Spheres
-				if (D0.u16 == 0x4000)
+				if (ScaredHaters != 1 && YOU_FUCKED_UP_KID < 2)
 				{
-					// Blue Spheres from Sonic 3
-					if (global.lock_on_state != 0)
-					{
-						global.sk_bluespheres = 1
-					}
+					Standalone.playAudio(0xaf)
+					return base.LevelSelect.innerUpdate()
 				}
-				else if (D0.u16 == 0x4001)
+				else if (ScaredHaters != 1 && YOU_FUCKED_UP_KID >= 2)
 				{
-					// Blue Spheres from Sonic & Knuckles
-					global.sk_bluespheres = 1
-				}
+					playSound(0x7B)
 
-				// Start Blue Spheres
-				global.game_mode = 0x34
+					System.writeDisplayLine("Sorry! Extra Slots end up causing issues from the Title Screen's Level Select. You can still use them in the AIR menu level select though!")
 
-			#if STANDALONE
-				if (control.pad1.state & CONTROL_A)
-				{
-					// This is needed to make the special stage selection (incl. 8th stage) work
-					//  -> You need to start a special stage form level select by pressing A + Start
-					//  -> Current sound test selection tells the game which stage to start
-					//  -> See "BlueSpheres.getNextOpenStageIndex()" function for more
-					debug_mode.unlocked = 1
-				}
+					u32 backupA0 = A0
+					FadeOutScreenBlocking()
+					A0 = backupA0
 
-			#else
-				// Tried to start a Sonic 3 stage in S&K ?
-				if (global.lock_on_state != 0)
-				{
-					if (global.zone_act != 0x0400 && global.zone_act < 0x0700)
-					{
-						global.zone_act = 0x0700
-						global.zone_act.apparent = 0x0700
-						checkpoint.zone_act = 0x0700
-						checkpoint.zone_act.apparent = 0x0700
-					}
-				}
-			#endif
-				return false
-			}
-			else
-			{
-				// Normal levels
-				if (fn007d6c())
-				{
+					// Do not fade out music in this case, Data Select music is meant to kept playing
+					YOU_FUCKED_UP_KID = 0
+
+					Game.returnToMainMenu()
+					yieldExecution()
 					return false
 				}
 			}
 		}
-	}
-	}
-#if STANDALONE
-	else if (control.pad1.pressed & CONTROL_B || Input.buttonPressed(BUTTON_BACK))
-	{
-		playSound(0xad)
-
-		u32 backupA0 = A0
-		FadeOutScreenBlocking()
-		A0 = backupA0
-
-		// Do not fade out music in this case, Data Select music is meant to kept playing
-		Game.returnToMainMenu()
-		yieldExecution()
-		return false
-	}
-	if (Input.buttonPressed(BUTTON_Y))
-	{
-		if (levelselect.selection != 0x20)
+		else if (control.pad1.pressed & CONTROL_B || Input.buttonPressed(BUTTON_BACK))
 		{
-			levelselect.selection = 0
-			if (!EM_2PSTAGES)
+			playSound(0xad)
+
+			u32 backupA0 = A0
+			FadeOutScreenBlocking()
+			A0 = backupA0
+
+			// Do not fade out music in this case, Data Select music is meant to kept playing
+			YOU_FUCKED_UP_KID = 0
+			Game.returnToMainMenu()
+			yieldExecution()
+			return false
+		}
+		else if (Input.buttonPressed(BUTTON_Y))
+		{
+			if (levelselect.selection != 0x20)
 			{
-				EM_2PSTAGES = 1
-				Audio.playAudio(0x52)
-			}
-			else
-			{
-				EM_2PSTAGES = 0
-				Audio.playAudio(0x7B)
+				levelselect.selection = 0
+				if (!EM_2PSTAGES)
+				{
+					EM_2PSTAGES = 1
+					Audio.playAudio(0x52)
+				}
+				else
+				{
+					EM_2PSTAGES = 0
+					Audio.playAudio(0x7B)
+				}
 			}
 		}
 	}
-#endif
-	return true
-	}
-	else return base.LevelSelect.innerUpdate()
+	return base.LevelSelect.innerUpdate()
 }
 
 //# address-hook(0x007f62) end(0x008010)
@@ -875,12 +811,12 @@ function void fn007e64()
 
 			if (control.pad1.pressed & CONTROL_C)
 			{
-				u8 maxCharacterSelection = 3
+				u8 maxCharacterSelection = WhatWillItBe(3)
 			#if STANDALONE
 				// Knuckles & Tails
 				if (Game.isSecretUnlocked(SECRET_KNUX_AND_TAILS))
 				{
-					maxCharacterSelection = 4
+					maxCharacterSelection = WhatWillItBe(4)
 				}
 			#endif
 
@@ -931,4 +867,11 @@ function void EM.checkCheats()
 		for (u8 i = 1; i <= 7; i++)
 			u8[0xffffffb2 + (i - 1)] = 0x03
 	}
+}
+
+function u8 WhatWillItBe(u8 maxCharacterSelection)
+{
+	if Mods.isModActive("Extra Characters Base")
+		return base.WhatWillItBe(maxCharacterSelection)
+	else return maxCharacterSelection
 }

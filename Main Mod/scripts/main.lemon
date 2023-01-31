@@ -17,6 +17,7 @@ global u8 EM_OGB_DISPLAY
 global u8 EM_TM_R_DISPLAY
 global u8 NO_SECRETS_ON_3AIRMENU
 global u8 TS_ANIMATED_BG
+global u8 YOU_FUCKED_UP_KID
 
 include levelselect
 include misc
@@ -358,6 +359,7 @@ function void OptionInit()
 			if (Game.isSecretUnlocked(SECRET_DEBUGMODE))
 			{
 				extraMushroomsLS.discordRPC()
+				YOU_FUCKED_UP_KID = 1
 				EntryFunctions.levelSelect()
 				yieldExecution()
 			}
@@ -467,6 +469,7 @@ function void Menu.FadeInAfterInit()
 		// SEGA logo
 		if (global.game_mode == 0x04)
 		{
+			YOU_FUCKED_UP_KID = 0
 			Renderer.resetSprites()
 			if (EM_OGB_DISPLAY == 1)
 				Renderer.drawCustomSprite("original_game_by", getScreenWidth() / 2 - 85, 60, 0x00, 0, 0x2000, 0, u16(u8[0xfffffc01] & 0x0e) * 96 / 0x0e)
