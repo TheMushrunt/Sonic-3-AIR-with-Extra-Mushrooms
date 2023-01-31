@@ -14,116 +14,175 @@ global u8 LS_ZONEORDER
 global u8 EM_2PSTAGES
 global u8 LS_FORCE_BASE
 
-function u64 getLevelSelectNames(u8 zone)
+constant array<u64> LSNames =
 {
-	if (zone == 0) // AIZ
-		return "angel island"
-	else if (zone == 1) // HCZ
-	{
-		if (LS_HCZ == 0)
-			return "hydrocity"
-		else if (LS_HCZ == 1)
-			return "hydro city"
-		else if (LS_HCZ == 2)
-			return "hydrossity"
-		else
-			return "toilet town"
-	}
-	else if (zone == 2) // MGZ
-		return "marble garden"
-	else if (zone == 3) // CNZ
-		return "carnival night"
-	else if (zone == 4) // ICZ/FBZ
-	{
-		if (LS_ZONEORDER)
-			return "flying battery"
-		else
-		{
-			if (LS_ICZ == 0)
-				return "icecap"
-			else if (LS_ICZ == 1)
-				return "ice cap"
-			else
-				return "mount shiver"
-		}
-	}
-	else if (zone == 5) // LBZ/ICZ
-	{
-		if (LS_ZONEORDER)
-		{
-			if (LS_ICZ == 0)
-				return "icecap"
-			else if (LS_ICZ == 1)
-				return "ice cap"
-			else
-				return "mount shiver"
-		}
-		else
-			return "launch base"
-	}
-	else if (zone == 6) // MHZ/LBZ
-	{
-		if (LS_ZONEORDER)
-			return "launch base"
-		else
-		{
-			if (LS_MHZ == 0)
-				return "mushroom valley"
-			else if (LS_MHZ == 1)
-				return "mushroom hill"
-			else
-				return "mushroom forest"
-		}
-	}
-	else if (zone == 7) // FBZ/MHZ
-	{
-		if (LS_ZONEORDER)
-		{
-			if (LS_MHZ == 0)
-				return "mushroom valley"
-			else if (LS_MHZ == 1)
-				return "mushroom hill"
-			else
-				return "mushroom forest"
-		}
-		else
-			return "flying battery"
-	}
-	else if (zone == 8) // SOZ
-		return "sandopolis"
-	else if (zone == 9) // LRZ
-		return "lava reef"
-	else if (zone == 10) // HPZ
-		return "hidden palace"
-	else if (zone == 11) // SSZ
-		return "sky sanctuary"
-	else if (zone == 12) // DEZ
-		return "death egg"
-	else if (zone == 13) // DDZ
-		return "the doomsday"
-	else if (zone == 14) // BONUS
-		return "bonus stage"
-	else if (zone == 15) // SPECIAL
-		return "special stage"
+	"angel island", "[ZONE 2]", "marble garden", "carnival night", "[ZONE 5]", "launch base", "[ZONE 7]", "flying battery", "sandopolis",
+	"lava reef", "hidden palace", "sky sanctuary", "death egg", "the doomsday", "bonus stage", "special stage", "sound test"
 }
 
-function u64 getLevelSelect2PNames(u8 zone)
+constant array<u64> LSNames_OGOrder =
 {
-	if (zone == 0) // ALZ
-		return "azure lake"
-	else if (zone == 1) // BPZ
-		return "balloon park"
-	else if (zone == 2) // CGZ
-		return "chrome gadget"
-	else if (zone == 3) // DPZ
-		return "desert palace"
-	else if (zone == 4) // EMZ
-		return "endless mine"
-	else if (zone == 5) // Altar
-		return "hidden palace altar"
-	else if (zone == 6) // Ending
-		return "game ending"
+	"angel island", "[ZONE 2]", "marble garden", "carnival night", "flying battery", "[ZONE 5]", "launch base", "[ZONE 7]", "sandopolis",
+	"lava reef", "hidden palace", "sky sanctuary", "death egg", "the doomsday", "bonus stage", "special stage", "sound test"
 }
+
+constant array<u64> HCZNames =
+{
+	"hydrocity", "hydro city", "hydrossity", "toilet town"
+}
+
+constant array<u64> ICZNames =
+{
+	"icecap", "ice cap", "mount shiver"
+}
+
+constant array<u64> MHZNames =
+{
+	"mushroom valley", "mushroom hill", "mushroom forest"
+}
+
+constant array<u64> LSNames_2P =
+{
+	"azure lake", "balloon park", "chrome gadget", "desert palace", "endless mine", "hidden palace altar", "game ending"
+}
+
+constant array<u64> LSNumbers =
+{
+	"1", "2", "[BOSS TEXT]", "s", "k", "g", "r", "s"
+}
+
+constant array<u64> LSBossText =
+{
+	"3", "x", "boss", "{}"
+}
+
+
+function void Renderer.drawLSText(u64 FONT_LS, u64 FONT_LS_Y)
+{
+	if (EM_2PSTAGES)
+		{
+			u16 height = 8
+			for (u8 i; i < LSNames_2P.length(); ++i)
+			{
+				u64 zonename = LSNames_2P[i]
+				if (levelselect.selection == i)
+					u64 font = FONT_LS_Y
+				else
+					font = FONT_LS
+				Renderer.drawText(font, 16, height, zonename, 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				height += 24
+			}
+		}
+		else
+		{
+			u16 xposition = 16
+			u16 yposition = 8
+			for (u8 i = 0; i < (LSNames.length()-1); i++)
+			{
+				if (i == 9)
+				{
+					xposition = 176
+					yposition = 8
+				}
+				if (!LS_ZONEORDER)
+					u64 zonename = LSNames[i]
+				else
+					zonename = LSNames_OGOrder[i]
+				if (zonename == "[ZONE 2]") // HCZ Names
+					zonename = HCZNames[LS_HCZ]
+				else if (zonename == "[ZONE 5]") // ICZ Names
+					zonename = ICZNames[LS_ICZ]
+				else if (zonename == "[ZONE 7]") // MHZ Names
+					zonename = MHZNames[LS_MHZ]
+				u8 test = 0
+				if ((levelselect.selection / 2) == i && (levelselect.selection != 0x14 && levelselect.selection != 0x1b && levelselect.selection != 0xff))
+					u64 font = FONT_LS_Y
+				else if ((i == 9 && levelselect.selection == 0x14) || (i == 12 && levelselect.selection == 0x1b) || (i == 14 && levelselect.selection == 0xff))
+				{
+					font = FONT_LS_Y
+					test = 1
+				}
+				else
+					font = FONT_LS
+				Renderer.drawText(font, xposition, yposition, zonename, 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				u16 numberXposition = xposition + 120
+				u16 numberYposition = yposition
+				u8 LSCount = 2
+				if (i == 9 || i == 12 || i == 14)
+					LSCount = 3
+				for (u8 j = 0; j < LSCount; j++)
+				{
+					u64 numberfont
+					u8 offset = 0
+					if (i == 11)
+						offset += 3
+					if (i == 14)
+						offset += 5
+					if (levelselect.selection/2 == i)
+					{
+						if (j == 0 && levelselect.selection % 2 == 0)
+							numberfont = FONT_LS_Y
+						else if (j == 1 && levelselect.selection % 2 != 0)
+							numberfont = FONT_LS_Y
+						else
+							numberfont = FONT_LS
+					}
+					else if (test && j == 2)
+						numberfont = FONT_LS_Y
+					else
+						numberfont = FONT_LS
+					u64 number = LSNumbers[j+offset]
+					if (number == "[BOSS TEXT]")
+					{
+						number = LSBossText[LS_BOSS]
+						if (LS_BOSS == 3)
+							numberXposition -= 8
+					}
+					if (i != 10 && i != 13)
+						Renderer.drawText(numberfont, numberXposition, numberYposition, number, 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+					numberYposition += 8
+				}
+				yposition += 24
+			}
+		}
+		
+		// sound test values
+		// this determines whether the text will be highlighted or not, since this isn't a zone in the game (no worrying about an act 2)
+		u64 determineSTcolor
+		if (levelselect.selection == 0x20)
+			determineSTcolor = FONT_LS_Y
+		else
+			determineSTcolor = FONT_LS
+		if (ST_STYLE == 1)
+		{
+			Renderer.drawText(determineSTcolor, 264, 176, "<   >", 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+			if (levelselect.soundtest < 0x0a)
+			{
+				Renderer.drawText(determineSTcolor, 272, 176, "00" , 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+				Renderer.drawText(determineSTcolor, 288, 176,(stringformat("%d", levelselect.soundtest)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+			}
+			else if (levelselect.soundtest < 0x64)
+			{
+				Renderer.drawText(determineSTcolor, 272, 176, "0" , 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+				Renderer.drawText(determineSTcolor, 280, 176,(stringformat("%d", levelselect.soundtest)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+			}
+			else
+				Renderer.drawText(determineSTcolor, 272, 176,(stringformat("%d", levelselect.soundtest)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+		}
+		else
+		{
+			Renderer.drawText(determineSTcolor, 272, 176, "*  *", 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+			if (levelselect.soundtest < 0x10)
+			{
+				Renderer.drawText(determineSTcolor, 280, 176, "0" , 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+				Renderer.drawText(determineSTcolor, 288, 176,(stringformat("%x", levelselect.soundtest)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+			}
+			else
+				Renderer.drawText(determineSTcolor, 280, 176,(stringformat("%x", levelselect.soundtest)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+		}
+		Renderer.drawText(determineSTcolor, 176, 176, LSNames[16], 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+}
+
 function void ScareAwayTheHaters()
 {
 	if (Mods.isModActive("Sonic 3 Complete Sound Test") || Mods.isModActive("extended level select") && !LS_FORCE_BASE)
@@ -215,423 +274,16 @@ function void DrawSpritesToLevelSelect()
 		FONT_LS = "ls_font"
 		FONT_LS_Y = "ls_font_y"
 	}
-	// determines what indicates a boss act in level select
-	u64 getBossText
-	if (LS_BOSS == 0) // act 3
-		getBossText = "   3"
-	else if (LS_BOSS == 1) // act x
-		getBossText = "   x"
-	else if (LS_BOSS == 2) // act boss
-		getBossText = "boss"
-	else // eggman icon
-		getBossText = "  {} "
-	// determines name for seventh zone
+
 	if (ScaredHaters == 1)
 	{
-		Renderer.drawCustomSprite("fixpriority", getScreenWidth()-200, 112, 0x00, 0, 0xFFFE)
-		Renderer.drawCustomSprite("livemario", 0, 112, 0x00, 0, 0xFFFE)
-		if (Mods.isModActive("Origins Title + Menu Backgrounds") || Mods.isModActive("Consistent Sonic 3"))
-			Renderer.drawCustomSprite("origins_ls_priorityissue", getScreenExtend() - 40, 0, 0x00, 0, 0x1000)
-		else
-			Renderer.drawCustomSprite("ls_priorityissue", getScreenExtend() - 40, 0, 0x00, 0, 0x1000)
-		Renderer.drawText(FONT_LS, 8, beginningOfText, "it seems there was some issues involving: ", 0xFFFFFFFF, 1, 0, 0xFFFF, true)
-		if (Mods.isModActive("Sonic 3 Complete Sound Test"))
-		{
-			if (Mods.getModPriority("Sonic 3 A.I.R. with Extra Mushrooms") > Mods.getModPriority("Sonic 3 Complete Sound Test"))
-				Renderer.drawText(FONT_LS, 8, beginningOfText + 8, "*'sonic 3 complete sound test'", 0x00FFFFFF, 1, 0, 0xFFFF, true)
-		}
-		if (Mods.isModActive("extended level select"))
-		{
-			if (Mods.isModActive("Sonic 3 Complete Sound Test"))
-			{
-				if (Mods.getModPriority("Sonic 3 A.I.R. with Extra Mushrooms") > Mods.getModPriority("extended level select"))
-				{
-					beginningOfText = beginningOfText + 8
-					Renderer.drawText(FONT_LS, 8, beginningOfText + 8, "*'extended level select'", 0x00FFFFFF, 1, 0, 0xFFFF, true)
-				}
-			}
-			else
-			{
-				if (Mods.getModPriority("Sonic 3 A.I.R. with Extra Mushrooms") > Mods.getModPriority("extended level select"))
-				{
-					Renderer.drawText(FONT_LS, 8, beginningOfText + 8, "*'extended level select'", 0x00FFFFFF, 1, 0, 0xFFFF, true)
-				}
-			}
-		}
-		Renderer.drawText(FONT_LS, 8, beginningOfText + 16, "please make the mod(s) higher in priority to:", 0xFFFFFFFF, 1, 0, 0xFFFF, true)
-		Renderer.drawText(FONT_LS, 8, beginningOfText + 24, "'sonic 3 a.i.r. with extra mushrooms'", 0xFFFF00FF, 1, 0, 0xFFFF, true)
-		Renderer.drawText(FONT_LS, 8, beginningOfText + 32, "or turn on the 'use base level select' option", 0xFFFFFFFF, 1, 0, 0xFFFF, true)
-		Renderer.drawText(FONT_LS, 8, beginningOfText + 32, "               'use base level select'       ", 0xFF0000FF, 1, 0, 0xFFFF, true)
-		Renderer.drawText(FONT_LS, 8, beginningOfText + 40, "if you wish to use that level select menu.", 0xFFFFFFFF, 1, 0, 0xFFFF, true)
-		Renderer.drawText(FONT_LS, 8, beginningOfText + 48, "alternatively: disable the mod(s) if you want", 0xFFFFFFFF, 1, 0, 0xFFFF, true)
-		Renderer.drawText(FONT_LS, 8, beginningOfText + 56, "to experience the extra mushrooms level select.", 0xFFFFFFFF, 1, 0, 0xFFFF, true)
+		scareTheHaters(FONT_LS)
 	}
 	if (LS_BG != 0)
 		DrawLevelSelectBG()
 	// render the text
 	if (ScaredHaters == 0)
-	{
-		if (EM_2PSTAGES)
-		{
-			if (levelselect.selection == 0x00)
-				Renderer.drawText(FONT_LS_Y, 16, 8, getLevelSelect2PNames(0), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			else
-				Renderer.drawText(FONT_LS, 16, 8, getLevelSelect2PNames(0), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			if (levelselect.selection == 0x01)
-				Renderer.drawText(FONT_LS_Y, 16, 32, getLevelSelect2PNames(1), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			else
-				Renderer.drawText(FONT_LS, 16, 32, getLevelSelect2PNames(1), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			if (levelselect.selection == 0x02)
-				Renderer.drawText(FONT_LS_Y, 16, 56, getLevelSelect2PNames(2), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			else
-				Renderer.drawText(FONT_LS, 16, 56, getLevelSelect2PNames(2), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			if (levelselect.selection == 0x03)
-				Renderer.drawText(FONT_LS_Y, 16, 80, getLevelSelect2PNames(3), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			else
-				Renderer.drawText(FONT_LS, 16, 80, getLevelSelect2PNames(3), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			if (levelselect.selection == 0x04)
-				Renderer.drawText(FONT_LS_Y, 16, 104, getLevelSelect2PNames(4), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			else
-				Renderer.drawText(FONT_LS, 16, 104, getLevelSelect2PNames(4), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			if (levelselect.selection == 0x05)
-				Renderer.drawText(FONT_LS_Y, 16, 128, getLevelSelect2PNames(5), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			else
-				Renderer.drawText(FONT_LS, 16, 128, getLevelSelect2PNames(5), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			if (levelselect.selection == 0x06)
-				Renderer.drawText(FONT_LS_Y, 16, 152, getLevelSelect2PNames(6), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			else
-				Renderer.drawText(FONT_LS, 16, 152, getLevelSelect2PNames(6), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-		}
-		else
-		{
-			if (levelselect.selection == 0x00)
-			{
-				Renderer.drawText(FONT_LS_Y, 16, 8, getLevelSelectNames(0), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS_Y, 136, 8, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 136, 16, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			else if (levelselect.selection == 0x01)
-			{
-				Renderer.drawText(FONT_LS_Y, 16, 8, getLevelSelectNames(0), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 136, 8, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS_Y, 136, 16, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			else
-			{
-				Renderer.drawText(FONT_LS, 16, 8, getLevelSelectNames(0), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 136, 8, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 136, 16, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			if (levelselect.selection == 0x02)
-			{
-				Renderer.drawText(FONT_LS_Y, 16, 32, getLevelSelectNames(1), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS_Y, 136, 32, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 136, 40, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			else if (levelselect.selection == 0x03)
-			{
-				Renderer.drawText(FONT_LS_Y, 16, 32, getLevelSelectNames(1), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 136, 32, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS_Y, 136, 40, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			else
-			{
-				Renderer.drawText(FONT_LS, 16, 32, getLevelSelectNames(1), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 136, 32, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 136, 40, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			if (levelselect.selection == 0x04)
-			{
-				Renderer.drawText(FONT_LS_Y, 16, 56, getLevelSelectNames(2), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS_Y, 136, 56, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 136, 64, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			else if (levelselect.selection == 0x05)
-			{
-				Renderer.drawText(FONT_LS_Y, 16, 56, getLevelSelectNames(2), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 136, 56, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS_Y, 136, 64, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			else
-			{
-				Renderer.drawText(FONT_LS, 16, 56, getLevelSelectNames(2), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 136, 56, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 136, 64, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			if (levelselect.selection == 0x06)
-			{
-				Renderer.drawText(FONT_LS_Y, 16, 80, getLevelSelectNames(3), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS_Y, 136, 80, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 136, 88, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			else if (levelselect.selection == 0x07)
-			{
-				Renderer.drawText(FONT_LS_Y, 16, 80, getLevelSelectNames(3), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 136, 80, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS_Y, 136, 88, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			else
-			{
-				Renderer.drawText(FONT_LS, 16, 80, getLevelSelectNames(3), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 136, 80, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 136, 88, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			if (levelselect.selection == 0x08)
-			{
-				Renderer.drawText(FONT_LS_Y, 16, 104, getLevelSelectNames(4), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS_Y, 136, 104, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 136, 112, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			else if (levelselect.selection == 0x09)
-			{
-				Renderer.drawText(FONT_LS_Y, 16, 104, getLevelSelectNames(4), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 136, 104, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS_Y, 136, 112, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			else
-			{
-				Renderer.drawText(FONT_LS, 16, 104, getLevelSelectNames(4), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 136, 104, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 136, 112, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			if (levelselect.selection == 0x0a)
-			{
-				Renderer.drawText(FONT_LS_Y, 16, 128, getLevelSelectNames(5), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS_Y, 136, 128, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 136, 136, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			else if (levelselect.selection == 0x0b)
-			{
-				Renderer.drawText(FONT_LS_Y, 16, 128, getLevelSelectNames(5), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 136, 128, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS_Y, 136, 136, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			else
-			{
-				Renderer.drawText(FONT_LS, 16, 128, getLevelSelectNames(5), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 136, 128, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 136, 136, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			if (levelselect.selection == 0x0c)
-			{
-				Renderer.drawText(FONT_LS_Y, 16, 152, getLevelSelectNames(6), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS_Y, 136, 152, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 136, 160, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			else if (levelselect.selection == 0x0d)
-			{
-				Renderer.drawText(FONT_LS_Y, 16, 152, getLevelSelectNames(6), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 136, 152, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS_Y, 136, 160, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			else
-			{
-				Renderer.drawText(FONT_LS, 16, 152, getLevelSelectNames(6), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 136, 152, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 136, 160, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			if (levelselect.selection == 0x0e)
-			{
-				Renderer.drawText(FONT_LS_Y, 16, 176, getLevelSelectNames(7), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS_Y, 136, 176, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 136, 184, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			else if (levelselect.selection == 0x0f)
-			{
-				Renderer.drawText(FONT_LS_Y, 16, 176, getLevelSelectNames(7), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 136, 176, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS_Y, 136, 184, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			else
-			{
-				Renderer.drawText(FONT_LS, 16, 176, getLevelSelectNames(7), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 136, 176, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 136, 184, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			if (levelselect.selection == 0x10)
-			{
-				Renderer.drawText(FONT_LS_Y, 16, 200, getLevelSelectNames(8), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS_Y, 136, 200, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 136, 208, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			else if (levelselect.selection == 0x11)
-			{
-				Renderer.drawText(FONT_LS_Y, 16, 200, getLevelSelectNames(8), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 136, 200, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS_Y, 136, 208, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			else
-			{
-				Renderer.drawText(FONT_LS, 16, 200, getLevelSelectNames(8), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 136, 200, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 136, 208, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			if (levelselect.selection == 0x12)
-			{
-				Renderer.drawText(FONT_LS_Y, 176, 8, getLevelSelectNames(9), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS_Y, 296, 8, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 296, 16, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 296-24, 24, getBossText, 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			else if (levelselect.selection == 0x13)
-			{
-				Renderer.drawText(FONT_LS_Y, 176, 8, getLevelSelectNames(9), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 296, 8, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS_Y, 296, 16, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 296-24, 24, getBossText, 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			else if (levelselect.selection == 0x14)
-			{
-				Renderer.drawText(FONT_LS_Y, 176, 8, getLevelSelectNames(9), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 296, 8, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 296, 16, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS_Y, 296-24, 24, getBossText, 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			else
-			{
-				Renderer.drawText(FONT_LS, 176, 8, getLevelSelectNames(9), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 296, 8, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 296, 16, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 296-24, 24, getBossText, 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			if (levelselect.selection == 0x15)
-				Renderer.drawText(FONT_LS_Y, 176, 32, getLevelSelectNames(10), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			else
-				Renderer.drawText(FONT_LS, 176, 32, getLevelSelectNames(10), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			if (levelselect.selection == 0x16)
-			{
-				Renderer.drawText(FONT_LS_Y, 176, 56, getLevelSelectNames(11), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS_Y, 296, 56, "s", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 296, 64, "k", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			else if (levelselect.selection == 0x17)
-			{
-				Renderer.drawText(FONT_LS_Y, 176, 56, getLevelSelectNames(11), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 296, 56, "s", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS_Y, 296, 64, "k", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			else
-			{
-				Renderer.drawText(FONT_LS, 176, 56, getLevelSelectNames(11), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 296, 56, "s", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 296, 64, "k", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			if (levelselect.selection == 0x18)
-			{
-				Renderer.drawText(FONT_LS_Y, 176, 80, getLevelSelectNames(12), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS_Y, 296, 80, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 296, 88, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 296-24, 96, getBossText, 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			else if (levelselect.selection == 0x19)
-			{
-				Renderer.drawText(FONT_LS_Y, 176, 80, getLevelSelectNames(12), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 296, 80, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS_Y, 296, 88, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 296-24, 96, getBossText, 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			else if (levelselect.selection == 0x1b)
-			{
-				Renderer.drawText(FONT_LS_Y, 176, 80, getLevelSelectNames(12), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 296, 80, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 296, 88, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS_Y, 296-24, 96, getBossText, 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			else
-			{
-				Renderer.drawText(FONT_LS, 176, 80, getLevelSelectNames(12), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 296, 80, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 296, 88, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 296-24, 96, getBossText, 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			if (levelselect.selection == 0x1a)
-				Renderer.drawText(FONT_LS_Y, 176, 104, getLevelSelectNames(13), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			else
-				Renderer.drawText(FONT_LS, 176, 104, getLevelSelectNames(13), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			if (levelselect.selection == 0x1c)
-			{
-				Renderer.drawText(FONT_LS_Y, 176, 128, getLevelSelectNames(14), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS_Y, 296, 128, "g", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 296, 136, "r", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 296, 144, "s", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			else if (levelselect.selection == 0x1d)
-			{
-				Renderer.drawText(FONT_LS_Y, 176, 128, getLevelSelectNames(14), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 296, 128, "g", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS_Y, 296, 136, "r", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 296, 144, "s", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			else if (levelselect.selection == 0xff)
-			{
-				Renderer.drawText(FONT_LS_Y, 176, 128, getLevelSelectNames(14), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 296, 128, "g", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 296, 136, "r", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS_Y, 296, 144, "s", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			else
-			{
-				Renderer.drawText(FONT_LS, 176, 128, getLevelSelectNames(14), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 296, 128, "g", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 296, 136, "r", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 296, 144, "s", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			if (levelselect.selection == 0x1e)
-			{
-				Renderer.drawText(FONT_LS_Y, 176, 152, getLevelSelectNames(15), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS_Y, 296, 152, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 296, 160, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			else if (levelselect.selection == 0x1f)
-			{
-				Renderer.drawText(FONT_LS_Y, 176, 152, getLevelSelectNames(15), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 296, 152, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS_Y, 296, 160, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-			else
-			{
-				Renderer.drawText(FONT_LS, 176, 152, getLevelSelectNames(15), 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 296, 152, "1", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-				Renderer.drawText(FONT_LS, 296, 160, "2", 0xFFFFFFFF, 1, 0, 0x9f7e, true)
-			}
-		}
-		
-		// sound test values
-		// this determines whether the text will be highlighted or not, since this isn't a zone in the game (no worrying about an act 2)
-		u64 determineSTcolor
-		if (levelselect.selection == 0x20)
-			determineSTcolor = FONT_LS_Y
-		else
-			determineSTcolor = FONT_LS
-		if (ST_STYLE == 1)
-		{
-			Renderer.drawText(determineSTcolor, 264, 176, "<   >", 0xFFFFFFFF, 1, 0, 0xFFFD, true)
-			if (levelselect.soundtest < 0x0a)
-			{
-				Renderer.drawText(determineSTcolor, 272, 176, "00" , 0xFFFFFFFF, 1, 0, 0xFFFD, true)
-				Renderer.drawText(determineSTcolor, 288, 176,(stringformat("%d", levelselect.soundtest)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
-			}
-			else if (levelselect.soundtest < 0x64)
-			{
-				Renderer.drawText(determineSTcolor, 272, 176, "0" , 0xFFFFFFFF, 1, 0, 0xFFFD, true)
-				Renderer.drawText(determineSTcolor, 280, 176,(stringformat("%d", levelselect.soundtest)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
-			}
-			else
-				Renderer.drawText(determineSTcolor, 272, 176,(stringformat("%d", levelselect.soundtest)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
-		}
-		else
-		{
-			Renderer.drawText(determineSTcolor, 272, 176, "*  *", 0xFFFFFFFF, 1, 0, 0xFFFD, true)
-			if (levelselect.soundtest < 0x10)
-			{
-				Renderer.drawText(determineSTcolor, 280, 176, "0" , 0xFFFFFFFF, 1, 0, 0xFFFD, true)
-				Renderer.drawText(determineSTcolor, 288, 176,(stringformat("%x", levelselect.soundtest)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
-			}
-			else
-				Renderer.drawText(determineSTcolor, 280, 176,(stringformat("%x", levelselect.soundtest)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
-		}
-		Renderer.drawText(determineSTcolor, 176, 176, "sound test", 0xFFFFFFFF, 1, 0, 0xFFFD, true)
-	}
+		Renderer.drawLSText(FONT_LS, FONT_LS_Y)
 	//Renderer.drawCustomSprite("ls_text", 0, 0, 0x00, 0, 0x1000)
 	if (ScaredHaters != 1)
 	{
@@ -702,6 +354,48 @@ function void DrawSpritesToLevelSelect()
 				
 		Renderer.drawCustomSprite("ls_emblem", getScreenWidth()-88, getScreenHeight()-56, 0x00, 0, 0x9f7e)
 	}
+}
+
+function void scareTheHaters(u64 FONT_LS)
+{
+	u16 beginningOfText = getScreenHeight()/2 - 80
+	Renderer.drawCustomSprite("fixpriority", getScreenWidth()-200, 112, 0x00, 0, 0xFFFE)
+		Renderer.drawCustomSprite("livemario", 0, 112, 0x00, 0, 0xFFFE)
+		if (Mods.isModActive("Origins Title + Menu Backgrounds") || Mods.isModActive("Consistent Sonic 3"))
+			Renderer.drawCustomSprite("origins_ls_priorityissue", getScreenExtend() - 40, 0, 0x00, 0, 0x1000)
+		else
+			Renderer.drawCustomSprite("ls_priorityissue", getScreenExtend() - 40, 0, 0x00, 0, 0x1000)
+		Renderer.drawText(FONT_LS, 8, beginningOfText, "it seems there was some issues involving: ", 0xFFFFFFFF, 1, 0, 0xFFFF, true)
+		if (Mods.isModActive("Sonic 3 Complete Sound Test"))
+		{
+			if (Mods.getModPriority("Sonic 3 A.I.R. with Extra Mushrooms") > Mods.getModPriority("Sonic 3 Complete Sound Test"))
+				Renderer.drawText(FONT_LS, 8, beginningOfText + 8, "*'sonic 3 complete sound test'", 0x00FFFFFF, 1, 0, 0xFFFF, true)
+		}
+		if (Mods.isModActive("extended level select"))
+		{
+			if (Mods.isModActive("Sonic 3 Complete Sound Test"))
+			{
+				if (Mods.getModPriority("Sonic 3 A.I.R. with Extra Mushrooms") > Mods.getModPriority("extended level select"))
+				{
+					beginningOfText = beginningOfText + 8
+					Renderer.drawText(FONT_LS, 8, beginningOfText + 8, "*'extended level select'", 0x00FFFFFF, 1, 0, 0xFFFF, true)
+				}
+			}
+			else
+			{
+				if (Mods.getModPriority("Sonic 3 A.I.R. with Extra Mushrooms") > Mods.getModPriority("extended level select"))
+				{
+					Renderer.drawText(FONT_LS, 8, beginningOfText + 8, "*'extended level select'", 0x00FFFFFF, 1, 0, 0xFFFF, true)
+				}
+			}
+		}
+		Renderer.drawText(FONT_LS, 8, beginningOfText + 16, "please make the mod(s) higher in priority to:", 0xFFFFFFFF, 1, 0, 0xFFFF, true)
+		Renderer.drawText(FONT_LS, 8, beginningOfText + 24, "'sonic 3 a.i.r. with extra mushrooms'", 0xFFFF00FF, 1, 0, 0xFFFF, true)
+		Renderer.drawText(FONT_LS, 8, beginningOfText + 32, "or turn on the 'use base level select' option", 0xFFFFFFFF, 1, 0, 0xFFFF, true)
+		Renderer.drawText(FONT_LS, 8, beginningOfText + 32, "               'use base level select'       ", 0xFF0000FF, 1, 0, 0xFFFF, true)
+		Renderer.drawText(FONT_LS, 8, beginningOfText + 40, "if you wish to use that level select menu.", 0xFFFFFFFF, 1, 0, 0xFFFF, true)
+		Renderer.drawText(FONT_LS, 8, beginningOfText + 48, "alternatively: disable the mod(s) if you want", 0xFFFFFFFF, 1, 0, 0xFFFF, true)
+		Renderer.drawText(FONT_LS, 8, beginningOfText + 56, "to experience the extra mushrooms level select.", 0xFFFFFFFF, 1, 0, 0xFFFF, true)
 }
 
 function void LevelSelect.init()
@@ -1218,9 +912,7 @@ function void EM.checkCheats()
 		Audio.playAudio(0x2B) // Chaos Emerald Sound
 		System.writeDisplayLine("7 CHAOS EMERALDS IN HAND") // Make-believes reborn
 		for (u8 i = 1; i <= 7; i++)
-		{
 			u8[0xffffffb2 + (i - 1)] = 0x01
-		}
 	}
 	else if (EM_CHAOSEMERALDS == 4 && levelselect.soundtest == 0x04)
 		++EM_CHAOSEMERALDS
@@ -1237,8 +929,6 @@ function void EM.checkCheats()
 		global.traded_emeralds = 7 // Gives all Traded Emeralds so the Super Rings do the color cycling
 		System.writeDisplayLine("7 SUPER EMERALDS IN HAND") // Legends blurred and torn
 		for (u8 i = 1; i <= 7; i++)
-		{
 			u8[0xffffffb2 + (i - 1)] = 0x03
-		}
 	}
 }
