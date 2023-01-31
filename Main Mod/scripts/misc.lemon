@@ -7,6 +7,21 @@ global u8 ORIGINS_HYPER_FX // Origins Hyper FX
 global u8 FASTER_SUPER_FADE // Faster Super Sonic Fade
 global u8 ALT_MGZ_PALETTE // Custom MGZ Palette
 
+//# address-hook(0x01da60) end(0x01db26)
+function void ItemEffect.ApplySuperTransformation() // RSDK Parity
+{
+	if (super.active != 0xff) // Not Hyper?
+	{
+		base.ItemEffect.ApplySuperTransformation()
+	}
+	else
+	{
+		++u16[A2]
+		ring_counter += 50
+		playMusic(SFX_RING)
+	}
+}
+
 function bool Standalone.onWriteToSpriteTable(s16 px, s16 py, u16 renderQueue)
 {
 	if (ALT_MGZ_PALETTE)
