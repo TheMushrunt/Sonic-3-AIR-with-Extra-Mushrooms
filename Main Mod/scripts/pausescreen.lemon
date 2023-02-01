@@ -4,6 +4,8 @@ global u8 S3EM_PAUSE_EXIT_SFX
 global u8 S3EM_PAUSE_COMPAT
 global u8 DEBUG_PAUSE_TO_LS
 
+global u8 YOU_FUCKED_UP_KID
+
 //# address-hook(0x0013e4) end(0x0014e4)
 function void UpdateGamePause()
 {
@@ -54,7 +56,10 @@ function void UpdateGamePause()
 function void Game.onGamePause(u8 canRestart)
 {
 	if (debug_mode.state && DEBUG_PAUSE_TO_LS)
+	{
+		YOU_FUCKED_UP_KID = 0
 		EntryFunctions.levelSelect()
+	}
 	base.Game.onGamePause(canRestart)
 	Audio.stopChannel(36)
 	determinePauseSounds(0)

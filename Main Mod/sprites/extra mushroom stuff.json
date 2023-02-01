@@ -92,9 +92,14 @@
 	"ls_icon_12": { "File": "ls_zoneicons.png", "Rect": "128,24,32,24"},
 	"ls_icon_13": { "File": "ls_zoneicons.png", "Rect": "160,24,32,24"},
 
-	// bonus and special stage icons
-	"ls_icon_14": { "File": "ls_zoneicons.png", "Rect": "192,24,32,24"},
-	"ls_icon_15": { "File": "ls_zoneicons.png", "Rect": "224,24,32,24"},
+	// bonus stage icons
+	"ls_bonus_0": { "File": "ls_zoneicons.png", "Rect": "192,24,32,24"},
+	"ls_bonus_1": { "File": "ls_zoneicons.png", "Rect": "192,48,32,24"},
+	"ls_bonus_2": { "File": "ls_zoneicons.png", "Rect": "192,72,32,24"},
+
+	// special stage icons
+	"ls_special_0": { "File": "ls_zoneicons.png", "Rect": "224,24,32,24"},
+	"ls_special_1": { "File": "ls_zoneicons.png", "Rect": "224,48,32,24"},
 
 	// 2P VS/Competition stages
 	"ls_icon_0_2p": { "File": "ls_zoneicons.png", "Rect": "32,48,32,24"},

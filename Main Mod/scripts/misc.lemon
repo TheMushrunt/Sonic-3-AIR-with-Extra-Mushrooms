@@ -43,7 +43,7 @@ function u64 Monitor.getIconSpriteKey(u8 type)
 function void UpdatePaletteEffects.SuperForm.moddingVersion(u8 characterVersion)
 {
 	bool isHyperEffect = (super.active == 0xff || super.active.tails == 0xff)
-	if (super.palettefx.state & 0x80 && (ORIGINS_HYPER_FX % 2 != 0) && (isHyperEffect || (!isHyperEffect && FASTER_SUPER_FADE)))
+	if (!isExtraSlot() && (super.palettefx.state & 0x80 && (ORIGINS_HYPER_FX % 2 != 0) && (isHyperEffect || (!isHyperEffect && FASTER_SUPER_FADE))))
 	{
 		// Update ongoing palette effect
 		u8 character = getMainCharacter()

@@ -99,7 +99,7 @@ function void Renderer.drawLSText(u64 FONT_LS, u64 FONT_LS_Y)
 				u8 test = 0
 				if ((levelselect.selection / 2) == i && (levelselect.selection != 0x14 && levelselect.selection != 0x1b && levelselect.selection != 0xff))
 					u64 font = FONT_LS_Y
-				else if ((i == 9 && levelselect.selection == 0x14) || (i == 12 && levelselect.selection == 0x1b) || (i == 14 && levelselect.selection == 0xff))
+				else if ((i == 9 && levelselect.selection == 0x14) || (i == 12 && levelselect.selection == 0x1b) || (i == 14 && levelselect.selection == 0xfd))
 				{
 					font = FONT_LS_Y
 					test = 1
@@ -139,6 +139,8 @@ function void Renderer.drawLSText(u64 FONT_LS, u64 FONT_LS_Y)
 						number = LSBossText[LS_BOSS]
 						if (LS_BOSS == 3)
 							numberXposition -= 8
+						else if (LS_BOSS == 2)
+							numberXposition -= 24
 					}
 					if (i != 10 && i != 13)
 						Renderer.drawText(numberfont, numberXposition, numberYposition, number, 0xFFFFFFFF, 1, 0, 0x9f7e, true)
@@ -290,9 +292,8 @@ function void DrawSpritesToLevelSelect()
 	//Renderer.drawCustomSprite("ls_text", 0, 0, 0x00, 0, 0x1000)
 	if (ScaredHaters != 1)
 	{	
-		Renderer.drawText(FONT_LS_Y, (getScreenWidth()-104)-64, getScreenHeight()-16,"*  *", 0xFFFFFFFF, 1, 0, 0xFFFD, true)
-		Renderer.drawText(FONT_LS_Y, (getScreenWidth()-104)-56, getScreenHeight()-16,(stringformat("%x", (levelselect.characters / 10) % 10)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
-		Renderer.drawText(FONT_LS_Y, (getScreenWidth()-104)-48, getScreenHeight()-16,(stringformat("%x", levelselect.characters % 10)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+		Renderer.drawText(FONT_LS_Y, (getScreenWidth()-104)-48, getScreenHeight()-16,(stringformat("%x", (levelselect.characters / 10) % 10)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+		Renderer.drawText(FONT_LS_Y, (getScreenWidth()-104)-40, getScreenHeight()-16,(stringformat("%x", levelselect.characters % 10)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
 		
 		u8 ExtraSlotStart = 4
 		if (levelselect.characters == 0)
@@ -324,7 +325,7 @@ function void DrawSpritesToLevelSelect()
 			// probably coming whenever that new base is released. glad they're documenting it and stuff though
 			if ((levelselect.characters == ExtraSlotStart+1) && Mods.isModActive("Extra Slot Mighty"))
 			{
-				Renderer.drawCustomSprite("Continue_icon_S3_alt", (getScreenWidth()-104), (getScreenHeight()-7), 0x00, 0, 0x9f7e)
+				Renderer.drawCustomSprite("Continue_icon_S3_alt", (getScreenWidth()-102), (getScreenHeight()-7), 0x00, 0, 0x9f7e)
 			}
 			else if ((levelselect.characters == ExtraSlotStart+2) && Mods.isModActive("Extra Slot Ray"))
 			{
@@ -339,7 +340,7 @@ function void DrawSpritesToLevelSelect()
 			Renderer.drawCustomSprite(stringformat("ls_icon_%d_2p", levelselect.selection), getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
 		else if (levelselect.selection < 0x10 && levelselect.selection > 0x07 && LS_ZONEORDER && !EM_2PSTAGES)
 			Renderer.drawCustomSprite(stringformat("ls_icon_%d_a", levelselect.selection/2), getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
-		else if (levelselect.selection < 0x20 && levelselect.selection != 0x1b && levelselect.selection != 0x14 && !EM_2PSTAGES)
+		else if (levelselect.selection < 0x20 && levelselect.selection != 0x1b && levelselect.selection != 0x14 && (levelselect.selection < 0x1c) && !EM_2PSTAGES)
 			Renderer.drawCustomSprite(stringformat("ls_icon_%d", levelselect.selection/2), getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
 		else
 		{
@@ -349,8 +350,18 @@ function void DrawSpritesToLevelSelect()
 				Renderer.drawCustomSprite("ls_icon_9", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
 			else if (levelselect.selection == 0x1b)
 				Renderer.drawCustomSprite("ls_icon_12", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
-			else if (levelselect.selection == 0xff)
-				Renderer.drawCustomSprite("ls_icon_14", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+
+			else if (levelselect.selection == 0x1c)
+				Renderer.drawCustomSprite("ls_bonus_0", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+			else if (levelselect.selection == 0x1d)
+				Renderer.drawCustomSprite("ls_bonus_1", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+			else if (levelselect.selection == 0xfd)
+				Renderer.drawCustomSprite("ls_bonus_2", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+
+			else if (levelselect.selection == 0x1e)
+				Renderer.drawCustomSprite("ls_special_0", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+			else if (levelselect.selection == 0x1f)
+				Renderer.drawCustomSprite("ls_special_1", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
 		}
 		// sound test	
 		if (levelselect.selection >= 0x00)
@@ -537,6 +548,7 @@ function bool LevelSelect.innerUpdate()
 				{
 					playSound(0x7B)
 
+					YOU_FUCKED_UP_KID = 0
 					System.writeDisplayLine("Sorry! Extra Slots end up causing issues from the Title Screen's Level Select. You can still use them in the AIR menu level select though!")
 
 					u32 backupA0 = A0
@@ -544,7 +556,6 @@ function bool LevelSelect.innerUpdate()
 					A0 = backupA0
 
 					// Do not fade out music in this case, Data Select music is meant to kept playing
-					YOU_FUCKED_UP_KID = 0
 
 					Game.returnToMainMenu()
 					yieldExecution()
@@ -644,7 +655,7 @@ function bool fn007d6c()
 			}
 			else if (levelselect.selection == 0x1d) // Rotating
 				D0.u16 = 0x1500
-			else if (levelselect.selection == 0xff) // Spheres (please don't ask why i chose 0xff)
+			else if (levelselect.selection == 0xfd) // Spheres (please don't ask why i chose 0xfd)
 				D0.u16 = 0x1400
 		}
 		if (EM_2PSTAGES)
@@ -712,10 +723,10 @@ function void fn007e64()
 					levelselect.selection = 0x1b
 				else if (levelselect.selection == 0x1b)
 					levelselect.selection = 0x19
-				else if (levelselect.selection == 0xff)
+				else if (levelselect.selection == 0xfd)
 					levelselect.selection = 0x1d
 				else if (levelselect.selection == 0x1e)
-					levelselect.selection = 0xff
+					levelselect.selection = 0xfd
 				else
 				{
 					--levelselect.selection
@@ -734,8 +745,8 @@ function void fn007e64()
 				else if (levelselect.selection == 0x19)
 					levelselect.selection = 0x1b
 				else if (levelselect.selection == 0x1d)
-					levelselect.selection = 0xff
-				else if (levelselect.selection == 0xff)
+					levelselect.selection = 0xfd
+				else if (levelselect.selection == 0xfd)
 					levelselect.selection = 0x1e
 				else
 				{
@@ -803,7 +814,7 @@ function void fn007e64()
 					levelselect.selection = 0x08
 				else if (levelselect.selection == 0x09)
 					levelselect.selection = 0x1a
-				else if (levelselect.selection == 0xff)
+				else if (levelselect.selection == 0xfd)
 					levelselect.selection = 0x0b
 				else
 					levelselect.selection = u8[0x007f22 + levelselect.selection]
@@ -871,7 +882,7 @@ function void EM.checkCheats()
 
 function u8 WhatWillItBe(u8 maxCharacterSelection)
 {
-	if Mods.isModActive("Extra Characters Base")
+	if (Mods.isModActive("Extra Characters Base") || Mods.isModActive("Extra Character Slots"))
 		return base.WhatWillItBe(maxCharacterSelection)
 	else return maxCharacterSelection
 }
