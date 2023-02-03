@@ -47,11 +47,18 @@ function void UpdatePaletteEffects.SuperForm.moddingVersion(u8 characterVersion)
 	{
 		// Update ongoing palette effect
 		u8 character = getMainCharacter()
-		u16 nextFrame = (super.palettefx.frame + 9) % (isHyperEffect ? 108 : 18)
+		u16 blendFactor
+		u16 nextFrame
 		if (character == CHARACTER_SONIC && isHyperEffect && ORIGINS_HYPER_FX % 2 != 0)
-			u16 blendFactor = super.palettefx.timer
+		{
+			blendFactor = super.palettefx.timer
+			nextFrame = (super.palettefx.frame + 9) % (isHyperEffect ? 108 : 18)
+		}
 		else
+		{
 			blendFactor = super.palettefx.timer * 0x100 / (isHyperEffect ? 0x07 : 0x0f)
+			nextFrame = (super.palettefx.frame + 6) % (isHyperEffect ? 108 : 18)
+		}
 		if (characterVersion == 2)
 		{
 			// Tails
