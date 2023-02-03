@@ -527,29 +527,48 @@ function void LevelSelect.init()
 	}
 	else base.LevelSelect.init()
 }
+
+function bool notExtraSlotInLevelSelect()
+{
+	if (Game.isSecretUnlocked(SECRET_KNUX_AND_TAILS))
+		if (levelselect.characters < 5)
+			return true
+		else
+			return false
+	else if (!Game.isSecretUnlocked(SECRET_KNUX_AND_TAILS))
+		if (levelselect.characters < 4)
+			return true
+		else
+			return false
+}
+
 function bool LevelSelect.innerUpdate()
 {
 	if (!LS_FORCE_BASE)
 	{
+		bool notExtraSlot = notExtraSlotInLevelSelect()
 		Renderer.resetSprites()
 		DrawSpritesToLevelSelect()
 		if ((control.pad1.pressed | control.pad2.pressed) & CONTROL_START)
 		{
-			if ((levelselect.characters > 4 && Game.isSecretUnlocked(SECRET_KNUX_AND_TAILS)) || (levelselect.characters > 3 && !Game.isSecretUnlocked(SECRET_KNUX_AND_TAILS))  && YOU_FUCKED_UP_KID)
-				++YOU_FUCKED_UP_KID
 			if (D0.u16 != 0x5555)
 			{
-				if (ScaredHaters != 1 && YOU_FUCKED_UP_KID < 2)
+				if (ScaredHaters != 1 && notExtraSlot)
 				{
 					Standalone.playAudio(0xaf)
 					return base.LevelSelect.innerUpdate()
 				}
-				else if (ScaredHaters != 1 && YOU_FUCKED_UP_KID >= 2)
+				else if ScaredHaters != 1 && (!YOU_FUCKED_UP_KID && !notExtraSlot)
+				{
+					Standalone.playAudio(0xaf)
+					return base.LevelSelect.innerUpdate()
+				}
+				else if (ScaredHaters != 1 && YOU_FUCKED_UP_KID)
 				{
 					playSound(0x7B)
 
 					YOU_FUCKED_UP_KID = 0
-					System.writeDisplayLine("Sorry! Extra Slots end up causing issues from the Title Screen's Level Select. You can still use them in the AIR menu level select though!")
+					System.writeDisplayLine("Sorry! Extra Slots end up causing issues from the Title Screen's Level Select.")
 
 					u32 backupA0 = A0
 					FadeOutScreenBlocking()
