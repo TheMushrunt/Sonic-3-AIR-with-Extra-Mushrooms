@@ -375,7 +375,7 @@ function void DrawSpritesToLevelSelect()
 					Renderer.drawCustomSprite("ls_tails", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
 				else
 					Renderer.drawCustomSprite("ls_miles", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
-			else if (levelselect.characters == 3 || levelselect.characters == ExtraSlotStart)
+			else if (levelselect.characters == 3 || levelselect.characters == ExtraSlotStart-1)
 				Renderer.drawCustomSprite("ls_kte", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
 			else
 			{
