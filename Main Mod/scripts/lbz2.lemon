@@ -9,6 +9,7 @@ global u16 BAH // Big Arms Hits
 function void fn0742a8()
 {
 	base.fn0742a8()
+	//BAH = 1 // lol
 	boss.remaining_hits = BAH
 }
 
@@ -18,7 +19,7 @@ function void DrawBossHealthBar(u8 boss.id, u8 bar.health, u8 bar.max)
 	{
 		if (boss.id == 0x74)
 		{
-			if (boss.remaining_hits > 8)
+			if (boss.remaining_hits > 8 || BAH < 8) // the less than 8 check is really worth it, i swear
 				bar.max = boss.remaining_hits
 			else
 				bar.max = 8
@@ -55,10 +56,8 @@ function void fn072b96()
 {
 	if (LBZ2SFS || LBZ2SKY == 1) // If the user wants the sky to fade during the act clear stuff
 	{
-		if (LBZ2SKY && LBZ2SFS == 1) // Slow fade
-			LBZFading(0)
-		else if (LBZ2SKY && LBZ2SFS == 2) // Fast fade
-			LBZFading(1)
+		if (LBZ2SKY && LBZ2SFS)
+			LBZFading(LBZ2SFS-1)
 	}
 	if (!level.results_done)
 	return
@@ -73,10 +72,8 @@ function void fn072e30()
 {
 	if (LBZ2SFS || !LBZ2SKY) // If the user wants the sky to fade in the post-boss cutscene
 	{
-		if (!LBZ2SKY && LBZ2SFS == 1) // Slow fade
-			LBZFading(0)
-		else if (!LBZ2SKY && LBZ2SFS == 2) // Fast fade
-			LBZFading(1)
+		if (!LBZ2SKY && LBZ2SFS)
+			LBZFading(LBZ2SFS-1)
 	}
 	else // This hopefully prevents stuff from breaking, if not then I've messed up and misunderstood code I didn't write.
 	{
