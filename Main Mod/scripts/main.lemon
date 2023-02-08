@@ -22,7 +22,6 @@ global u8 YOU_FUCKED_UP_KID
 include levelselect
 include misc
 include lbz2
-include creditsmusic
 include aizspeedup
 include pausescreen
 
