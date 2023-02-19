@@ -90,6 +90,7 @@
 	"ls_icon_10": { "File": "ls_zoneicons.png", "Rect": "64,24,32,24"},
 	"ls_icon_11": { "File": "ls_zoneicons.png", "Rect": "96,24,32,24"},
 	"ls_icon_12": { "File": "ls_zoneicons.png", "Rect": "128,24,32,24"},
+	"ls_icon_12_origins": { "File": "ls_zoneicons.png", "Rect": "0,72,32,24"}, // S2/SO S3K death egg
 	"ls_icon_13": { "File": "ls_zoneicons.png", "Rect": "160,24,32,24"},
 
 	// bonus stage icons
@@ -119,8 +120,8 @@
 	"ls_mighty": { "File": "ls_playericons.png", "Rect": "64,24,32,24"},
 	"ls_ray": { "File": "ls_playericons.png", "Rect": "96,24,32,24"},
 	
-	// bros (has a random chance of appearing)
+	// bros (has a really small chance of appearing)
 	"bros": { "File": "bros.png" },
-	// wega
+	// wega (less small chance of appearing)
 	"wega": { "File": "wega bros.png"}
 }
