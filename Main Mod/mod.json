@@ -13,8 +13,8 @@
 		"Things":
 		[
 			{
-				"InternalName": "'Original Game By' Display",
-				"DisplayName": "'Original Game By' Display",
+				"InternalName": "Original Game By Display",
+				"DisplayName": "Original Game By Display",
 				"Variable": "EM_OGB_DISPLAY",
 				"Category": "Title Screen",
 				"DefaultValue": "1",
@@ -65,14 +65,14 @@
 				"Category": "Title Screen",
 				"DefaultValue": "2",
 				"Options": {
-					"0": "Nothing", // for really stupid people
-					"1": "1994 SEGA", // genesis
-					"2": "Display AIR Copyright", // AIR
-					"3": "SEGA", // origins
-					"4": "2022 SEGA", // unused(?) trademark in new blue spheres
-					"5": "1994 SEGA 2022 SEGA", // unused(?) trademark in classic blue spheres
-					"6": "Hybrid", // includes SEGA 1994, EUKA 2022 (as its own graphic to prevent weird shit), and SEGA 2022
-					"7": "Hybrid without 2022" // for shits and giggles
+					"0": "Nothing",
+					"1": "1994 SEGA",
+					"2": "Display AIR Copyright",
+					"3": "SEGA",
+					"4": "2022 SEGA",
+					"5": "1994 SEGA 2022 SEGA",
+					"6": "Hybrid",
+					"7": "Hybrid without 2022"
 				}
 			},
 			{
@@ -263,11 +263,60 @@
 				}
 			},
 			{
+				"InternalName": "Death Egg Zone Icon",
+				"DisplayName": "Death Egg Zone Icon",
+				"Variable": "LS_DEZ",
+				"Category": "Level Select",
+				"DefaultValue": "0",
+				"Options": {
+					"0": "Extra Mushrooms (S3K)",
+					"1": "Sonic Origins (S2)"
+				}
+			},
+			{
+				"InternalName": "Sky Sanctuary Acts",
+				"DisplayName": "Sky Sanctuary Acts",
+				"Variable": "LS_SSZ",
+				"Category": "Level Select",
+				"DefaultValue": "1",
+				"Options": {
+					"0": "ACT 1, ACT 2",
+					"1": "ACT S, ACT K",
+					"2": "ACT A, ACT B"
+				}
+			},
+			{
+				"InternalName": "Bonus Stages",
+				"DisplayName": "Bonus Stages",
+				"Variable": "LS_BONUS",
+				"Category": "Level Select",
+				"DefaultValue": "1",
+				"Options": {
+					"0": "1, 2, 3",
+					"1": "G, R, S",
+					"2": "G, M, S",
+					"3": "A, B, C"
+				}
+			},
+			{
+				"InternalName": "Special Stages",
+				"DisplayName": "Special Stages",
+				"Variable": "LS_SPECIAL",
+				"Category": "Level Select",
+				"DefaultValue": "2",
+				"Options": {
+					"0": "1, 2",
+					"1": "S, K",
+					"2": "S3, S&K",
+					"3": "A, B"
+				}
+			},
+			{
 				"InternalName": "LBZ2 Early Sky Fade",
 				"DisplayName": "LBZ2 Early Sky Fade",
 				"Variable": "LBZ2SKY",
 				"Category": "Launch Base",
-				"DefaultValue": "3",
+				"DefaultValue": "1",
 				"Options": {
 					"0": "Off",
 					"1": "On"
@@ -450,7 +499,6 @@
 					"2": "On (Infinite Symbol)"
 				}
 			},
-			// something used to be here, guess you'll never know what it is
 			{
 				"InternalName": "Pause Screen Compatibility",
 				"DisplayName": "Force AIR Pause Menu",
@@ -500,6 +548,17 @@
 					"3": "RSDKv4 Pause Exit",
 					"4": "Mania Pause Exit",
 					"5": "Mario Pause"
+				}
+			},
+			{
+				"InternalName": "Dropdash after Hyper Dash",
+				"DisplayName": "Dropdash after Hyper Dash",
+				"Variable": "ORIGINS_HD",
+				"Category": "Miscellaneous Stuff",
+				"DefaultValue": "1",
+				"Options": {
+					"0": "Off (Origins Behavior)",
+					"1": "On (A.I.R. Behavior)"
 				}
 			},
 			{
