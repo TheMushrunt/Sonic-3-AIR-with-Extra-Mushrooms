@@ -8,6 +8,9 @@ global u8 FASTER_SUPER_FADE // Faster Super Sonic Fade
 global u8 ALT_MGZ_PALETTE // Custom MGZ Palette
 global u8 CREDITS_MUSIC
 
+global u8 ORIGINS_HD // finally, it works again
+global bool performHyperDash // haha, i feel like this might break things but i don't really care lol
+
 // Credits Music
 function void PlayMusic()
 {
@@ -260,7 +263,6 @@ function void Character.updateJumpMoves()
 			{
 				if (char.double_jump_state == 0)
 				{
-					#if STANDALONE
 						if (Input.buttonPressed(BUTTON_Y))
 						{
 							if (!isSuperActive && SHTS == 0 && !Mods.isModActive("Sonic 3: D.A. Garden Edition"))
@@ -271,12 +273,9 @@ function void Character.updateJumpMoves()
 							else if (!Mods.isModActive("Sonic 3: D.A. Garden Edition"))
 								base.Character.updateJumpMoves()
 						}
-					#endif
 					if (input_pressed & CONTROL_ABC)
 					{
-					#if STANDALONE
 						if (onCharacterPressedJumpInMidAir(input_state, input_pressed))
-					#endif
 						{
 							if (char.character == CHARACTER_SONIC)
 							{
@@ -298,38 +297,39 @@ function void Character.updateJumpMoves()
 					}
 				}
 
-			#if STANDALONE
 				if (Game.getSetting(SETTING_DROPDASH) && char.character == CHARACTER_SONIC && !competition_mode.active)
 				{
-					if (AUTODD == 1)
+					if (((super.active != 0xff && Game.getSetting(SETTING_SUPER_SONIC_ABILITY) != 2) || (!super.active && Game.getSetting(SETTING_SUPER_SONIC_ABILITY) == 2)) || (!performHyperDash || ORIGINS_HD) || (char.double_jump_state == 0 && AUTODD == 1))
 					{
-						bool chargeDropDash = (control.player1.state & CONTROL_ABC) && (AUTODD == 1 || (char.bonus_effect & char.bonus.INVINCIBLE) || sonic.dropdash_counter > 0) && ((char.double_jump_state == 0 || !char.double_jump_state && AUTODD == 1) && super.active == 0 || (char.double_jump_state || !char.double_jump_state) && (super.active != 0 || (((char.bonus_effect & char.bonus.ELEMENTAL_SHIELDS) == 0 || (char.bonus_effect & char.bonus.INVINCIBLE) || (char.bonus_effect & char.bonus.SHIELD_LIGHTNING)) && AUTODD == 1)))
-						
-						if (chargeDropDash)
+						if (AUTODD == 1)
 						{
-							if (sonic.dropdash_counter < DROPDASH_FULLCHARGE)
+							bool chargeDropDash = (control.player1.state & CONTROL_ABC) && (AUTODD == 1 || (char.bonus_effect & char.bonus.INVINCIBLE) || sonic.dropdash_counter > 0) && ((char.double_jump_state == 0 || !char.double_jump_state && AUTODD == 1) && super.active == 0 || (char.double_jump_state || !char.double_jump_state) && (super.active != 0 || (((char.bonus_effect & char.bonus.ELEMENTAL_SHIELDS) == 0 || (char.bonus_effect & char.bonus.INVINCIBLE) || (char.bonus_effect & char.bonus.SHIELD_LIGHTNING)) && AUTODD == 1)))
+							
+							if (chargeDropDash)
 							{
-								// Drop dash charging
-								++sonic.dropdash_counter
-								if (sonic.dropdash_counter == DROPDASH_FULLCHARGE)
+								if (sonic.dropdash_counter < DROPDASH_FULLCHARGE)
 								{
-									// Fully charged now
-									char.state = char.state.SONIC_DROPDASH
-									Audio.playAudio("dropdash_charge", AudioContext.CONTEXT_SOUND)
+									// Drop dash charging
+									++sonic.dropdash_counter
+									if (sonic.dropdash_counter == DROPDASH_FULLCHARGE)
+									{
+										// Fully charged now
+										char.state = char.state.SONIC_DROPDASH
+										Audio.playAudio("dropdash_charge", AudioContext.CONTEXT_SOUND)
+									}
 								}
 							}
+							else if (sonic.dropdash_counter > 0)
+							{
+								// Abort drop dash
+								sonic.dropdash_counter = 0
+								char.state = char.state.ROLLING
+							}
 						}
-						else if (sonic.dropdash_counter > 0)
-						{
-							// Abort drop dash
-							sonic.dropdash_counter = 0
-							char.state = char.state.ROLLING
-						}
+						else
+							base.Character.updateJumpMoves()
 					}
-					else
-						base.Character.updateJumpMoves()
 				}
-			#endif
 			}
 		}
 		else
@@ -346,7 +346,35 @@ function void SonicPressedJumpInMidAir()
 {
 	char.flags &= ~char.flag.CONTROL_LOCK
 	char.double_jump_state = 1
-	if ((!super.active || (super.active < 0xff && (Game.getSetting(SETTING_SUPER_SONIC_ABILITY) == 1))) && !IsP1Sawnic())
+	if ((super.active && Game.getSetting(SETTING_SUPER_SONIC_ABILITY) != 1) || (super.active & 0x80))
+	{
+		bool isHyperSonic = (super.active & 0x80)			// Hyper Sonic active
+		performHyperDash = isHyperSonic
+		u8 input = control.player1.state & CONTROL_DPAD		// Only directions
+
+		if (Game.getSetting(SETTING_SUPER_SONIC_ABILITY) == 2)
+		{
+			performHyperDash = (super.active)				// This allows Super Sonic to use the dash as well
+		}
+
+		if (performHyperDash && Game.getSetting(SETTING_HYPER_DASH_CONTROLS) == 1)
+		{
+			// Hyper Dash requires also pressing D-pad in any direction
+			//  -> To allow for Drop Dashing without activating the Hyper Dash before
+			performHyperDash = (input != 0)
+		}
+
+		if (performHyperDash)
+		{
+			base.SonicPressedJumpInMidAir()
+			char.state = char.state.ROLLING // i like this a lot, don't judge me
+		}
+		else
+		{
+			char.double_jump_state = 1
+		}
+	}
+	else if ((!super.active || (super.active < 0xff && (Game.getSetting(SETTING_SUPER_SONIC_ABILITY) == 1))) && !IsP1Sawnic())
 	{
 		if ((char.bonus_effect & char.bonus.SHIELD_LIGHTNING) && !((char.bonus_effect & char.bonus.INVINCIBLE) && (Game.getSetting(SETTING_SUPER_SONIC_ABILITY) != 1)))
 		{
