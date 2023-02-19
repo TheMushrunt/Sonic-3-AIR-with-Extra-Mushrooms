@@ -253,41 +253,32 @@ function void OriginsMenu()
 	}
 }
 
+constant array<u64> StartTextPrefix =
+{
+	"so", "s3c"
+}
+constant array<u64> StartTextSuffix =
+{
+	"press_button", "press_start", "touch_to_start", "press_any_button"
+}
 function string getStartText()
 {
-	string prefix_key = "" // nothing, Origins, or S3C
-	string suffix_key = "" // push button, push start, or touch to start
-	// prefix checking
-	if (OPTIONS_GFX <= 2) // Origins
-		prefix_key = "so"
-	else // S3C
-		prefix_key = "s3c"
-	// suffix checking
-	if (TS_STARTBUTTON == 0) // press button
-		suffix_key = "press_button"
-	else if (TS_STARTBUTTON == 1) // press start
-		suffix_key = "press_start"
-	else if (TS_STARTBUTTON == 2) // touch to start
-		suffix_key = "touch_to_start"
-	else // press any button
-		suffix_key = "press_any_button"
-	// return phase
+	string prefix_key = StartTextPrefix[OPTIONS_GFX/3]
+	string suffix_key = StartTextSuffix[TS_STARTBUTTON]
 	if (OPTIONS_GFX != 0) // if you aren't using S3 options graphics
 		return stringformat("%s_%s", prefix_key, suffix_key)
 	else
 		return stringformat("%s", suffix_key)
 }
-
+constant array<u64> OptionsPrefix =
+{
+	"s2", "s3c"
+}
 function string getOptionsText()
 {
-	string prefix_key = "" // nothing, S2 Origins, or S3C
+	string prefix_key = OptionsPrefix[OPTIONS_GFX/3]
 	string ex_key = "" // whether it's using ex options or not
-	string op_num = 0 // 1 or 2
-	// prefix checking
-	if (OPTIONS_GFX == 2) // S2 Origins
-		prefix_key = "s2"
-	else // S3C
-		prefix_key = "s3c"
+	string op_num = (titlescreen.selection % 2) + 1 // 1 or 2
 	// ex options checking
 	if (!Mods.isModActive("Sonic 3: D.A. Garden Edition"))
 	{
@@ -301,11 +292,6 @@ function string getOptionsText()
 		else
 			ex_key = "dagarden_"
 	}
-	// option number checking
-	if (titlescreen.selection % 2 == 0) // 1 player/sound test
-		op_num = 1
-	else // competition/s3air menu
-		op_num = 2
 	// return phase
 	if (OPTIONS_GFX > 1) // if you aren't using S3 or S3 Origins
 		return stringformat("%s%soptions_%d", prefix_key, ex_key, op_num)
