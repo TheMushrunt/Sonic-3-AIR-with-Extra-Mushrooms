@@ -75,10 +75,8 @@ function void Standalone.onResumeAfterPause()
 function void determinePauseSounds(u8 scenario)
 {
 	u64 SFXKey
-	u8 pauseIsPlaying = 0
 	if (scenario == 0) // pause entering
 	{
-		pauseIsPlaying = 1
 		// 0 is nothing
 		if (S3EM_PAUSE_SFX == 1) // menu beep
 			SFXKey = 0x5B
