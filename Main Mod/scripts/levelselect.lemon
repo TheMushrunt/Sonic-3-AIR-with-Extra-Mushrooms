@@ -14,7 +14,14 @@ global u8 LS_ZONEORDER
 global u8 EM_2PSTAGES
 global u8 LS_FORCE_BASE
 
+global u8 LS_DEZ
+global u8 LS_SSZ
+global u8 LS_BONUS
+global u8 LS_SPECIAL
+
 global u8 YOU_FUCKED_UP_KID
+
+
 
 constant array<u64> LSNames =
 {
@@ -50,7 +57,7 @@ constant array<u64> LSNames_2P =
 
 constant array<u64> LSNumbers =
 {
-	"1", "2", "[BOSS TEXT]", "s", "k", "g", "r", "s"
+	"1", "2", "[BOSS TEXT]", "s", "k", "1", "2", "3", "g", "r", "s", "a", "b", "c", "s3", "s&k"
 }
 
 constant array<u64> LSBossText =
@@ -58,6 +65,12 @@ constant array<u64> LSBossText =
 	"3", "x", "boss", "{}"
 }
 
+function void Renderer.drawCustomSprite(u64 key, s16 px, s16 py, u8 atex, u8 flags, u16 renderQueue) 
+{
+	if (key == "ls_icon_12" && LS_DEZ)
+		key = stringformat("%s_origins", key)
+	base.Renderer.drawCustomSprite(key, px, py, atex, flags, renderQueue)
+}
 
 function void Renderer.drawLSText(u64 FONT_LS, u64 FONT_LS_Y)
 {
@@ -99,7 +112,7 @@ function void Renderer.drawLSText(u64 FONT_LS, u64 FONT_LS_Y)
 				u8 test = 0
 				if ((levelselect.selection / 2) == i && (levelselect.selection != 0x14 && levelselect.selection != 0x1b && levelselect.selection != 0xff))
 					u64 font = FONT_LS_Y
-				else if ((i == 9 && levelselect.selection == 0x14) || (i == 12 && levelselect.selection == 0x1b) || (i == 14 && levelselect.selection == 0xfd))
+				else if ((i == 9 && levelselect.selection == 0x14) || (i == 12 && levelselect.selection == 0x1b) || (i == 14 && levelselect.selection == 0xff))
 				{
 					font = FONT_LS_Y
 					test = 1
@@ -117,9 +130,32 @@ function void Renderer.drawLSText(u64 FONT_LS, u64 FONT_LS_Y)
 					u64 numberfont
 					u8 offset = 0
 					if (i == 11)
-						offset += 3
+					{
+						if (LS_SSZ == 1)
+							offset += 3
+						else if (LS_SSZ == 2)
+							offset += 8
+					}
 					if (i == 14)
+					{
 						offset += 5
+						if (LS_BONUS == 1 || LS_BONUS == 2)
+							offset += 3
+						else if (LS_BONUS == 3)
+							offset += 6
+					}
+					if (i == 15)
+					{
+						if (LS_SPECIAL == 1)
+							offset += 3
+						else if (LS_SPECIAL == 2)
+						{
+							numberXposition -= 4
+							offset += 14
+						}
+						else if (LS_SPECIAL == 3)
+							offset += 11
+					}
 					if (levelselect.selection/2 == i)
 					{
 						if (j == 0 && levelselect.selection % 2 == 0)
@@ -142,6 +178,8 @@ function void Renderer.drawLSText(u64 FONT_LS, u64 FONT_LS_Y)
 						else if (LS_BOSS == 2)
 							numberXposition -= 24
 					}
+					else if (number == "r" && LS_BONUS == 2)
+						number = "m"
 					if (i != 10 && i != 13)
 						Renderer.drawText(numberfont, numberXposition, numberYposition, number, 0xFFFFFFFF, 1, 0, 0x9f7e, true)
 					numberYposition += 8
@@ -355,7 +393,7 @@ function void DrawSpritesToLevelSelect()
 				Renderer.drawCustomSprite("ls_bonus_0", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
 			else if (levelselect.selection == 0x1d)
 				Renderer.drawCustomSprite("ls_bonus_1", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
-			else if (levelselect.selection == 0xfd)
+			else if (levelselect.selection == 255)
 				Renderer.drawCustomSprite("ls_bonus_2", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
 
 			else if (levelselect.selection == 0x1e)
@@ -551,35 +589,30 @@ function bool LevelSelect.innerUpdate()
 		DrawSpritesToLevelSelect()
 		if ((control.pad1.pressed | control.pad2.pressed) & CONTROL_START)
 		{
-			if (D0.u16 != 0x5555)
+			if (ScaredHaters != 1 && notExtraSlot)
 			{
-				if (ScaredHaters != 1 && notExtraSlot)
-				{
-					Standalone.playAudio(0xaf)
-					return base.LevelSelect.innerUpdate()
-				}
-				else if ScaredHaters != 1 && (!YOU_FUCKED_UP_KID && !notExtraSlot)
-				{
-					Standalone.playAudio(0xaf)
-					return base.LevelSelect.innerUpdate()
-				}
-				else if (ScaredHaters != 1 && YOU_FUCKED_UP_KID)
-				{
-					playSound(0x7B)
+				Standalone.playAudio(0xaf)
+				return base.LevelSelect.innerUpdate()
+			}
+			else if ScaredHaters != 1 && (!YOU_FUCKED_UP_KID && !notExtraSlot)
+			{
+				Standalone.playAudio(0xaf)
+				return base.LevelSelect.innerUpdate()
+			}
+			else if (ScaredHaters != 1 && YOU_FUCKED_UP_KID)
+			{
+				playSound(0x7B)
 
-					YOU_FUCKED_UP_KID = 0
-					System.writeDisplayLine("Sorry! Extra Slots end up causing issues from the Title Screen's Level Select.")
+				YOU_FUCKED_UP_KID = 0
+				System.writeDisplayLine("Sorry! Extra Slots end up causing issues from the Title Screen's Level Select.")
 
-					u32 backupA0 = A0
-					FadeOutScreenBlocking()
-					A0 = backupA0
-
-					// Do not fade out music in this case, Data Select music is meant to kept playing
-
-					Game.returnToMainMenu()
-					yieldExecution()
-					return false
-				}
+				u32 backupA0 = A0
+				FadeOutScreenBlocking()
+				A0 = backupA0
+				// Do not fade out music in this case, Data Select music is meant to kept playing
+				Game.returnToMainMenu()
+				yieldExecution()
+				return false
 			}
 		}
 		else if (control.pad1.pressed & CONTROL_B || Input.buttonPressed(BUTTON_BACK))
@@ -623,14 +656,6 @@ function void fn007f62()
 {
 	if (!LS_FORCE_BASE)
 	{
-		if (levelselect.selection == 0x05 && EM_2PSTAGES) // Altar
-		{
-			A4 = 0xffff0000
-			A5 = 0x008040
-			A3 = A5 + levelselect.selection * 4
-			D0 = u32(u8[A3]) * 0x50 + u8[A3 + 1]
-			A1 = A4 + D0.s16
-		}
 		A4 = 0xffff0000
 		A5 = 0x008040
 		A3 = A5 + levelselect.selection * 4
@@ -665,18 +690,15 @@ function bool fn007d6c()
 {
 	if (!LS_FORCE_BASE)
 	{
-		if (true) // i'm doing this for the sake of keeping it looking decent to look at
+		if (levelselect.selection == 0x1c) // Gachapon
 		{
-			if (levelselect.selection == 0x1c) // Gachapon
-			{
-				D0.u16 = 0x1300
-				Nemesis.loadDataToVRAM(0x1927fe, 0x9280)
-			}
-			else if (levelselect.selection == 0x1d) // Rotating
-				D0.u16 = 0x1500
-			else if (levelselect.selection == 0xfd) // Spheres (please don't ask why i chose 0xfd)
-				D0.u16 = 0x1400
+			D0.u16 = 0x1300
+			Nemesis.loadDataToVRAM(0x1927fe, 0x9280)
 		}
+		else if (levelselect.selection == 0x1d) // Rotating
+			D0.u16 = 0x1500
+		else if (levelselect.selection == 0xff) // Spheres (please don't ask why i chose 0xff)
+			D0.u16 = 0x1400
 		if (EM_2PSTAGES)
 		{
 			if (levelselect.selection == 0x00) // ALZ
@@ -690,9 +712,7 @@ function bool fn007d6c()
 			else if (levelselect.selection == 0x04) // EMZ
 				D0.u16 = 0x1200
 			else if (levelselect.selection == 0x05) // Altar
-			{
 				D0.u16 = 0x1701
-			}
 			else if (levelselect.selection == 0x06) // Ending
 				D0.u16 = 0x0d01
 		}
@@ -742,10 +762,10 @@ function void fn007e64()
 					levelselect.selection = 0x1b
 				else if (levelselect.selection == 0x1b)
 					levelselect.selection = 0x19
-				else if (levelselect.selection == 0xfd)
+				else if (levelselect.selection == 0xff)
 					levelselect.selection = 0x1d
 				else if (levelselect.selection == 0x1e)
-					levelselect.selection = 0xfd
+					levelselect.selection = 0xff
 				else
 				{
 					--levelselect.selection
@@ -764,8 +784,8 @@ function void fn007e64()
 				else if (levelselect.selection == 0x19)
 					levelselect.selection = 0x1b
 				else if (levelselect.selection == 0x1d)
-					levelselect.selection = 0xfd
-				else if (levelselect.selection == 0xfd)
+					levelselect.selection = 0xff
+				else if (levelselect.selection == 0xff)
 					levelselect.selection = 0x1e
 				else
 				{
@@ -833,7 +853,7 @@ function void fn007e64()
 					levelselect.selection = 0x08
 				else if (levelselect.selection == 0x09)
 					levelselect.selection = 0x1a
-				else if (levelselect.selection == 0xfd)
+				else if (levelselect.selection == 0xff)
 					levelselect.selection = 0x0b
 				else
 					levelselect.selection = u8[0x007f22 + levelselect.selection]
