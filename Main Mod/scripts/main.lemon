@@ -25,6 +25,8 @@ include lbz2
 include aizspeedup
 include pausescreen
 
+constant u32 SECRET_LEVELSELECT		= 0x10 // jokes on you, eukaryot. i did thorough testing and figured out one of your damn secrets
+
 constant u16 TitleScreen.Intro_Background.targetInVRAM	= 0x0000
 constant u16 TitleScreen.IntroBuffer.targetInVRAM		= 0x6000
 constant u16 TitleScreen.Characters.targetInVRAM		= 0x8000
@@ -303,7 +305,7 @@ function void OptionInit()
 {
 	debug_mode.enabled.u8 = Game.getSetting(SETTING_DEBUG_MODE)
 	if (TS_SOUNDS == 3) // Extra Sound check
-		if (Game.isSecretUnlocked(SECRET_DEBUGMODE) || ((!Game.isSecretUnlocked(SECRET_DEBUGMODE)) && titlescreen.selection != 2))
+		if (Game.isSecretUnlocked(SECRET_LEVELSELECT) || ((!Game.isSecretUnlocked(SECRET_LEVELSELECT)) && titlescreen.selection != 2))
 			if (!Mods.isModActive("Sonic 3 Complete Sound Test"))
 				playSound(0x63) // Checkpoint sound
 	if (TS_SOUNDS >= 2 && Mods.isModActive("Sonic 3 Complete Sound Test"))
@@ -312,7 +314,7 @@ function void OptionInit()
 		else if (titlescreen.selection == 2 && TS_SOUNDS >= 2)
 			Standalone.playAudio(0x7B) // Eggman moving on Data Select sound
 	if (TS_SOUNDS >= 2) // Origins/Extra Sound check
-		if (!(Game.isSecretUnlocked(SECRET_DEBUGMODE)) && titlescreen.selection == 2)
+		if (!(Game.isSecretUnlocked(SECRET_LEVELSELECT)) && titlescreen.selection == 2)
 				Standalone.playAudio(0x7B) // Eggman moving on Data Select sound
 	D0 = titlescreen.selection
 	if (D0.u8 == 0 && TS_BRANDING != 1 || Mods.isModActive("Sonic 3: D.A. Garden Edition") && TS_BRANDING == 1)
@@ -341,7 +343,7 @@ function void OptionInit()
 			yieldExecution()
 		}
 		else
-			if (Game.isSecretUnlocked(SECRET_DEBUGMODE))
+			if (Game.isSecretUnlocked(SECRET_LEVELSELECT))
 			{
 				extraMushroomsLS.discordRPC()
 				YOU_FUCKED_UP_KID = 1
