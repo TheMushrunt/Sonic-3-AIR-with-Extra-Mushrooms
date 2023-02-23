@@ -18,10 +18,9 @@ global u8 LS_DEZ
 global u8 LS_SSZ
 global u8 LS_BONUS
 global u8 LS_SPECIAL
+global u8 LS_ICONS
 
 global u8 YOU_FUCKED_UP_KID
-
-
 
 constant array<u64> LSNames =
 {
@@ -69,11 +68,18 @@ function void Renderer.drawCustomSprite(u64 key, s16 px, s16 py, u8 atex, u8 fla
 {
 	if (key == "ls_icon_12" && LS_DEZ)
 		key = stringformat("%s_origins", key)
+	else if (key == "ls_bonus_1" && LS_BONUS == 2)
+		key = "ls_bonus_2"
+	else if (key == "ls_bonus_2" && LS_BONUS == 2)
+		key = "ls_bonus_1"
 	base.Renderer.drawCustomSprite(key, px, py, atex, flags, renderQueue)
 }
 
 function void Renderer.drawLSText(u64 FONT_LS, u64 FONT_LS_Y)
 {
+	u16 widthextend = 0
+	if (!LS_ICONS)
+		widthextend = getScreenExtend()
 	if (EM_2PSTAGES)
 		{
 			u16 height = 8
@@ -119,7 +125,7 @@ function void Renderer.drawLSText(u64 FONT_LS, u64 FONT_LS_Y)
 				}
 				else
 					font = FONT_LS
-				Renderer.drawText(font, xposition, yposition, zonename, 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+				Renderer.drawText(font, xposition+widthextend, yposition, zonename, 0xFFFFFFFF, 1, 0, 0x9f7e, true)
 				u16 numberXposition = xposition + 120
 				u16 numberYposition = yposition
 				u8 LSCount = 2
@@ -134,7 +140,7 @@ function void Renderer.drawLSText(u64 FONT_LS, u64 FONT_LS_Y)
 						if (LS_SSZ == 1)
 							offset += 3
 						else if (LS_SSZ == 2)
-							offset += 8
+							offset += 11
 					}
 					if (i == 14)
 					{
@@ -181,7 +187,7 @@ function void Renderer.drawLSText(u64 FONT_LS, u64 FONT_LS_Y)
 					else if (number == "r" && LS_BONUS == 2)
 						number = "m"
 					if (i != 10 && i != 13)
-						Renderer.drawText(numberfont, numberXposition, numberYposition, number, 0xFFFFFFFF, 1, 0, 0x9f7e, true)
+						Renderer.drawText(numberfont, numberXposition+widthextend, numberYposition, number, 0xFFFFFFFF, 1, 0, 0x9f7e, true)
 					numberYposition += 8
 				}
 				yposition += 24
@@ -197,32 +203,32 @@ function void Renderer.drawLSText(u64 FONT_LS, u64 FONT_LS_Y)
 			determineSTcolor = FONT_LS
 		if (ST_STYLE == 1)
 		{
-			Renderer.drawText(determineSTcolor, 264, 176, "<   >", 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+			Renderer.drawText(determineSTcolor, 264+widthextend, 176, "<   >", 0xFFFFFFFF, 1, 0, 0xFFFD, true)
 			if (levelselect.soundtest < 0x0a)
 			{
-				Renderer.drawText(determineSTcolor, 272, 176, "00" , 0xFFFFFFFF, 1, 0, 0xFFFD, true)
-				Renderer.drawText(determineSTcolor, 288, 176,(stringformat("%d", levelselect.soundtest)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+				Renderer.drawText(determineSTcolor, 272+widthextend, 176, "00" , 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+				Renderer.drawText(determineSTcolor, 288+widthextend, 176,(stringformat("%d", levelselect.soundtest)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
 			}
 			else if (levelselect.soundtest < 0x64)
 			{
-				Renderer.drawText(determineSTcolor, 272, 176, "0" , 0xFFFFFFFF, 1, 0, 0xFFFD, true)
-				Renderer.drawText(determineSTcolor, 280, 176,(stringformat("%d", levelselect.soundtest)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+				Renderer.drawText(determineSTcolor, 272+widthextend, 176, "0" , 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+				Renderer.drawText(determineSTcolor, 280+widthextend, 176,(stringformat("%d", levelselect.soundtest)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
 			}
 			else
-				Renderer.drawText(determineSTcolor, 272, 176,(stringformat("%d", levelselect.soundtest)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+				Renderer.drawText(determineSTcolor, 272+widthextend, 176,(stringformat("%d", levelselect.soundtest)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
 		}
 		else
 		{
-			Renderer.drawText(determineSTcolor, 272, 176, "*  *", 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+			Renderer.drawText(determineSTcolor, 272+widthextend, 176, "*  *", 0xFFFFFFFF, 1, 0, 0xFFFD, true)
 			if (levelselect.soundtest < 0x10)
 			{
-				Renderer.drawText(determineSTcolor, 280, 176, "0" , 0xFFFFFFFF, 1, 0, 0xFFFD, true)
-				Renderer.drawText(determineSTcolor, 288, 176,(stringformat("%x", levelselect.soundtest)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+				Renderer.drawText(determineSTcolor, 280+widthextend, 176, "0" , 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+				Renderer.drawText(determineSTcolor, 288+widthextend, 176,(stringformat("%x", levelselect.soundtest)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
 			}
 			else
-				Renderer.drawText(determineSTcolor, 280, 176,(stringformat("%x", levelselect.soundtest)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+				Renderer.drawText(determineSTcolor, 280+widthextend, 176,(stringformat("%x", levelselect.soundtest)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
 		}
-		Renderer.drawText(determineSTcolor, 176, 176, LSNames[16], 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+		Renderer.drawText(determineSTcolor, 176+widthextend, 176, LSNames[16], 0xFFFFFFFF, 1, 0, 0xFFFD, true)
 }
 
 function void ScareAwayTheHaters()
@@ -297,6 +303,9 @@ function void DrawLevelSelectBG()
 
 function void DrawSpritesToLevelSelect()
 {
+	u16 widthextend = 0
+	if (!LS_ICONS)
+		widthextend = getScreenExtend()+8
 	u16 beginningOfText = getScreenHeight()/2 - 80
 
 	// kid you not, this is probably the best way i could've handled the font selection system
@@ -330,32 +339,32 @@ function void DrawSpritesToLevelSelect()
 	//Renderer.drawCustomSprite("ls_text", 0, 0, 0x00, 0, 0x1000)
 	if (ScaredHaters != 1)
 	{	
-		Renderer.drawText(FONT_LS_Y, (getScreenWidth()-104)-48, getScreenHeight()-16,(stringformat("%x", (levelselect.characters / 10) % 10)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
-		Renderer.drawText(FONT_LS_Y, (getScreenWidth()-104)-40, getScreenHeight()-16,(stringformat("%x", levelselect.characters % 10)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+		Renderer.drawText(FONT_LS_Y, (getScreenWidth()-104)-48+widthextend, getScreenHeight()-16,(stringformat("%x", (levelselect.characters / 10) % 10)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+		Renderer.drawText(FONT_LS_Y, (getScreenWidth()-104)-40+widthextend, getScreenHeight()-16,(stringformat("%x", levelselect.characters % 10)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
 		
 		u8 ExtraSlotStart = 4
 		if (levelselect.characters == 0)
 		{
-			Renderer.drawCustomSprite("continue_icon_sonic", getScreenWidth()-104, getScreenHeight()-8, 0x00, 0, 0x9f7e)
-			Renderer.drawCustomSprite("continue_icon_tails", (getScreenWidth()-104)-16, getScreenHeight()-8, 0x00, 0, 0x9f7e)
+			Renderer.drawCustomSprite("continue_icon_sonic", getScreenWidth()-104+widthextend, getScreenHeight()-8, 0x00, 0, 0x9f7e)
+			Renderer.drawCustomSprite("continue_icon_tails", (getScreenWidth()-104)-16+widthextend, getScreenHeight()-8, 0x00, 0, 0x9f7e)
 		}
 		else if (levelselect.characters == 1)
 		{
-			Renderer.drawCustomSprite("continue_icon_sonic", getScreenWidth()-104, getScreenHeight()-8, 0x00, 0, 0x9f7e)
+			Renderer.drawCustomSprite("continue_icon_sonic", getScreenWidth()-104+widthextend, getScreenHeight()-8, 0x00, 0, 0x9f7e)
 		}
 		else if (levelselect.characters == 2)
 		{
-			Renderer.drawCustomSprite("continue_icon_tails", getScreenWidth()-104, getScreenHeight()-8, 0x00, 0, 0x9f7e)
+			Renderer.drawCustomSprite("continue_icon_tails", getScreenWidth()-104+widthextend, getScreenHeight()-8, 0x00, 0, 0x9f7e)
 		}
 		else if (levelselect.characters == 3)
 		{
-			Renderer.drawCustomSprite("continue_icon_knuckles", getScreenWidth()-104, getScreenHeight()-8, 0x00, 0, 0x9f7e)
+			Renderer.drawCustomSprite("continue_icon_knuckles", getScreenWidth()-104+widthextend, getScreenHeight()-8, 0x00, 0, 0x9f7e)
 		}
 		else if (levelselect.characters == 4 && Game.isSecretUnlocked(SECRET_KNUX_AND_TAILS))
 		{
 			++ExtraSlotStart
-			Renderer.drawCustomSprite("continue_icon_knuckles", getScreenWidth()-104, getScreenHeight()-8, 0x00, 0, 0x9f7e)
-			Renderer.drawCustomSprite("continue_icon_tails", (getScreenWidth()-104)-16, getScreenHeight()-8, 0x00, 0, 0x9f7e)
+			Renderer.drawCustomSprite("continue_icon_knuckles", getScreenWidth()-104+widthextend, getScreenHeight()-8, 0x00, 0, 0x9f7e)
+			Renderer.drawCustomSprite("continue_icon_tails", (getScreenWidth()-104)-16+widthextend, getScreenHeight()-8, 0x00, 0, 0x9f7e)
 		}
 		else if (levelselect.characters > ExtraSlotStart)
 		{
@@ -363,68 +372,71 @@ function void DrawSpritesToLevelSelect()
 			// probably coming whenever that new base is released. glad they're documenting it and stuff though
 			if ((levelselect.characters == ExtraSlotStart+1) && Mods.isModActive("Extra Slot Mighty"))
 			{
-				Renderer.drawCustomSprite("Continue_icon_S3_alt", (getScreenWidth()-102), (getScreenHeight()-7), 0x00, 0, 0x9f7e)
+				Renderer.drawCustomSprite("Continue_icon_S3_alt", (getScreenWidth()-102)+widthextend, (getScreenHeight()-7), 0x00, 0, 0x9f7e)
 			}
 			else if ((levelselect.characters == ExtraSlotStart+2) && Mods.isModActive("Extra Slot Ray"))
 			{
 				u16[0xfffffc00 + 0x02] = 0x0eee
 				u16[0xfffffc00 + 0x1e] = 0x0222
-				Renderer.drawCustomSprite("continue_icon_Ray_S3_alt", (getScreenWidth()-104), (getScreenHeight()-9), 0x00, 0, 0x9f7e)
+				Renderer.drawCustomSprite("continue_icon_Ray_S3_alt", (getScreenWidth()-104)+widthextend, (getScreenHeight()-9), 0x00, 0, 0x9f7e)
 			}
-			else Renderer.drawCustomSprite("unknown_extraslot", (getScreenWidth()-104)-11, (getScreenHeight()-8)-24, 0x00, 0, 0x9f7e)
+			else Renderer.drawCustomSprite("unknown_extraslot", (getScreenWidth()-104)-11+widthextend, (getScreenHeight()-8)-24, 0x00, 0, 0x9f7e)
 		}
 		u8 miles_check = (global.region_code & 0x80) ? 0x39ab6a : 0x39aa18
-		if (levelselect.selection < 0x05 && EM_2PSTAGES)
-			Renderer.drawCustomSprite(stringformat("ls_icon_%d_2p", levelselect.selection), getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
-		else if (levelselect.selection < 0x10 && levelselect.selection > 0x07 && LS_ZONEORDER && !EM_2PSTAGES)
-			Renderer.drawCustomSprite(stringformat("ls_icon_%d_a", levelselect.selection/2), getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
-		else if (levelselect.selection < 0x20 && levelselect.selection != 0x1b && levelselect.selection != 0x14 && (levelselect.selection < 0x1c) && !EM_2PSTAGES)
-			Renderer.drawCustomSprite(stringformat("ls_icon_%d", levelselect.selection/2), getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
-		else
+		if (LS_ICONS)
 		{
-			if (levelselect.selection == 0x05 && EM_2PSTAGES)
-				Renderer.drawCustomSprite("ls_icon_10", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
-			if (levelselect.selection == 0x14)
-				Renderer.drawCustomSprite("ls_icon_9", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
-			else if (levelselect.selection == 0x1b)
-				Renderer.drawCustomSprite("ls_icon_12", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
-
-			else if (levelselect.selection == 0x1c)
-				Renderer.drawCustomSprite("ls_bonus_0", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
-			else if (levelselect.selection == 0x1d)
-				Renderer.drawCustomSprite("ls_bonus_1", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
-			else if (levelselect.selection == 255)
-				Renderer.drawCustomSprite("ls_bonus_2", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
-
-			else if (levelselect.selection == 0x1e)
-				Renderer.drawCustomSprite("ls_special_0", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
-			else if (levelselect.selection == 0x1f)
-				Renderer.drawCustomSprite("ls_special_1", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
-		}
-		// sound test	
-		if (levelselect.selection >= 0x00)
-			if (levelselect.characters == 0 || levelselect.characters == 1)
-				if (Mods.isModActive("Mario (SHC 2022)"))
-					Renderer.drawCustomSprite("ls_mario", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
-				else
-					Renderer.drawSprite("ls_sonic", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
-			else if (levelselect.characters == 2)
-				if miles_check == 0x39ab6a
-					Renderer.drawCustomSprite("ls_tails", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
-				else
-					Renderer.drawCustomSprite("ls_miles", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
-			else if (levelselect.characters == 3 || levelselect.characters == ExtraSlotStart-1)
-				Renderer.drawCustomSprite("ls_kte", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+			if (levelselect.selection < 0x05 && EM_2PSTAGES)
+				Renderer.drawCustomSprite(stringformat("ls_icon_%d_2p", levelselect.selection), getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+			else if (levelselect.selection < 0x10 && levelselect.selection > 0x07 && LS_ZONEORDER && !EM_2PSTAGES)
+				Renderer.drawCustomSprite(stringformat("ls_icon_%d_a", levelselect.selection/2), getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+			else if (levelselect.selection < 0x20 && levelselect.selection != 0x1b && levelselect.selection != 0x14 && (levelselect.selection < 0x1c) && !EM_2PSTAGES)
+				Renderer.drawCustomSprite(stringformat("ls_icon_%d", levelselect.selection/2), getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
 			else
 			{
-				if ((levelselect.characters == ExtraSlotStart+1) && Mods.isModActive("Extra Slot Mighty"))
-					Renderer.drawCustomSprite("ls_mighty", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
-				else if ((levelselect.characters == ExtraSlotStart+2) && Mods.isModActive("Extra Slot Ray"))
-					Renderer.drawCustomSprite("ls_ray", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
-				else Renderer.drawCustomSprite("ls_unknown", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+				if (levelselect.selection == 0x05 && EM_2PSTAGES)
+					Renderer.drawCustomSprite("ls_icon_10", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+				if (levelselect.selection == 0x14)
+					Renderer.drawCustomSprite("ls_icon_9", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+				else if (levelselect.selection == 0x1b)
+					Renderer.drawCustomSprite("ls_icon_12", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+
+				else if (levelselect.selection == 0x1c)
+					Renderer.drawCustomSprite("ls_bonus_0", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+				else if (levelselect.selection == 0x1d)
+					Renderer.drawCustomSprite("ls_bonus_1", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+				else if (levelselect.selection == 255)
+					Renderer.drawCustomSprite("ls_bonus_2", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+
+				else if (levelselect.selection == 0x1e)
+					Renderer.drawCustomSprite("ls_special_0", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+				else if (levelselect.selection == 0x1f)
+					Renderer.drawCustomSprite("ls_special_1", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
 			}
-				
-		Renderer.drawCustomSprite("ls_emblem", getScreenWidth()-88, getScreenHeight()-56, 0x00, 0, 0x9f7e)
+			// sound test	
+			if (levelselect.selection >= 0x00)
+				if (levelselect.characters == 0 || levelselect.characters == 1)
+					if (Mods.isModActive("Mario (SHC 2022)"))
+						Renderer.drawCustomSprite("ls_mario", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+					else
+						Renderer.drawSprite("ls_sonic", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+				else if (levelselect.characters == 2)
+					if miles_check == 0x39ab6a
+						Renderer.drawCustomSprite("ls_tails", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+					else
+						Renderer.drawCustomSprite("ls_miles", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+				else if (levelselect.characters == 3 || levelselect.characters == ExtraSlotStart-1)
+					Renderer.drawCustomSprite("ls_kte", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+				else
+				{
+					if ((levelselect.characters == ExtraSlotStart+1) && Mods.isModActive("Extra Slot Mighty"))
+						Renderer.drawCustomSprite("ls_mighty", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+					else if ((levelselect.characters == ExtraSlotStart+2) && Mods.isModActive("Extra Slot Ray"))
+						Renderer.drawCustomSprite("ls_ray", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+					else Renderer.drawCustomSprite("ls_unknown", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+				}
+					
+			Renderer.drawCustomSprite("ls_emblem", getScreenWidth()-88, getScreenHeight()-56, 0x00, 0, 0x9f7e)
+		}
 	}
 }
 
@@ -695,9 +707,9 @@ function bool fn007d6c()
 			D0.u16 = 0x1300
 			Nemesis.loadDataToVRAM(0x1927fe, 0x9280)
 		}
-		else if (levelselect.selection == 0x1d) // Rotating
+		else if (levelselect.selection == 0x1d && LS_BONUS != 2 || levelselect.selection == 0xff && LS_BONUS == 2) // Rotating
 			D0.u16 = 0x1500
-		else if (levelselect.selection == 0xff) // Spheres (please don't ask why i chose 0xff)
+		else if (levelselect.selection == 0xff && LS_BONUS != 2 || levelselect.selection == 0x1d && LS_BONUS == 2) // Spheres (please don't ask why i chose 0xff)
 			D0.u16 = 0x1400
 		if (EM_2PSTAGES)
 		{

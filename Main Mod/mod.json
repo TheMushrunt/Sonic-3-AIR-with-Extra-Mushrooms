@@ -149,6 +149,17 @@
 				}
 			},
 			{
+				"InternalName": "Zone Icons in Level Select",
+				"DisplayName": "Zone Icons in Level Select",
+				"Variable": "LS_ICONS",
+				"Category": "Level Select",
+				"DefaultValue": "1",
+				"Options": {
+					"0": "Off",
+					"1": "On"
+				}
+			},
+			{
 				"InternalName": "Level Select Zone Order",
 				"DisplayName": "Level Select Zone Order",
 				"Variable": "LS_ZONEORDER",
@@ -294,7 +305,7 @@
 				"Options": {
 					"0": "1, 2, 3",
 					"1": "G, R, S",
-					"2": "G, M, S",
+					"2": "G, M, S (swaps 'R' and 'S')",
 					"3": "A, B, C"
 				}
 			},
