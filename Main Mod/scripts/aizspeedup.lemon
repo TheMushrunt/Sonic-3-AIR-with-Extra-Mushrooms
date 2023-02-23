@@ -7,7 +7,10 @@ function void AIZ1.Transition.Update()
 	if (!AIZ_FLAME_SEQ)
 		base.AIZ1.Transition.Update()
 	else
+	{
+		level.boss_encounter = 0
 		call tableLookupAddress(0x0684fe, objA0.base_state)
+	}
 }
 
 //# address-hook(0x06852c) end(0x068550)
@@ -41,6 +44,9 @@ function void fn06852c()
 			playSound(0x48)
 			playSound(0x4e)
 			UnloadObject()
+			level.boss_encounter = 0
+			if !((super.active || super.active.tails) || (u8[0xffffb000 + 0x2b] & char.bonus.INVINCIBLE))
+				chooseFittingMusic()
 			return
 		}
 
