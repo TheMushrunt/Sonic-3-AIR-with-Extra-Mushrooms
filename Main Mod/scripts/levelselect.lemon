@@ -374,7 +374,7 @@ function void DrawSpritesToLevelSelect()
 			{
 				Renderer.drawCustomSprite("Continue_icon_S3_alt", (getScreenWidth()-102)+widthextend, (getScreenHeight()-7), 0x00, 0, 0x9f7e)
 			}
-			else if ((levelselect.characters == ExtraSlotStart+2) && Mods.isModActive("Extra Slot Ray"))
+			else if ((levelselect.characters == ExtraSlotStart+2 || (levelselect.characters == ExtraSlotStart+1 && !Mods.isModActive("Extra Slot Mighty"))) && Mods.isModActive("Extra Slot Ray"))
 			{
 				u16[0xfffffc00 + 0x02] = 0x0eee
 				u16[0xfffffc00 + 0x1e] = 0x0222
