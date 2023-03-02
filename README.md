@@ -15,4 +15,4 @@ Taking a look inside the scripts is reccomended for those who want to see true i
 Contact me directly if you want, I'm very open to this kind of stuff. Just know that I won't exactly accept *suggestions* for the mod, rather any fixes, refinements and additions people would like me to include.
 
 ## Other things of note
-Stuff doesn't work correctly with certain mods. I have fixes for two of the many, one ([Achievements Plus](https://github.com/fadeinside/s3air-achievements-plus)) being included in the main download, with the other ([D.A. Garden Edition](https://gamebanana.com/mods/151029)) being available [here.](https://cdn.discordapp.com/attachments/708852212922712118/1078410288191246416/S3DAGE_Fixes.zip) I'm not planning to fix issues related to any other mods unless it's extremely notable and is *worth* fixing.
+Stuff doesn't work correctly with certain mods. (Exceptions can be seen in scripts, since I either like the mod or it's popular enough for me to add support.) I'm not planning to fix issues related to any other mods unless it's extremely notable and is *worth* fixing.
