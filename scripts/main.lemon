@@ -25,6 +25,10 @@ include lbz2
 include aizspeedup
 include pausescreen
 
+#if ACHIEVEMENTS_PLUS_ACTIVE
+include achievementplus_hud
+#endif
+
 constant u32 SECRET_LEVELSELECT		= 0x10 // jokes on you, eukaryot. i did thorough testing and figured out one of your damn secrets
 
 constant u16 TitleScreen.Intro_Background.targetInVRAM	= 0x0000
@@ -34,6 +38,10 @@ constant u16 TitleScreen.AndKnucklesTitle.targetInVRAM	= 0x9800
 constant u16 TitleScreen.Banner.targetInVRAM			= 0xa000
 constant u16 TitleScreen.Menu.targetInVRAM				= 0xd000
 
+function void SHCSplash.showSplashScreen()
+{
+
+}
 // Extra Mushrooms Rich Presence, for fun
 // it only displays when using the Title Screen options, for fairness.
 

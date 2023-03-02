@@ -156,7 +156,7 @@ function void Renderer.drawLSText(u64 FONT_LS, u64 FONT_LS_Y)
 							offset += 3
 						else if (LS_SPECIAL == 2)
 						{
-							numberXposition -= 4
+							numberXposition -= 8
 							offset += 14
 						}
 						else if (LS_SPECIAL == 3)
@@ -305,7 +305,7 @@ function void DrawSpritesToLevelSelect()
 {
 	u16 widthextend = 0
 	if (!LS_ICONS)
-		widthextend = getScreenExtend()+8
+		widthextend = getScreenExtend()+4
 	u16 beginningOfText = getScreenHeight()/2 - 80
 
 	// kid you not, this is probably the best way i could've handled the font selection system
@@ -339,8 +339,8 @@ function void DrawSpritesToLevelSelect()
 	//Renderer.drawCustomSprite("ls_text", 0, 0, 0x00, 0, 0x1000)
 	if (ScaredHaters != 1)
 	{	
-		Renderer.drawText(FONT_LS_Y, (getScreenWidth()-104)-48+widthextend, getScreenHeight()-16,(stringformat("%x", (levelselect.characters / 10) % 10)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
-		Renderer.drawText(FONT_LS_Y, (getScreenWidth()-104)-40+widthextend, getScreenHeight()-16,(stringformat("%x", levelselect.characters % 10)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+		Renderer.drawText(FONT_LS_Y, (getScreenWidth()-104)-44+widthextend, getScreenHeight()-16,(stringformat("%x", (levelselect.characters / 10) % 10)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+		Renderer.drawText(FONT_LS_Y, (getScreenWidth()-104)-36+widthextend, getScreenHeight()-16,(stringformat("%x", levelselect.characters % 10)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
 		
 		u8 ExtraSlotStart = 4
 		if (levelselect.characters == 0)
