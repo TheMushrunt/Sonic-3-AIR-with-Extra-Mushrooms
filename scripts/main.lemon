@@ -1,3 +1,5 @@
+#define EXTRA_MUSHROOMS_ACTIVE = 1 // maybe a mod requires this.
+
 global u8 TS_BRANDING
 global u8 TS_KNUCKLES
 global u8 OPTIONS_GFX
@@ -29,6 +31,9 @@ include pausescreen
 include achievementplus_hud
 #endif
 
+#if DAGE_running
+include dagarden_fixes
+#endif
 constant u32 SECRET_LEVELSELECT		= 0x10 // jokes on you, eukaryot. i did thorough testing and figured out one of your damn secrets
 
 constant u16 TitleScreen.Intro_Background.targetInVRAM	= 0x0000
