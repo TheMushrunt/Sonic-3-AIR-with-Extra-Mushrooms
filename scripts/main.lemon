@@ -38,10 +38,6 @@ constant u16 TitleScreen.AndKnucklesTitle.targetInVRAM	= 0x9800
 constant u16 TitleScreen.Banner.targetInVRAM			= 0xa000
 constant u16 TitleScreen.Menu.targetInVRAM				= 0xd000
 
-function void SHCSplash.showSplashScreen()
-{
-
-}
 // Extra Mushrooms Rich Presence, for fun
 // it only displays when using the Title Screen options, for fairness.
 
