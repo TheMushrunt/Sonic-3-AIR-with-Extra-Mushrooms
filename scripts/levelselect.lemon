@@ -293,9 +293,9 @@ function void DrawLevelSelectBG()
 	else if (LS_BG == 3) // S&K, currently unused because of the new idea i had
 		suffix_key = "s&k"
 	else if (LS_BG == 4) // EM
-		suffix_key = "priorityissue"
-	else
 		suffix_key = "em"
+	else // EM ALT
+		suffix_key = "priorityissue"
 	if (LS_BG != 3)
 		Renderer.drawCustomSprite(stringformat("%sls_%s", prefix_key, suffix_key), getScreenExtend() - 40, 0, 0x00, 0, 0x1000)
 	Renderer.drawCustomSprite("ls_s&k", getScreenExtend() - 40, 0, 0x00, 0, 0x1000)
