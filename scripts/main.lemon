@@ -20,6 +20,7 @@ global u8 EM_TM_R_DISPLAY
 global u8 NO_SECRETS_ON_3AIRMENU
 global u8 TS_ANIMATED_BG
 global u8 YOU_FUCKED_UP_KID
+global u16 snkmoddedtitlespriteoffset
 
 include levelselect
 include misc
@@ -465,6 +466,7 @@ function void Menu.FadeInAfterInit()
 		// SEGA logo
 		if (global.game_mode == 0x04)
 		{
+			snkmoddedtitlespriteoffset = 99
 			YOU_FUCKED_UP_KID = 0
 			Renderer.resetSprites()
 			if (EM_OGB_DISPLAY == 1)
@@ -779,7 +781,10 @@ function void TitleScreen()
 	}
 
 	// This is to make sure screen stays white in the next frame even if skipping the intro
-	VDP.Config.setActiveDisplay(false)
+	if (!EM_MODDED_GFX)
+		VDP.Config.setActiveDisplay(false)
+	else
+		VDP.Config.setActiveDisplay(true)
 #else
 	titleintro.frames = 3
 	global.frame_state = 0x04
@@ -1000,6 +1005,11 @@ function void fn0007ba()
 #endif
 }
 
+constant array<u16> TITLESCREEN_S3_FRAMEDELAY =
+{
+	15, 12, 13, 10, 8, 2
+}
+
 //# address-hook(0x004352) end(0x0043d2)
 function void fn004352()
 {
@@ -1035,28 +1045,10 @@ function void fn004352()
 			titleintro.frames = 6
 		}
 	}
-	else if (TS_BRANDING == 0 || TS_BRANDING == 2)
+	else if ((TS_BRANDING == 0 || TS_BRANDING == 2) && titleintro.animstep < 12)
 	{
-		if (titleintro.animstep == 7)
-		{
-			titleintro.frames = 15
-		}
-		else if (titleintro.animstep == 8)
-		{
-			titleintro.frames = 12
-		}
-		else if (titleintro.animstep == 9)
-		{
-			titleintro.frames = 13
-		}
-		else if (titleintro.animstep == 10)
-		{
-			titleintro.frames = 10
-		}
-		else if (titleintro.animstep == 11)
-		{
-			titleintro.frames = 8
-		}
+		if (titleintro.animstep >= 7)
+			titleintro.frames = TITLESCREEN_S3_FRAMEDELAY[titleintro.animstep-7]
 	}
 	--titleintro.frames
 
@@ -1164,10 +1156,17 @@ function void fn00486c()
 		}
 	}
 	else
-	if (TS_KNUCKLES == 0)
 	{
-		// Move it down
-		objA0.position.y.u16 += 0x1c
+		if (TS_KNUCKLES == 0)
+		{
+			// Move it down
+			objA0.position.y.u16 += 0x1c
+		}
+		else
+		{
+			if (snkmoddedtitlespriteoffset >= 83)
+				--snkmoddedtitlespriteoffset
+		}
 	}
 	fn0048dc()
 }
@@ -1364,7 +1363,7 @@ function void drawCustomTSSonic()
 	u16 sonicOffset = 99
 	// Movement of Sonic and the ring around him
 	if (TS_KNUCKLES != 0)
-		sonicOffset = 83
+		sonicOffset = snkmoddedtitlespriteoffset
 	drawSonicFramesTS(sonicOffset)
 }
 
