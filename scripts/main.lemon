@@ -390,7 +390,7 @@ function void RenderHUD()
 
 		if (!debug_mode.state)
 		{
-			if (INF_LIVES_DISPLAY && NO_HUD == 0 && ((!Mods.isModActive("Achievements Plus HUD Compatibility") && !Mods.isModActive("Achievements Plus")) || (Mods.isModActive("Achievements Plus HUD Compatibility") && Mods.isModActive("Achievements Plus"))))
+			if (INF_LIVES_DISPLAY && NO_HUD == 0 && (!Mods.isModActive("Achievements Plus")))
 			{
 				if (Game.getSetting(SETTING_INFINITE_LIVES))
 				{
