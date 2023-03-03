@@ -14,5 +14,8 @@ Taking a look inside the scripts is reccomended for those who want to see true i
 ## Looking to help out?
 Contact me directly if you want, I'm very open to this kind of stuff. Just know that I won't exactly accept *suggestions* for the mod, rather any fixes, refinements and additions people would like me to include.
 
+## Extra Slots
+Extra Mushrooms has "framework" to add support Extra Slot Characters without much of an issue. A tutorial was created by myself to assist others in the process. It can be found [here.](https://cdn.discordapp.com/attachments/1043403130857062422/1081044498454413382/ExtraMushrooms_ExtraSlot_Tutorial.txt)
+
 ## Other things of note
 Stuff doesn't work correctly with certain mods. (Exceptions can be seen in scripts, since I either like the mod or it's popular enough for me to add support.) I'm not planning to fix issues related to any other mods unless it's extremely notable and is *worth* fixing.
