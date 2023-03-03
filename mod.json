@@ -105,7 +105,7 @@
 				"DisplayName": "Title Screen Options Graphics",
 				"Variable": "OPTIONS_GFX",
 				"Category": "Title Screen",
-				"DefaultValue": "0",
+				"DefaultValue": "1",
 				"Options": {
 					"0": "Sonic 3",
 					"1": "Sonic 3 (Origins)",
@@ -186,7 +186,7 @@
 				"DisplayName": "Level Select Font",
 				"Variable": "LS_FONT",
 				"Category": "Level Select",
-				"DefaultValue": "0",
+				"DefaultValue": "1",
 				"Options": {
 					"0": "Sonic 2/3",
 					"1": "Sonic 3 Complete",
@@ -508,6 +508,17 @@
 					"0": "Off",
 					"1": "On (Lives Count)",
 					"2": "On (Infinite Symbol)"
+				}
+			},
+			{
+				"InternalName": "Achievements Plus HUD Compat.",
+				"DisplayName": "Achievements+ HUD Compat.",
+				"Variable": "AP_HUD_COMPAT",
+				"Category": "Miscellaneous Stuff",
+				"DefaultValue": "1",
+				"Options": {
+					"0": "Off",
+					"1": "On"
 				}
 			},
 			{
