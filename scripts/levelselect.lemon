@@ -339,49 +339,84 @@ function void DrawSpritesToLevelSelect()
 	//Renderer.drawCustomSprite("ls_text", 0, 0, 0x00, 0, 0x1000)
 	if (ScaredHaters != 1)
 	{	
-		Renderer.drawText(FONT_LS_Y, (getScreenWidth()-104)-44+widthextend, getScreenHeight()-16,(stringformat("%x", (levelselect.characters / 10) % 10)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
-		Renderer.drawText(FONT_LS_Y, (getScreenWidth()-104)-36+widthextend, getScreenHeight()-16,(stringformat("%x", levelselect.characters % 10)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
-		
 		u8 ExtraSlotStart = 4
-		if (levelselect.characters == 0)
-		{
-			Renderer.drawCustomSprite("continue_icon_sonic", getScreenWidth()-104+widthextend, getScreenHeight()-8, 0x00, 0, 0x9f7e)
-			Renderer.drawCustomSprite("continue_icon_tails", (getScreenWidth()-104)-16+widthextend, getScreenHeight()-8, 0x00, 0, 0x9f7e)
-		}
-		else if (levelselect.characters == 1)
-		{
-			Renderer.drawCustomSprite("continue_icon_sonic", getScreenWidth()-104+widthextend, getScreenHeight()-8, 0x00, 0, 0x9f7e)
-		}
-		else if (levelselect.characters == 2)
-		{
-			Renderer.drawCustomSprite("continue_icon_tails", getScreenWidth()-104+widthextend, getScreenHeight()-8, 0x00, 0, 0x9f7e)
-		}
-		else if (levelselect.characters == 3)
-		{
-			Renderer.drawCustomSprite("continue_icon_knuckles", getScreenWidth()-104+widthextend, getScreenHeight()-8, 0x00, 0, 0x9f7e)
-		}
-		else if (levelselect.characters == 4 && Game.isSecretUnlocked(SECRET_KNUX_AND_TAILS))
-		{
+		if (Game.isSecretUnlocked(SECRET_KNUX_AND_TAILS))
 			++ExtraSlotStart
-			Renderer.drawCustomSprite("continue_icon_knuckles", getScreenWidth()-104+widthextend, getScreenHeight()-8, 0x00, 0, 0x9f7e)
-			Renderer.drawCustomSprite("continue_icon_tails", (getScreenWidth()-104)-16+widthextend, getScreenHeight()-8, 0x00, 0, 0x9f7e)
-		}
-		else if (levelselect.characters > ExtraSlotStart)
-		{
-			// TODO: (PROPER) Extra Slot Support
-			// probably coming whenever that new base is released. glad they're documenting it and stuff though
-			if ((levelselect.characters == ExtraSlotStart+1) && Mods.isModActive("Extra Slot Mighty"))
-			{
-				Renderer.drawCustomSprite("Continue_icon_S3_alt", (getScreenWidth()-102)+widthextend, (getScreenHeight()-7), 0x00, 0, 0x9f7e)
-			}
-			else if ((levelselect.characters == ExtraSlotStart+2 || (levelselect.characters == ExtraSlotStart+1 && !Mods.isModActive("Extra Slot Mighty"))) && Mods.isModActive("Extra Slot Ray"))
-			{
-				u16[0xfffffc00 + 0x02] = 0x0eee
-				u16[0xfffffc00 + 0x1e] = 0x0222
-				Renderer.drawCustomSprite("continue_icon_Ray_S3_alt", (getScreenWidth()-104)+widthextend, (getScreenHeight()-9), 0x00, 0, 0x9f7e)
-			}
-			else Renderer.drawCustomSprite("unknown_extraslot", (getScreenWidth()-104)-11+widthextend, (getScreenHeight()-8)-24, 0x00, 0, 0x9f7e)
-		}
+		u16 character_num = levelselect.characters
+		#if EXTRA_CHARACTERS_ACTIVE
+			#if EXTRA_CHARACTERS_UNLIMITED
+					if (levelselect.xtrachar)
+						character_num = ExtraSlotStart-1 + u16(global.xtrachar)
+			#endif
+		#endif
+		Renderer.drawText(FONT_LS_Y, (getScreenWidth()-104)-44+widthextend, getScreenHeight()-16,(stringformat("%x", (character_num / 10) % 10)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+		Renderer.drawText(FONT_LS_Y, (getScreenWidth()-104)-36+widthextend, getScreenHeight()-16,(stringformat("%x", character_num % 10)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+
+		#if EXTRA_CHARACTERS_ACTIVE
+			#if EXTRA_CHARACTERS_UNLIMITED
+				if (levelselect.characters < ExtraSlotStart && !levelselect.xtrachar)
+			#endif
+		#endif
+				{
+					if (levelselect.characters == 0)
+					{
+						Renderer.drawCustomSprite("continue_icon_sonic", getScreenWidth()-104+widthextend, getScreenHeight()-8, 0x00, 0, 0x9f7e)
+						Renderer.drawCustomSprite("continue_icon_tails", (getScreenWidth()-104)-16+widthextend, getScreenHeight()-8, 0x00, 0, 0x9f7e)
+					}
+					else if (levelselect.characters == 1)
+					{
+						Renderer.drawCustomSprite("continue_icon_sonic", getScreenWidth()-104+widthextend, getScreenHeight()-8, 0x00, 0, 0x9f7e)
+					}
+					else if (levelselect.characters == 2)
+					{
+						Renderer.drawCustomSprite("continue_icon_tails", getScreenWidth()-104+widthextend, getScreenHeight()-8, 0x00, 0, 0x9f7e)
+					}
+					else if (levelselect.characters == 3)
+					{
+						Renderer.drawCustomSprite("continue_icon_knuckles", getScreenWidth()-104+widthextend, getScreenHeight()-8, 0x00, 0, 0x9f7e)
+					}
+					else if (levelselect.characters == 4 && ExtraSlotStart == 5)
+					{
+						Renderer.drawCustomSprite("continue_icon_knuckles", getScreenWidth()-104+widthextend, getScreenHeight()-8, 0x00, 0, 0x9f7e)
+						Renderer.drawCustomSprite("continue_icon_tails", (getScreenWidth()-104)-16+widthextend, getScreenHeight()-8, 0x00, 0, 0x9f7e)
+					}
+				}		
+		#if EXTRA_CHARACTERS_ACTIVE
+			#if EXTRA_CHARACTERS_UNLIMITED
+				if (global.xtrachar)
+				{	
+					if !(Renderer.hasCustomSprite(stringformat("em_slot%d", global.xtrachar)))
+					{
+						u64 key = stringformat("continue_icon_slot%d", global.xtrachar)
+						if (global.xtrachar == 0x01 && Mods.isModActive("Extra Slot Mighty"))
+							key = "em_mighty"
+						else if (global.xtrachar == 0x02 && Mods.isModActive("Extra Slot Ray"))
+							key = "em_ray"
+						if (Renderer.hasCustomSprite(key))
+							Renderer.drawCustomSprite(key, getScreenWidth()-104+widthextend, getScreenHeight()-8, 0x00, 0, 0x9f7e)
+						else Renderer.drawCustomSprite("unknown_extraslot", (getScreenWidth()-104)-11+widthextend, (getScreenHeight()-8)-24, 0x00, 0, 0x9f7e)
+					}
+					else Renderer.drawCustomSprite(stringformat("em_slot%d", global.xtrachar), getScreenWidth()-104+widthextend, getScreenHeight()-8, 0x00, 0, 0x9f7e)
+				}
+			#else
+				else if (levelselect.characters > ExtraSlotStart)
+				{
+					// TODO: (PROPER) Extra Slot Support
+					// probably coming whenever that new base is released. glad they're documenting it and stuff though
+					if ((levelselect.characters == ExtraSlotStart+1) && Mods.isModActive("Extra Slot Mighty"))
+					{
+						Renderer.drawCustomSprite("Continue_icon_S3_alt", (getScreenWidth()-102)+widthextend, (getScreenHeight()-7), 0x00, 0, 0x9f7e)
+					}
+					else if ((levelselect.characters == ExtraSlotStart+2 || (levelselect.characters == ExtraSlotStart+1 && !Mods.isModActive("Extra Slot Mighty"))) && Mods.isModActive("Extra Slot Ray"))
+					{
+						u16[0xfffffc00 + 0x02] = 0x0eee
+						u16[0xfffffc00 + 0x1e] = 0x0222
+						Renderer.drawCustomSprite("continue_icon_Ray_S3_alt", (getScreenWidth()-104)+widthextend, (getScreenHeight()-9), 0x00, 0, 0x9f7e)
+					}
+					else Renderer.drawCustomSprite("unknown_extraslot", (getScreenWidth()-104)-11+widthextend, (getScreenHeight()-8)-24, 0x00, 0, 0x9f7e)
+				}
+			#endif
+		#endif
 		u8 miles_check = (global.region_code & 0x80) ? 0x39ab6a : 0x39aa18
 		if (LS_ICONS)
 		{
@@ -414,28 +449,56 @@ function void DrawSpritesToLevelSelect()
 			}
 			// sound test	
 			if (levelselect.selection >= 0x00)
-				if (levelselect.characters == 0 || levelselect.characters == 1)
-					if (Mods.isModActive("Mario (SHC 2022)"))
-						Renderer.drawCustomSprite("ls_mario", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
-					else
-						Renderer.drawSprite("ls_sonic", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
-				else if (levelselect.characters == 2)
-					if miles_check == 0x39ab6a
-						Renderer.drawCustomSprite("ls_tails", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
-					else
-						Renderer.drawCustomSprite("ls_miles", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
-				else if (levelselect.characters == 3 || levelselect.characters == ExtraSlotStart-1)
-					Renderer.drawCustomSprite("ls_kte", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
-				else
-				{
-					if ((levelselect.characters == ExtraSlotStart+1) && Mods.isModActive("Extra Slot Mighty"))
-						Renderer.drawCustomSprite("ls_mighty", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
-					else if ((levelselect.characters == ExtraSlotStart+2) && Mods.isModActive("Extra Slot Ray"))
-						Renderer.drawCustomSprite("ls_ray", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
-					else Renderer.drawCustomSprite("ls_unknown", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+			{
+				#if EXTRA_CHARACTERS_ACTIVE
+					#if EXTRA_CHARACTERS_UNLIMITED
+						if (!global.xtrachar)
+					#endif
+				#endif
+				{	
+					if (levelselect.characters == 0 || levelselect.characters == 1)
+						if (Mods.isModActive("Mario (SHC 2022)"))
+							Renderer.drawCustomSprite("ls_mario", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+						else
+							Renderer.drawSprite("ls_sonic", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+					else if (levelselect.characters == 2)
+						if miles_check == 0x39ab6a
+							Renderer.drawCustomSprite("ls_tails", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+						else
+							Renderer.drawCustomSprite("ls_miles", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+					else if (levelselect.characters == 3 || levelselect.characters == ExtraSlotStart-1)
+						Renderer.drawCustomSprite("ls_kte", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
 				}
-					
-			Renderer.drawCustomSprite("ls_emblem", getScreenWidth()-88, getScreenHeight()-56, 0x00, 0, 0x9f7e)
+				#if EXTRA_CHARACTERS_ACTIVE
+					#if EXTRA_CHARACTERS_UNLIMITED
+						if (global.xtrachar)
+						{
+							if !(Renderer.hasCustomSprite(stringformat("em_ls_slot%d", global.xtrachar)))
+							{
+								u64 key = stringformat("ls_%d", global.xtrachar)
+								if (global.xtrachar == 0x01 && Mods.isModActive("Extra Slot Mighty"))
+									key = "ls_mighty"
+								else if (global.xtrachar == 0x02 && Mods.isModActive("Extra Slot Ray"))
+									key = "ls_ray"
+								if (Renderer.hasCustomSprite(key))
+									Renderer.drawSprite(key, getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7d)
+								else Renderer.drawCustomSprite("ls_unknown", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7d)
+							}
+							else Renderer.drawSprite(stringformat("em_ls_slot%d", global.xtrachar), getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7d)
+						}
+					#endif
+				#else
+					else
+					{
+						if ((levelselect.characters == ExtraSlotStart+1) && Mods.isModActive("Extra Slot Mighty"))
+							Renderer.drawCustomSprite("ls_mighty", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+						else if ((levelselect.characters == ExtraSlotStart+2) && Mods.isModActive("Extra Slot Ray"))
+							Renderer.drawCustomSprite("ls_ray", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+						else Renderer.drawCustomSprite("ls_unknown", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+					}
+				#endif
+			}
+			Renderer.drawCustomSprite("ls_emblem", getScreenWidth()-88, getScreenHeight()-56, 0x00, 0, 0x9f7d)
 		}
 	}
 }
@@ -484,9 +547,10 @@ function void scareTheHaters(u64 FONT_LS)
 
 function void LevelSelect.init()
 {
-	loadCharacterPalette(3, 0x802180, 0)
-	loadCharacterPalette(4, 0x8021c0, 0)
-	loadCharacterPalette(5, 0x802200, 0)
+	levelselect.characters = 0
+	#if EXTRA_CHARACTERS_ACTIVE
+		global.xtrachar = 0 // this fixes a very specific bug that i don't wanna talk about
+	#endif
 	if (YOU_FUCKED_UP_KID != 1)
 		YOU_FUCKED_UP_KID = 0
 	if (!LS_FORCE_BASE)
@@ -873,18 +937,58 @@ function void fn007e64()
 
 			if (control.pad1.pressed & CONTROL_C)
 			{
-				u8 maxCharacterSelection = WhatWillItBe(3)
-			#if STANDALONE
-				// Knuckles & Tails
-				if (Game.isSecretUnlocked(SECRET_KNUX_AND_TAILS))
-				{
-					maxCharacterSelection = WhatWillItBe(4)
-				}
-			#endif
+				#if EXTRA_CHARACTERS_ACTIVE
+					#if EXTRA_CHARACTERS_UNLIMITED
+					u8 maxCharacterSelection = Game.isSecretUnlocked(SECRET_KNUX_AND_TAILS) ? 0x04 : 0x03
+							
+					if (levelselect.characters < maxCharacterSelection && !levelselect.xtrachar)
+					{
+						++levelselect.characters
+						if (levelselect.characters > maxCharacterSelection)
+						levelselect.characters = 0x00
+					}
+					else
+					{
+						levelselect.xtrachar = true
+					}
+					if (levelselect.xtrachar)
+					{
+						if (global.xtrachar < ExtraChar.getHighestSlot())
+						{
+							for (u8 i = CHARACTER_SLOT1; i <= CHARACTER_SLOT255; ++i)
+							{
+								if (Renderer.hasCustomSprite(stringformat("dataSel_slot%d", i)) && i > global.xtrachar)
+								{
+									global.xtrachar = i
+									levelselect.characters = CHARS_SONIC_ALONE
+									ExtraChar.startupWithExtraChar()
+									break
+								}
 
-				++levelselect.characters
-				if (levelselect.characters > maxCharacterSelection)
-					levelselect.characters = 0
+								if (i == CHARACTER_SLOT255)
+									break
+							}
+						}
+						// If the extra variable is equal to the highest slot, then reset the variables and go to the next default slot
+						else
+						{
+							global.xtrachar = CHARACTER_UNSET
+							levelselect.characters = 0x00
+							levelselect.xtrachar = false
+						}
+					}
+					#endif
+				#else
+						u8 maxCharacterSelection = WhatWillItBe(3)
+						// Knuckles & Tails
+						if (Game.isSecretUnlocked(SECRET_KNUX_AND_TAILS))
+						{
+							maxCharacterSelection = WhatWillItBe(4)
+						}
+						++levelselect.characters
+						if (levelselect.characters > maxCharacterSelection)
+							levelselect.characters = 0
+				#endif
 			}
 		}
 	}

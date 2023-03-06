@@ -117,8 +117,10 @@
 	"ls_kte": { "File": "ls_playericons.png", "Rect": "64,0,32,24"},
 	"unknown_extraslot": { "File": "unknownesc.png"},
 	"ls_unknown": { "File": "ls_playericons.png", "Rect": "96,0,32,24"},
-	"ls_mighty": { "File": "ls_playericons.png", "Rect": "64,24,32,24"},
-	"ls_ray": { "File": "ls_playericons.png", "Rect": "96,24,32,24"},
+	"ls_mighty": { "File": "mighty and ray.bmp", "Rect": "0,24,32,24"},
+	"ls_ray": { "File": "mighty and ray.bmp", "Rect": "32,24,32,24"},
+	"em_mighty": { "File": "mighty and ray.bmp", "Rect": "0,0,16,24",  "Center": "8,24" },
+	"em_ray": { "File": "mighty and ray.bmp", "Rect": "16,0,20,24",  "Center": "11,24" },
 	
 	// bros (has a really small chance of appearing)
 	"bros": { "File": "bros.png" },

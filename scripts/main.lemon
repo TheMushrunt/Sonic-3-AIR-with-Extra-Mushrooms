@@ -397,7 +397,9 @@ function void RenderHUD()
 					bool useMobilePosition = HUD.useMobileLivesDisplay()
 					u16 px = useMobilePosition ? (getScreenWidth() - baseX - 0x30) : baseX
 					u16	py = useMobilePosition ? baseY : 200
-					if (!isExtraSlot()) // Disables the HUD display when Infinite Lives are on with the HUD display and you're using an Extra Slot. ESCU still isn't out so I am big stupid and don't know how to add full support for Extra Slots still.
+					#if !EXTRA_CHARACTERS_ACTIVE
+						if (!isExtraSlot()) // Disables the HUD display when Infinite Lives are on with the HUD display and you're using an Extra Slot. (DOESN'T APPLY TO ESCU)
+					#endif
 					{
 						if (!Mods.isModActive("Achievements Plus HUD Compatibility"))
 							drawInfiniteLives(px, py, renderQueue)

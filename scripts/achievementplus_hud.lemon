@@ -29,7 +29,9 @@ function void RenderHUD()
 					bool useMobilePosition = checkSettings % 2 == 0 // Trust me, this is a great idea
 					u16 px = useMobilePosition ? baseX : (getScreenWidth() - baseX - 0x30)
 					u16	py = useMobilePosition ? 200 : baseY
-					if (!isExtraSlot()) // Disables the HUD display when Infinite Lives are on with the HUD display and you're using an Extra Slot. ESCU still isn't out so I am big stupid and don't know how to add full support for Extra Slots still.
+					#if !EXTRA_CHARACTERS_ACTIVE
+						if (!isExtraSlot()) // Disables the HUD display when Infinite Lives are on with the HUD display and you're using an Extra Slot. (DOESN'T APPLY TO ESCU)
+					#endif
 					{
 						if (AP_HUD_COMPAT)
 							drawInfiniteLives(px, py, renderQueue)

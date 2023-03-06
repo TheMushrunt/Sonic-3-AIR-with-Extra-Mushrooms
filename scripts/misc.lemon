@@ -278,21 +278,21 @@ function void Character.updateJumpMoves()
 						if (onCharacterPressedJumpInMidAir(input_state, input_pressed))
 						{
 							if (char.character == CHARACTER_SONIC)
-							{
 								SonicPressedJumpInMidAir()
-							}
 							else if (char.character == CHARACTER_TAILS)
-							{
 								TailsPressedJumpInMidAir()
-							}
 							else if (!competition_mode.active)
-							{
 								KnucklesPressedJumpInMidAir()
-							}
-							else
-							{
+							#if EXTRA_CHARACTERS_ACTIVE
+								#if EXTRA_CHARACTERS_UNLIMITED
+									else if (global.xtrachar = 0x00)
+								#endif
+							#else
+									else if (!isExtraSlot())
+							#endif
 								SonicPressedJumpInMidAir()
-							}
+							else
+								base.Character.updateJumpMoves()
 						}
 					}
 				}
