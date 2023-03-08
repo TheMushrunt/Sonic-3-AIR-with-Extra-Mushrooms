@@ -56,9 +56,9 @@
 	"ts_emblem_air": { "File": "ts_emblem_air.png"},
 	"banner": { "File": "ts_emblem_air.png"},
 
-	//"extramushrooms": { "File": "subtitle.png", "Rect": "0,0,167,24"}, // this is the "genesis version" but now it's gone
-	"extramushrooms": { "File": "subtitle.png", "Rect": "0,28,167,28"}, // this was the air version but now it's the default
-	"andknuckles": { "File": "subtitle.png", "Rect": "0,56,167,24"}, // for fun!
+	//"extramushrooms": { "File": "subtitle.png", "Rect": "0,0,168,24"}, // this is the "genesis version" but now it's gone
+	"extramushrooms": { "File": "subtitle.png", "Rect": "0,28,168,28"}, // this was the air version but now it's the default
+	"andknuckles": { "File": "subtitle.png", "Rect": "0,56,168,24"}, // for fun!
 
 	// sega copyrights (SEGA 1994 EUKA 2022 on title screen by default)
 	"origins_sega": { "File": "sega.png", "Rect": "0,0,41,8"}, // just copyright and SEGA

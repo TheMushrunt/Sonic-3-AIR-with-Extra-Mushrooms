@@ -152,8 +152,8 @@ function void MainMenuBG.Run()
 		}
 		else
 		{
-			u8 emYPos = 38
-			Renderer.drawCustomSprite("title_screen_air", MainMenuBG.logoPosition, 11 + 20, 0, 0, 0xa000)
+			u8 emYPos = 37
+			Renderer.drawCustomSprite("title_screen_air", MainMenuBG.logoPosition, emYPos-7, 0, 0, 0xa000)
 			Renderer.drawCustomSprite("extramushrooms", MainMenuBG.logoPosition-84, emYPos, 0, 0, 0xfffe)
 			Letters.Main()
 			PrintVersionNumber()
@@ -1266,14 +1266,14 @@ function void fn0048dc()
 	}
 	if (TS_KNUCKLES == 2)
 	{
-		px = getScreenWidth() / 2 - 88
+		px = getScreenWidth() / 2 - 84
 		if (TS_BRANDING == 1 || (Mods.isModActive("Deez Nut Title Screen") || Mods.isModActive("Sonic 3: D.A. Garden Edition") || EM_MODDED_GFX == 1))
 			if (Mods.isModActive("Deez Nut Title Screen"))
 				py = objA0.position.y.u16 - 43
 			else
-				py = objA0.position.y.u16 - 45
+				py = objA0.position.y.u16 - 47
 		else
-			py = objA0.position.y.u16 - 53
+			py = objA0.position.y.u16 - 51
 		Renderer.drawCustomSprite("extramushrooms", px, py, 0x00, SPRITE_FLAG_PRIO, 0x9f7e)
 	}
 	else if (TS_KNUCKLES == 1)
@@ -1285,7 +1285,7 @@ function void fn0048dc()
 	if (TS_BRANDING == 1 || (Mods.isModActive("Deez Nut Title Screen") || Mods.isModActive("Sonic 3: D.A. Garden Edition") || EM_MODDED_GFX == 1))
 	{
 		px = getScreenWidth() / 2
-		py = objA0.position.y.u16 - 53
+		py = objA0.position.y.u16 - 54
 		// Also draw the "Angel Island Revisited" text and others
 		++airHighlightAnimationTimer
 		s16 time = airHighlightAnimationTimer - 80
