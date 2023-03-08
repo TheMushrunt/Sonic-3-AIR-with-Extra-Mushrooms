@@ -381,26 +381,26 @@ function void DrawSpritesToLevelSelect()
 						Renderer.drawCustomSprite("continue_icon_tails", (getScreenWidth()-104)-16+widthextend, getScreenHeight()-8, 0x00, 0, 0x9f7e)
 					}		
 		#if !EXTRA_CHARACTERS_ACTIVE
-				else if (levelselect.characters > ExtraSlotStart)
-				{
-					// TODO: (PROPER) Extra Slot Support
-					// probably coming whenever that new base is released. glad they're documenting it and stuff though
-					if ((levelselect.characters == ExtraSlotStart+1) && Mods.isModActive("Extra Slot Mighty"))
+					else if (levelselect.characters > ExtraSlotStart)
 					{
-						Renderer.drawCustomSprite("Continue_icon_S3_alt", (getScreenWidth()-102)+widthextend, (getScreenHeight()-7), 0x00, 0, 0x9f7e)
+						// TODO: (PROPER) Extra Slot Support
+						// probably coming whenever that new base is released. glad they're documenting it and stuff though
+						if ((levelselect.characters == ExtraSlotStart+1) && Mods.isModActive("Extra Slot Mighty"))
+						{
+							Renderer.drawCustomSprite("Continue_icon_S3_alt", (getScreenWidth()-102)+widthextend, (getScreenHeight()-7), 0x00, 0, 0x9f7e)
+						}
+						else if ((levelselect.characters == ExtraSlotStart+2 || (levelselect.characters == ExtraSlotStart+1 && !Mods.isModActive("Extra Slot Mighty"))) && Mods.isModActive("Extra Slot Ray"))
+						{
+							u16[0xfffffc00 + 0x02] = 0x0eee
+							u16[0xfffffc00 + 0x1e] = 0x0222
+							Renderer.drawCustomSprite("continue_icon_Ray_S3_alt", (getScreenWidth()-104)+widthextend, (getScreenHeight()-9), 0x00, 0, 0x9f7e)
+						}
+						else Renderer.drawCustomSprite("unknown_extraslot", (getScreenWidth()-104)-11+widthextend, (getScreenHeight()-8)-24, 0x00, 0, 0x9f7e)
 					}
-					else if ((levelselect.characters == ExtraSlotStart+2 || (levelselect.characters == ExtraSlotStart+1 && !Mods.isModActive("Extra Slot Mighty"))) && Mods.isModActive("Extra Slot Ray"))
-					{
-						u16[0xfffffc00 + 0x02] = 0x0eee
-						u16[0xfffffc00 + 0x1e] = 0x0222
-						Renderer.drawCustomSprite("continue_icon_Ray_S3_alt", (getScreenWidth()-104)+widthextend, (getScreenHeight()-9), 0x00, 0, 0x9f7e)
-					}
-					else Renderer.drawCustomSprite("unknown_extraslot", (getScreenWidth()-104)-11+widthextend, (getScreenHeight()-8)-24, 0x00, 0, 0x9f7e)
 				}
-			}
 		#else
 			#if EXTRA_CHARACTERS_UNLIMITED
-			}
+				}
 				if (global.xtrachar)
 				{	
 					if !(Renderer.hasCustomSprite(stringformat("em_slot%d", global.xtrachar)))
