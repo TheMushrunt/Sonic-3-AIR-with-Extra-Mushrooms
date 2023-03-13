@@ -15,7 +15,7 @@ function void UpdateGamePause()
 		return
 	}
 
-	if (!S3EM_PAUSE_COMPAT)
+	if (S3EM_PAUSE_COMPAT)
 	{
 		// In game app, global.game.paused will never be true -- instead, the whole script execution will get paused
 
