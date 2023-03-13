@@ -1,4 +1,4 @@
-![header](https://media.discordapp.net/attachments/708852212922712118/1078413482757730385/header.png)
+![header](https://cdn.discordapp.com/attachments/708852212922712118/1082857782509850704/logo.png)
 Edits to Eukaryot's [Sonic 3 A.I.R. scripts](https://github.com/Eukaryot/sonic3air) in the form of a mod for [the game.](https://sonic3air.org)
 These edits are more notably:
 
