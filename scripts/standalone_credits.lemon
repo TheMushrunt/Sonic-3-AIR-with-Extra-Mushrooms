@@ -1,0 +1,106 @@
+constant array<u64> CreditsNames =
+{
+	"SONIC III", "staff", "[NEXT LINE]",
+	"executive producer", "HAYAO  NAKAYAMA", "[NEXT LINE]",
+	"project manager", "HISASHI  SUZUKI", "[NEXT LINE]",
+	"project manager", "SHINOBU  TOYODA", "[NEXT LINE]",
+	"project manager", "MASAHARU  YOSHII", "[NEXT LINE]",
+	"producer", "YUJI  NAKA", "[NEXT LINE]",
+	"director", "HIROKAZU  YASUHARA", "[NEXT LINE]",
+	"lead game designer", "HIROKAZU  YASUHARA", "[NEXT LINE]",
+	"senior game designers", "HISAYOSHI YOSHIDA", "TAKASHI  IIZUKA", "[NEXT LINE]",
+	"please just", "FUCKING  KILL  ME", "[NEXT LINE]",
+	"please just", "FUCKING  KILL  ME", "[NEXT LINE]",
+	"please just", "FUCKING  KILL  ME", "[NEXT LINE]",
+	"please just", "FUCKING  KILL  ME", "[NEXT LINE]",
+}
+
+//# address-hook(0x007a74) end(0x007d20)
+//# translated(0x007d64) end(0x007d6a)
+function void LevelSelect()
+{
+	if (initiateStandaloneCredits)
+	{
+		global.zone_act = 0
+		FadeOutScreenBlocking()
+
+		Renderer.resetSprites()
+
+		LevelSelect.init()
+		startingYPosCredits = 90
+		globalCreditsTimer = 128
+		moveTextOrNotinCredits = 0
+
+		Renderer.resetSprites()
+
+		// Perform main update now
+		bool running = true
+		while (running)
+		{
+			global.frame_state = 0x16
+
+			// End point for a single frame
+			//  -> Right here we place the entry point for the standalone version
+			waitForNextFrame()
+		@EntryPoint:
+
+			running = LevelSelect.innerUpdate()
+		}
+	}
+	else base.LevelSelect()
+}
+
+function bool LevelSelect.innerUpdate()
+{
+	if (!initiateStandaloneCredits)
+	{
+		return base.LevelSelect.innerUpdate()
+	}
+	else
+	{
+		s32 screenY = startingYPosCredits
+		--globalCreditsTimer
+		if (globalCreditsTimer == 0 && moveTextOrNotinCredits == 0)
+		{
+			moveTextOrNotinCredits = 1
+			globalCreditsTimer = 128
+		}
+		else if (globalCreditsTimer == 0 && moveTextOrNotinCredits == 2)
+		{
+			moveTextOrNotinCredits = 0
+			globalCreditsTimer = 128
+		}
+		if (moveTextOrNotinCredits == 1)
+		{
+			globalCreditsTimer = 96
+			moveTextOrNotinCredits = 2
+		}
+		if (moveTextOrNotinCredits == 2)
+		{
+			startingYPosCredits -= 2
+		}
+		u64 font = "credits_font"
+		for (u8 i = 0; i < CreditsNames.length(); i++)
+		{
+			u64 text = CreditsNames[i]
+			if (text != "[NEXT LINE]")
+			{
+				Renderer.drawText(font, getScreenWidth()/2, screenY, text, 0xFFFFFFFF, 2, 0, 0x9f7e, true)
+				screenY += 32
+			}
+			else
+				screenY += 128
+		}
+		if (control.pad1.pressed & CONTROL_START || control.pad1.pressed & CONTROL_B || Input.buttonPressed(BUTTON_BACK))
+		{
+			if (control.pad1.pressed & CONTROL_B || Input.buttonPressed(BUTTON_BACK))
+				playSound(0xad)
+			u32 backupA0 = A0
+			A0 = backupA0
+			initiateStandaloneCredits = 0
+			System.setupCallFrame("LevelSelect")
+			return false
+		}
+		return base.LevelSelect.innerUpdate()
+	}
+}

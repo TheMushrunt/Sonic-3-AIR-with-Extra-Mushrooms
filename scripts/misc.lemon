@@ -1,16 +1,3 @@
-global u8 SHTS // Super Hyper Transform Spam
-global u8 AUTODD // Auto Drop Dash
-global u16 SSRING // Super Sonic Rings
-global u16 HSRING // Hyper Sonic Rings
-global u8 EXRINGSFX // Extra Rings SFX
-global u8 ORIGINS_HYPER_FX // Origins Hyper FX
-global u8 FASTER_SUPER_FADE // Faster Super Sonic Fade
-global u8 ALT_MGZ_PALETTE // Custom MGZ Palette
-global u8 CREDITS_MUSIC
-
-global u8 ORIGINS_HD // finally, it works again
-global bool performHyperDash // haha, i feel like this might break things but i don't really care lol
-
 // Credits Music
 function void PlayMusic()
 {

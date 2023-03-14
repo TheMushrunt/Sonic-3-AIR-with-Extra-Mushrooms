@@ -1,0 +1,92 @@
+// SCRIPTS
+include levelselect
+include misc
+include lbz2
+include aizspeedup
+include pausescreen
+// ACHIEVEMENTS PLUS COMPATIBILITY
+#if ACHIEVEMENTS_PLUS_ACTIVE
+include achievementplus_hud
+#endif
+// D.A. GARDEN COMPATIBILITY
+#if DAGE_running
+include dagarden_fixes
+#endif
+
+// GLOBAL VARIABLES
+
+// MAIN.LEMON
+global u8 TS_BRANDING
+global u8 TS_KNUCKLES
+global u8 OPTIONS_GFX
+global u8 startPress
+global u8 drawTrademark
+global u8 pbutt_timer
+global u8 TS_STARTBUTTON
+global u8 trademark_alpha
+global u8 TS_SOUNDS
+global u8 NO_HUD
+global u8 INF_LIVES_DISPLAY
+global u8 EM_MODDED_GFX
+global s16 modded_sonic_frame
+global u8 TS_COPYRIGHT
+global u8 EM_OGB_DISPLAY
+global u8 EM_TM_R_DISPLAY
+global u8 NO_SECRETS_ON_3AIRMENU
+global u8 TS_ANIMATED_BG
+global u8 YOU_FUCKED_UP_KID
+global u16 snkmoddedtitlespriteoffset
+// LEVELSELECT.LEMON
+global u8 LS_BG
+global u8 LS_FONT
+global u8 LS_BOSS
+global u8 ST_STYLE
+global u8 LS_HCZ
+global u8 LS_ICZ
+global u8 LS_MHZ
+global u8 ScaredHaters
+global u8 LS_MUSIC
+global u8 EM_CHAOSEMERALDS
+global u8 EM_EXTRALIVES
+global u8 EM_EXTRACONTINUES
+global u8 LS_ZONEORDER
+global u8 EM_2PSTAGES
+global u8 LS_FORCE_BASE
+global u8 LS_DEZ
+global u8 LS_SSZ
+global u8 LS_BONUS
+global u8 LS_SPECIAL
+global u8 LS_ICONS
+global u8 initiateStandaloneCredits
+global s32 startingYPosCredits
+global u16 globalCreditsTimer
+global u8 moveTextOrNotinCredits
+// MISC.LEMON
+global u8 SHTS // Super Hyper Transform Spam
+global u8 AUTODD // Auto Drop Dash
+global u16 SSRING // Super Sonic Rings
+global u16 HSRING // Hyper Sonic Rings
+global u8 EXRINGSFX // Extra Rings SFX
+global u8 ORIGINS_HYPER_FX // Origins Hyper FX
+global u8 FASTER_SUPER_FADE // Faster Super Sonic Fade
+global u8 ALT_MGZ_PALETTE // Custom MGZ Palette
+global u8 CREDITS_MUSIC
+global u8 ORIGINS_HD // finally, it works again
+global bool performHyperDash // haha, i feel like this might break things but i don't really care lol
+// LBZ2.LEMON
+global u8 LBZ2SKY // Early Sky Fade
+global u8 SKIPLBZ2 // Skippable Cutscene
+global u8 LBZ2SFS // Sky Fade Speed
+global u8 SODEFALL // Sonic Origins sounds for End Cutscene
+global u8 EBA // Easier Big Arms
+global u16 BAH // Big Arms Hits
+// AIZSPEEDUP.LEMON
+global u8 AIZ_FLAME_SEQ // AIZ 1 Flame Sequence Speed Up
+global u8 AIZ_BLIMP_SPEED // AIZ 2 Blimp Sequence Speed Up
+// PAUSESCREEN.LEMON 
+global u8 S3EM_PAUSE_SFX
+global u8 S3EM_PAUSE_EXIT_SFX
+global u8 S3EM_PAUSE_COMPAT
+global u8 DEBUG_PAUSE_TO_LS
+// ACHIEVEMENTPLUS_HUD.LEMON
+global u8 AP_HUD_COMPAT

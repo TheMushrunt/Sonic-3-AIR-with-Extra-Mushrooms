@@ -1,27 +1,3 @@
-global u8 LS_BG
-global u8 LS_FONT
-global u8 LS_BOSS
-global u8 ST_STYLE
-global u8 LS_HCZ
-global u8 LS_ICZ
-global u8 LS_MHZ
-global u8 ScaredHaters
-global u8 LS_MUSIC
-global u8 EM_CHAOSEMERALDS
-global u8 EM_EXTRALIVES
-global u8 EM_EXTRACONTINUES
-global u8 LS_ZONEORDER
-global u8 EM_2PSTAGES
-global u8 LS_FORCE_BASE
-
-global u8 LS_DEZ
-global u8 LS_SSZ
-global u8 LS_BONUS
-global u8 LS_SPECIAL
-global u8 LS_ICONS
-
-global u8 YOU_FUCKED_UP_KID
-
 constant array<u64> LSNames =
 {
 	"angel island", "[ZONE 2]", "marble garden", "carnival night", "[ZONE 5]", "launch base", "[ZONE 7]", "flying battery", "sandopolis",
@@ -261,22 +237,30 @@ function void ScareAwayTheHaters()
 
 function void playLevelSelectMusic()
 {
-	if (LS_MUSIC != 0)
-		playMusic(MUSIC_CTRL_STOP)
-	if (LS_MUSIC == 1 || (LS_MUSIC == 2) && !Mods.isModActive("Custom Theme for Data Select & Level Select"))
-		Audio.playAudio("em_levelselect", AudioContext.CONTEXT_MUSIC)
-	else if (LS_MUSIC == 2)
-			playMusic(0xfe)
-	else if (LS_MUSIC == 3)
-		Audio.playAudio("custom_levelselect", AudioContext.CONTEXT_MUSIC)
-	else if (LS_MUSIC == 4 || (LS_MUSIC == 5 && !Mods.isModActive("Sound Additions")))
-		if (Game.getSetting(SETTING_AUDIO_CONTINUE_SCREEN) == 0)
-			Audio.playAudio("28_sonic3", AudioContext.CONTEXT_MUSIC)
-		else Audio.playAudio(MUSIC_CONTINUE, AudioContext.CONTEXT_MUSIC)
-	else if (LS_MUSIC == 5)
-		Audio.playAudio("bs_start", AudioContext.CONTEXT_MUSIC)
+	if (!initiateStandaloneCredits)
+	{
+		if (LS_MUSIC != 0)
+			playMusic(MUSIC_CTRL_STOP)
+		if (LS_MUSIC == 1 || (LS_MUSIC == 2) && !Mods.isModActive("Custom Theme for Data Select & Level Select"))
+			Audio.playAudio("em_levelselect", AudioContext.CONTEXT_MUSIC)
+		else if (LS_MUSIC == 2)
+				playMusic(0xfe)
+		else if (LS_MUSIC == 3)
+			Audio.playAudio("custom_levelselect", AudioContext.CONTEXT_MUSIC)
+		else if (LS_MUSIC == 4 || (LS_MUSIC == 5 && !Mods.isModActive("Sound Additions")))
+			if (Game.getSetting(SETTING_AUDIO_CONTINUE_SCREEN) == 0)
+				Audio.playAudio("28_sonic3", AudioContext.CONTEXT_MUSIC)
+			else Audio.playAudio(MUSIC_CONTINUE, AudioContext.CONTEXT_MUSIC)
+		else if (LS_MUSIC == 5)
+			Audio.playAudio("bs_start", AudioContext.CONTEXT_MUSIC)
+		else
+			playMusic(MUSIC_DATASELECT)
+	}
 	else
-		playMusic(MUSIC_DATASELECT)
+	{
+		playMusic(MUSIC_CTRL_STOP)
+		Audio.playAudio("26_proto", AudioContext.CONTEXT_MUSIC)
+	}
 }
 
 function void DrawLevelSelectBG()
@@ -549,6 +533,7 @@ function void scareTheHaters(u64 FONT_LS)
 
 function void LevelSelect.init()
 {
+	levelselect.selection = 0
 	levelselect.characters = 0
 	#if EXTRA_CHARACTERS_ACTIVE
 		global.xtrachar = 0 // this fixes a very specific bug that i don't wanna talk about
@@ -660,67 +645,70 @@ function bool notExtraSlotInLevelSelect()
 
 function bool LevelSelect.innerUpdate()
 {
-	if (!LS_FORCE_BASE)
+	if (!initiateStandaloneCredits)
 	{
-		bool notExtraSlot = notExtraSlotInLevelSelect()
-		Renderer.resetSprites()
-		DrawSpritesToLevelSelect()
-		if ((control.pad1.pressed | control.pad2.pressed) & CONTROL_START)
+		if (!LS_FORCE_BASE)
 		{
-			if (ScaredHaters != 1 && notExtraSlot)
+			bool notExtraSlot = notExtraSlotInLevelSelect()
+			Renderer.resetSprites()
+			DrawSpritesToLevelSelect()
+			if ((control.pad1.pressed | control.pad2.pressed) & CONTROL_START)
 			{
-				Standalone.playAudio(0xaf)
-				return base.LevelSelect.innerUpdate()
-			}
-			else if ScaredHaters != 1 && (!YOU_FUCKED_UP_KID && !notExtraSlot)
-			{
-				Standalone.playAudio(0xaf)
-				return base.LevelSelect.innerUpdate()
-			}
-			else if (ScaredHaters != 1 && YOU_FUCKED_UP_KID)
-			{
-				playSound(0x7B)
+				if (ScaredHaters != 1 && notExtraSlot)
+				{
+					Standalone.playAudio(0xaf)
+					return base.LevelSelect.innerUpdate()
+				}
+				else if ScaredHaters != 1 && (!YOU_FUCKED_UP_KID && !notExtraSlot)
+				{
+					Standalone.playAudio(0xaf)
+					return base.LevelSelect.innerUpdate()
+				}
+				else if (ScaredHaters != 1 && YOU_FUCKED_UP_KID)
+				{
+					playSound(0x7B)
 
-				YOU_FUCKED_UP_KID = 0
-				System.writeDisplayLine("Sorry! Extra Slots end up causing issues from the Title Screen's Level Select.")
+					YOU_FUCKED_UP_KID = 0
+					System.writeDisplayLine("Sorry! Extra Slots end up causing issues from the Title Screen's Level Select.")
+
+					u32 backupA0 = A0
+					FadeOutScreenBlocking()
+					A0 = backupA0
+					// Do not fade out music in this case, Data Select music is meant to kept playing
+					Game.returnToMainMenu()
+					yieldExecution()
+					return false
+				}
+			}
+			else if (control.pad1.pressed & CONTROL_B || Input.buttonPressed(BUTTON_BACK))
+			{
+				playSound(0xad)
 
 				u32 backupA0 = A0
 				FadeOutScreenBlocking()
 				A0 = backupA0
+
 				// Do not fade out music in this case, Data Select music is meant to kept playing
+				YOU_FUCKED_UP_KID = 0
 				Game.returnToMainMenu()
 				yieldExecution()
 				return false
 			}
-		}
-		else if (control.pad1.pressed & CONTROL_B || Input.buttonPressed(BUTTON_BACK))
-		{
-			playSound(0xad)
-
-			u32 backupA0 = A0
-			FadeOutScreenBlocking()
-			A0 = backupA0
-
-			// Do not fade out music in this case, Data Select music is meant to kept playing
-			YOU_FUCKED_UP_KID = 0
-			Game.returnToMainMenu()
-			yieldExecution()
-			return false
-		}
-		else if (Input.buttonPressed(BUTTON_Y))
-		{
-			if (levelselect.selection != 0x20)
+			else if (Input.buttonPressed(BUTTON_Y))
 			{
-				levelselect.selection = 0
-				if (!EM_2PSTAGES)
+				if (levelselect.selection != 0x20)
 				{
-					EM_2PSTAGES = 1
-					Audio.playAudio(0x52)
-				}
-				else
-				{
-					EM_2PSTAGES = 0
-					Audio.playAudio(0x7B)
+					levelselect.selection = 0
+					if (!EM_2PSTAGES)
+					{
+						EM_2PSTAGES = 1
+						Audio.playAudio(0x52)
+					}
+					else
+					{
+						EM_2PSTAGES = 0
+						Audio.playAudio(0x7B)
+					}
 				}
 			}
 		}
@@ -793,6 +781,15 @@ function bool fn007d6c()
 				D0.u16 = 0x1701
 			else if (levelselect.selection == 0x06) // Ending
 				D0.u16 = 0x0d01
+			/*
+			else if (levelselect.selection == 0x07) // S3 Credits
+			{
+				initiateStandaloneCredits = 1
+				EntryFunctions.levelSelect()
+				return true
+			}
+			*/
+			// it was decent but i don't think it should be in the mod.
 		}
 		else if (LS_ZONEORDER)
 		{
@@ -833,7 +830,7 @@ function void fn007e64()
 			if (control.pad1.state & CONTROL_UP)
 			{
 				if (levelselect.selection == 0x20 && EM_2PSTAGES)
-					levelselect.selection = 0x07
+					levelselect.selection = 0x08
 				if (levelselect.selection == 0x1c)
 					levelselect.selection = 0x1a
 				else if (levelselect.selection == 0x1a)
@@ -853,7 +850,7 @@ function void fn007e64()
 			}
 			if (control.pad1.state & CONTROL_DOWN)
 			{
-				if (levelselect.selection == 0x06 && EM_2PSTAGES)
+				if (levelselect.selection == 0x07 && EM_2PSTAGES)
 					levelselect.selection = 0x1f
 				if (levelselect.selection == 0x1a)
 					levelselect.selection = 0x1c

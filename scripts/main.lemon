@@ -1,40 +1,7 @@
 #define EXTRA_MUSHROOMS_ACTIVE = 1 // maybe a mod requires this.
 
-global u8 TS_BRANDING
-global u8 TS_KNUCKLES
-global u8 OPTIONS_GFX
-global u8 startPress
-global u8 drawTrademark
-global u8 pbutt_timer
-global u8 TS_STARTBUTTON
-global u8 trademark_alpha
-global u8 TS_SOUNDS
-global u8 NO_HUD
-global u8 INF_LIVES_DISPLAY
-global u64 DAGE_version // support for D.A. Garden edition
-global u8 EM_MODDED_GFX
-global s16 modded_sonic_frame
-global u8 TS_COPYRIGHT
-global u8 EM_OGB_DISPLAY
-global u8 EM_TM_R_DISPLAY
-global u8 NO_SECRETS_ON_3AIRMENU
-global u8 TS_ANIMATED_BG
-global u8 YOU_FUCKED_UP_KID
-global u16 snkmoddedtitlespriteoffset
+include includes
 
-include levelselect
-include misc
-include lbz2
-include aizspeedup
-include pausescreen
-
-#if ACHIEVEMENTS_PLUS_ACTIVE
-include achievementplus_hud
-#endif
-
-#if DAGE_running
-include dagarden_fixes
-#endif
 constant u32 SECRET_LEVELSELECT		= 0x10 // jokes on you, eukaryot. i did thorough testing and figured out one of your damn secrets
 
 constant u16 TitleScreen.Intro_Background.targetInVRAM	= 0x0000

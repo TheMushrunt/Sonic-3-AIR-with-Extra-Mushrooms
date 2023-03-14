@@ -1,6 +1,3 @@
-global u8 AIZ_FLAME_SEQ // AIZ 1 Flame Sequence Speed Up
-global u8 AIZ_BLIMP_SPEED // AIZ 2 Blimp Sequence Speed Up
-
 //# address-hook(0x0684ec) end(0x0684fa)
 function void AIZ1.Transition.Update()
 {

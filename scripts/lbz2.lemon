@@ -1,10 +1,3 @@
-global u8 LBZ2SKY // Early Sky Fade
-global u8 SKIPLBZ2 // Skippable Cutscene
-global u8 LBZ2SFS // Sky Fade Speed
-global u8 SODEFALL // Sonic Origins sounds for End Cutscene
-global u8 EBA // Easier Big Arms
-global u16 BAH // Big Arms Hits
-
 //# address-hook(0x0742a8) end(0x074308)
 function void fn0742a8()
 {
