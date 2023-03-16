@@ -70,7 +70,6 @@ global u8 EXRINGSFX // Extra Rings SFX
 global u8 ORIGINS_HYPER_FX // Origins Hyper FX
 global u8 FASTER_SUPER_FADE // Faster Super Sonic Fade
 global u8 ALT_MGZ_PALETTE // Custom MGZ Palette
-global u8 CREDITS_MUSIC
 global u8 ORIGINS_HD // finally, it works again
 global bool performHyperDash // haha, i feel like this might break things but i don't really care lol
 // LBZ2.LEMON

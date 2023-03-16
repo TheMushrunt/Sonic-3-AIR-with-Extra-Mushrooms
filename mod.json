@@ -626,19 +626,6 @@
 					"0": "Default",
 					"1": "Faster"
 				}
-			},
-			{
-				"InternalName": "Play Music during Credits",
-				"DisplayName": "Play Music during Credits",
-				"Variable": "CREDITS_MUSIC",
-				"Category": "Miscellaneous Stuff",
-				"DefaultValue": "0",
-				"Options": {
-					"0": "Zone Medley",
-					"1": "S3 Proto Credits",
-					"2": "S3 Final Credits",
-					"3": "Keep Song Before Medley"
-				}
 			}
 		]
 	}
