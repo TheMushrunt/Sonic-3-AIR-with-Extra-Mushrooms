@@ -9,7 +9,7 @@ These edits are more notably:
 * A new method of activating the Dropdash before using shield abilities
 * Other really niche things   : )
 
-Taking a look inside the scripts is reccomended for those who want to see true insanity. However, do **not** release modifications of them without my premission.
+Taking a look inside the scripts is reccomended for those who want to see true insanity. I do not *condone* standalone releases of the scripts I **made** and not **edited**. It should be fairly clear what the line is between the two.
 
 ## Looking to help out?
 Contact me directly if you want, I'm very open to this kind of stuff. Just know that I won't exactly accept *suggestions* for the mod, rather any fixes, refinements and additions people would like me to include.
