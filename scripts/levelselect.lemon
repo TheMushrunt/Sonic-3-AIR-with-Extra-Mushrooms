@@ -830,7 +830,7 @@ function void fn007e64()
 			if (control.pad1.state & CONTROL_UP)
 			{
 				if (levelselect.selection == 0x20 && EM_2PSTAGES)
-					levelselect.selection = 0x08
+					levelselect.selection = 0x07
 				if (levelselect.selection == 0x1c)
 					levelselect.selection = 0x1a
 				else if (levelselect.selection == 0x1a)
@@ -850,7 +850,7 @@ function void fn007e64()
 			}
 			if (control.pad1.state & CONTROL_DOWN)
 			{
-				if (levelselect.selection == 0x07 && EM_2PSTAGES)
+				if (levelselect.selection == 0x06 && EM_2PSTAGES)
 					levelselect.selection = 0x1f
 				if (levelselect.selection == 0x1a)
 					levelselect.selection = 0x1c
