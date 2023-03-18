@@ -44,32 +44,37 @@ constant array<u64> LSBossText =
 //# translated(0x007d64) end(0x007d6a)
 function void LevelSelect()
 {
-	global.zone_act = 0
-	FadeOutScreenBlocking()
-
-#if STANDALONE
-	Renderer.resetSprites()
-#else
-	set_status_register(0x2700)
-#endif
-
-	LevelSelect.init()
-
-	Menu.FadeInAfterInit()
-
-	// Perform main update now
-	bool running = true
-	while (running)
+	Game.endSkippableCutscene()
+	if (!LS_FORCE_BASE)
 	{
-		global.frame_state = 0x16
+		global.zone_act = 0
+		FadeOutScreenBlocking()
 
-		// End point for a single frame
-		//  -> Right here we place the entry point for the standalone version
-		waitForNextFrame()
-	@EntryPoint:
+	#if STANDALONE
+		Renderer.resetSprites()
+	#else
+		set_status_register(0x2700)
+	#endif
 
-		running = LevelSelect.innerUpdate()
+		LevelSelect.init()
+
+		Menu.FadeInAfterInit()
+
+		// Perform main update now
+		bool running = true
+		while (running)
+		{
+			global.frame_state = 0x16
+
+			// End point for a single frame
+			//  -> Right here we place the entry point for the standalone version
+			waitForNextFrame()
+		@EntryPoint:
+
+			running = LevelSelect.innerUpdate()
+		}
 	}
+	else base.LevelSelect()
 }
 
 // yes this is just the base code above. i have no idea why but it breaks in D.A. Garden if it's not there.
@@ -215,29 +220,29 @@ function void Renderer.drawLSText(u64 FONT_LS, u64 FONT_LS_Y)
 		if (ST_STYLE == 1)
 		{
 			Renderer.drawText(determineSTcolor, 264+widthextend, 176, "<   >", 0xFFFFFFFF, 1, 0, 0xFFFD, true)
-			if (levelselect.soundtest < 0x0a)
+			s32 xpos = 272
+			if (levelselect.soundtest < 100)
 			{
-				Renderer.drawText(determineSTcolor, 272+widthextend, 176, "00" , 0xFFFFFFFF, 1, 0, 0xFFFD, true)
-				Renderer.drawText(determineSTcolor, 288+widthextend, 176,(stringformat("%d", levelselect.soundtest)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+				Renderer.drawText(determineSTcolor, xpos+widthextend, 176,(stringformat("%d", levelselect.soundtest/100)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+				xpos += 8
 			}
-			else if (levelselect.soundtest < 0x64)
+			if (levelselect.soundtest < 10)
 			{
-				Renderer.drawText(determineSTcolor, 272+widthextend, 176, "0" , 0xFFFFFFFF, 1, 0, 0xFFFD, true)
-				Renderer.drawText(determineSTcolor, 280+widthextend, 176,(stringformat("%d", levelselect.soundtest)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+				Renderer.drawText(determineSTcolor, xpos+widthextend, 176,(stringformat("%d", levelselect.soundtest/10)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+				xpos += 8
 			}
-			else
-				Renderer.drawText(determineSTcolor, 272+widthextend, 176,(stringformat("%d", levelselect.soundtest)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+			Renderer.drawText(determineSTcolor, xpos+widthextend, 176,(stringformat("%d", levelselect.soundtest)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
 		}
 		else
 		{
 			Renderer.drawText(determineSTcolor, 272+widthextend, 176, "*  *", 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+			s32 xpos = 280
 			if (levelselect.soundtest < 0x10)
 			{
-				Renderer.drawText(determineSTcolor, 280+widthextend, 176, "0" , 0xFFFFFFFF, 1, 0, 0xFFFD, true)
-				Renderer.drawText(determineSTcolor, 288+widthextend, 176,(stringformat("%x", levelselect.soundtest)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+				Renderer.drawText(determineSTcolor, xpos+widthextend, 176,(stringformat("%x", levelselect.soundtest/10)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+				xpos += 8
 			}
-			else
-				Renderer.drawText(determineSTcolor, 280+widthextend, 176,(stringformat("%x", levelselect.soundtest)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+			Renderer.drawText(determineSTcolor, xpos+widthextend, 176,(stringformat("%x", levelselect.soundtest)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
 		}
 		Renderer.drawText(determineSTcolor, 176+widthextend, 176, LSNames[16], 0xFFFFFFFF, 1, 0, 0xFFFD, true)
 }
@@ -1071,7 +1076,10 @@ function void EM.checkCheats()
 
 function u8 WhatWillItBe(u8 maxCharacterSelection)
 {
-	if (Mods.isModActive("Extra Characters Base") || Mods.isModActive("Extra Character Slots"))
-		return base.WhatWillItBe(maxCharacterSelection)
-	else return maxCharacterSelection
+	#if !EXTRA_CHARACTERS_ACTIVE
+		if (Mods.isModActive("Extra Characters Base") || Mods.isModActive("Extra Character Slots"))
+			return base.WhatWillItBe(maxCharacterSelection)
+		else
+	#endif
+			return maxCharacterSelection
 }
