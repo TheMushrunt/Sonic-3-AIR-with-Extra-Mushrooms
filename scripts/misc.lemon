@@ -7,9 +7,7 @@ function void ItemEffect.ApplySuperTransformation() // RSDK Parity
 	}
 	else
 	{
-		++u16[A2]
-		ring_counter += 50
-		playMusic(SFX_RING)
+		addRings(50)
 	}
 }
 
@@ -148,13 +146,11 @@ function void ItemEffect.ApplyInvincibility()
 	{
 		if (super.active == 0xFF || super.active.tails == 0xFF) // Is the character Hyper?
 		{
-			ring_counter += HSRING // Add number of rings Hyper Forms get
-			determineExtraRingSound()
+			EM.AddRings(HSRING) // Add appropriate amount based on Hyper forms
 		}
 		else // Character is determined Super
 		{
-			ring_counter += SSRING // Add number of rings Super Forms get
-			determineExtraRingSound()
+			EM.AddRings(SSRING) // Add appropriate amount based on Super forms
 		}
 	}
 	else // Character didn't use emeralds, use base scripts
@@ -162,6 +158,21 @@ function void ItemEffect.ApplyInvincibility()
 		base.ItemEffect.ApplyInvincibility()
 	}
 }
+
+function void EM.AddRings(u32 value)
+{
+	D0 = value
+	ring_counter = min(ring_counter + D0.u16, 999)
+	player.total_rings = min(player.total_rings + D0.u16, 999)
+	hud.dirty.rings |= 0x01
+	if (checkForExtraLifeByRings())
+	{
+		++player.item_count
+		gainExtraLife()
+	}
+	else determineExtraRingSound()
+}
+
 function void determineExtraRingSound()
 {
 	if (EXRINGSFX != 0) // If the sound is MEANT to play
