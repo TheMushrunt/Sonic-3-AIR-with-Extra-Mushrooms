@@ -1137,6 +1137,8 @@ function void fn00486c()
 				--snkmoddedtitlespriteoffset
 		}
 	}
+	if (Mods.isModActive("Expansion Pack"))
+		objA0.position.y.u16 -= 0x0E
 	fn0048dc()
 }
 
@@ -1180,7 +1182,7 @@ function void fn0048dc()
 	u16 py = objA0.position.y.u16 - 112
 	if (!Mods.isModActive("Deez Nut Title Screen"))
 	{	
-		if (!EM_MODDED_GFX)
+		if (!EM_MODDED_GFX && (!Mods.isModActive("Expansion Pack")))
 		{
 			if (Mods.isModActive("Sonic 3: D.A. Garden Edition"))
 			Renderer.drawCustomSprite("ts_emblem_air", px, py, 0x00, SPRITE_FLAG_PRIO, 0xa000)
@@ -1234,11 +1236,15 @@ function void fn0048dc()
 	if (TS_KNUCKLES == 2)
 	{
 		px = getScreenWidth() / 2 - 84
-		if (TS_BRANDING == 1 || (Mods.isModActive("Deez Nut Title Screen") || Mods.isModActive("Sonic 3: D.A. Garden Edition") || EM_MODDED_GFX == 1))
+		if (TS_BRANDING == 1 || (Mods.isModActive("Expansion Pack")) || (Mods.isModActive("Deez Nut Title Screen") || Mods.isModActive("Sonic 3: D.A. Garden Edition") || EM_MODDED_GFX == 1))
+		{
 			if (Mods.isModActive("Deez Nut Title Screen"))
 				py = objA0.position.y.u16 - 43
 			else
 				py = objA0.position.y.u16 - 47
+			if (Mods.isModActive("Expansion Pack"))
+				py += 16
+		}
 		else
 			py = objA0.position.y.u16 - 51
 		Renderer.drawCustomSprite("extramushrooms", px, py, 0x00, SPRITE_FLAG_PRIO, 0x9f7e)
@@ -1247,9 +1253,11 @@ function void fn0048dc()
 	{
 		px = getScreenWidth() / 2 - 84
 		py = objA0.position.y.u16 - 48
+		if (Mods.isModActive("Expansion Pack"))
+			py += 16
 		Renderer.drawCustomSprite("andknuckles", px, py, 0x00, SPRITE_FLAG_PRIO, 0x9f7e)
 	}
-	if (TS_BRANDING == 1 || (Mods.isModActive("Deez Nut Title Screen") || Mods.isModActive("Sonic 3: D.A. Garden Edition") || EM_MODDED_GFX == 1))
+	if (TS_BRANDING == 1 || (Mods.isModActive("Expansion Pack")) || (Mods.isModActive("Deez Nut Title Screen") || Mods.isModActive("Sonic 3: D.A. Garden Edition") || EM_MODDED_GFX == 1))
 	{
 		px = getScreenWidth() / 2
 		py = objA0.position.y.u16 - 54
