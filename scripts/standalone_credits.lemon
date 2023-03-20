@@ -9,10 +9,6 @@ constant array<u64> CreditsNames =
 	"director", "HIROKAZU  YASUHARA", "[NEXT LINE]",
 	"lead game designer", "HIROKAZU  YASUHARA", "[NEXT LINE]",
 	"senior game designers", "HISAYOSHI YOSHIDA", "TAKASHI  IIZUKA", "[NEXT LINE]",
-	"please just", "FUCKING  KILL  ME", "[NEXT LINE]",
-	"please just", "FUCKING  KILL  ME", "[NEXT LINE]",
-	"please just", "FUCKING  KILL  ME", "[NEXT LINE]",
-	"please just", "FUCKING  KILL  ME", "[NEXT LINE]",
 }
 
 //# address-hook(0x007a74) end(0x007d20)
