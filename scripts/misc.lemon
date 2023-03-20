@@ -270,6 +270,7 @@ function void Character.updateJumpMoves()
 								if (sonic.dropdash_counter < DROPDASH_FULLCHARGE)
 								{
 									// Drop dash charging
+									char.flags &= ~char.flag.CONTROL_LOCK // this unlocks roll jump regardless of the setting. it makes the game more fun with auto-dropdash when using roll jump lock
 									++sonic.dropdash_counter
 									if (sonic.dropdash_counter == DROPDASH_FULLCHARGE)
 									{
