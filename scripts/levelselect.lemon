@@ -704,6 +704,7 @@ function bool LevelSelect.innerUpdate()
 					Standalone.playAudio(0xaf)
 					return base.LevelSelect.innerUpdate()
 				}
+				// fun fact, this script below doesn't execute with ESCU which is really funny to me because everything works as it should
 				else if (ScaredHaters != 1 && YOU_FUCKED_UP_KID)
 				{
 					playSound(0x7B)
