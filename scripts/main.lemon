@@ -976,7 +976,19 @@ function void fn0007ba()
 
 constant array<u16> TITLESCREEN_S3_FRAMEDELAY =
 {
-	15, 12, 13, 10, 8, 2
+	15, 5, 5, 5, 5, 7, 16, 12, 11, 10, 3
+}
+constant array<u16> TITLESCREEN_AIR_FRAMEDELAY =
+{
+	12, 6, 6, 6, 6, 6, 10, 10, 10, 10, 6
+}
+constant array<u16> TITLESCREEN_ORIGINS_FRAMEDELAY =
+{
+	8, 8, 10, 5, 5, 7, 16, 12, 11, 10, 5
+}
+constant array<u16> TITLESCREEN_MUSHRUNT_FRAMEDELAY = // this is what the previous Extra Mushrooms builds used for S3 Genesis/S3 Origins
+{
+	12, 6, 6, 6, 6, 6, 15, 12, 13, 10, 8
 }
 
 //# address-hook(0x004352) end(0x0043d2)
@@ -992,38 +1004,20 @@ function void fn004352()
 		return
 	}
 
-#if STANDALONE
-
-	titleintro.frames = 4
-	if (titleintro.animstep == 1)
+	else if (titleintro.animstep < 12)
 	{
-		titleintro.frames = 12
-	}
-	else if (titleintro.animstep >= 2 && titleintro.animstep <= 6)
-	{
-		titleintro.frames = 6
-	}
-	if (TS_BRANDING == 1)
-	{
-		if (titleintro.animstep >= 7 && titleintro.animstep <= 10)
+		if (TS_KNUCKLES != 2)
 		{
-			titleintro.frames = 10
+			if (TS_BRANDING == 0)
+				titleintro.frames = TITLESCREEN_S3_FRAMEDELAY[titleintro.animstep-1]
+			else if (TS_BRANDING == 1)
+				titleintro.frames = TITLESCREEN_AIR_FRAMEDELAY[titleintro.animstep-1]
+			else
+				titleintro.frames = TITLESCREEN_ORIGINS_FRAMEDELAY[titleintro.animstep-1]
 		}
-		else if (titleintro.animstep == 11)
-		{
-			titleintro.frames = 6
-		}
-	}
-	else if ((TS_BRANDING == 0 || TS_BRANDING == 2) && titleintro.animstep < 12)
-	{
-		if (titleintro.animstep >= 7)
-			titleintro.frames = TITLESCREEN_S3_FRAMEDELAY[titleintro.animstep-7]
+		else titleintro.frames = TITLESCREEN_MUSHRUNT_FRAMEDELAY[titleintro.animstep-1]
 	}
 	--titleintro.frames
-
-#else
-	titleintro.frames = 3
-#endif
 
 	if (titleintro.animstep >= 12)
 	{
