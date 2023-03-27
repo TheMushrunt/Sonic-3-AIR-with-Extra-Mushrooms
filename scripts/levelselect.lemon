@@ -45,16 +45,17 @@ constant array<u64> LSBossText =
 function void LevelSelect()
 {
 	Game.endSkippableCutscene()
-	if (!LS_FORCE_BASE)
+	if (!LS_FORCE_BASE && !Mods.isModActive("Sonic 3 Complete Level Select+"))
 	{
 		global.zone_act = 0
-		FadeOutScreenBlocking()
 
 	#if STANDALONE
 		Renderer.resetSprites()
 	#else
 		set_status_register(0x2700)
 	#endif
+
+		FadeOutScreenBlocking()
 
 		LevelSelect.init()
 
@@ -74,7 +75,11 @@ function void LevelSelect()
 			running = LevelSelect.innerUpdate()
 		}
 	}
-	else base.LevelSelect()
+	else
+	{
+		Renderer.resetSprites()
+		base.LevelSelect()
+	}
 }
 
 // yes this is just the base code above. i have no idea why but it breaks in D.A. Garden if it's not there.
@@ -84,11 +89,38 @@ function void Renderer.drawCustomSprite(u64 key, s16 px, s16 py, u8 atex, u8 fla
 {
 	if (key == "ls_icon_12" && LS_DEZ)
 		key = stringformat("%s_origins", key)
-	else if (key == "ls_bonus_1" && LS_BONUS == 2)
+	if (key == "ls_bonus_1" && LS_BONUS == 2)
 		key = "ls_bonus_2"
-	else if (key == "ls_bonus_2" && LS_BONUS == 2)
+	if (key == "ls_bonus_2" && LS_BONUS == 2)
 		key = "ls_bonus_1"
+	if (Mods.isModActive("Sonic 3 Complete Level Select+") && !LS_FORCE_BASE && global.game_mode == 0x1c)
+	{
+		if (Mods.getModPriority("Sonic 3 Complete Level Select+") < Mods.getModPriority("Sonic 3 A.I.R. with Extra Mushrooms"))
+		{
+			if (key == "S3Complete_LevelSelectIcon_Sonic1" || key == "S3Complete_LevelSelectIcon_Sonic2" || key == "S3Complete_LevelSelectIcon_Sonic3" || key == "S3Complete_LevelSelectIcon_Sonic1Acc" || key == "S3Complete_LevelSelectIcon_Sonic2Acc" || key == "S3Complete_LevelSelectIcon_Sonic2Mobile" || key == "S3Complete_LevelSelectIcon_SonicCD" || key == "S3Complete_LevelSelectIcon_Tails" || key == "S3Complete_LevelSelectIcon_TailsOG" || key == "S3Complete_LevelSelectIcon_Knuckles" || key == "S3Complete_LevelSelectIcon_KnucklesS2")
+			{
+				px -= px
+				px += getScreenWidth()
+			}
+			#if EXTRA_CHARACTERS_ACTIVE
+				#if EXTRA_CHARACTERS_UNLIMITED
+					if (key == RenderExtraCharIcon(global.xtrachar))
+					{
+						px -= px
+						px += getScreenWidth()
+					}
+				#endif
+			#endif
+		}
+	}
 	base.Renderer.drawCustomSprite(key, px, py, atex, flags, renderQueue)
+}
+
+function string RenderExtraCharIcon(u8 xtrachar)
+{
+	if (Mods.isModActive("Sonic 3 Complete Level Select+"))
+		return base.RenderExtraCharIcon(xtrachar)
+	else return " "
 }
 
 function void Renderer.drawLSText(u64 FONT_LS, u64 FONT_LS_Y)
@@ -327,6 +359,9 @@ function void DrawLevelSelectBG()
 
 function void DrawSpritesToLevelSelect()
 {
+	loadCharacterPalette(CHARACTER_SONIC, 0x802180, 0)
+	loadCharacterPalette(CHARACTER_TAILS, 0x8021c0, 0x00)
+	loadCharacterPalette(CHARACTER_KNUCKLES, 0x802180 + 0x80, 0)
 	u16 widthextend = 0
 	if (!LS_ICONS)
 		widthextend = getScreenExtend()+4
@@ -382,33 +417,15 @@ function void DrawSpritesToLevelSelect()
 			#endif
 		#endif
 				{
-					if (levelselect.characters == 0)
-					{
-						Renderer.drawCustomSprite("continue_icon_sonic", getScreenWidth()-104+widthextend, getScreenHeight()-8, 0x00, 0, 0x9f7e)
-						Renderer.drawCustomSprite("continue_icon_tails", (getScreenWidth()-104)-16+widthextend, getScreenHeight()-8, 0x00, 0, 0x9f7e)
-					}
-					else if (levelselect.characters == 1)
-					{
-						Renderer.drawCustomSprite("continue_icon_sonic", getScreenWidth()-104+widthextend, getScreenHeight()-8, 0x00, 0, 0x9f7e)
-					}
-					else if (levelselect.characters == 2)
-					{
-						Renderer.drawCustomSprite("continue_icon_tails", getScreenWidth()-104+widthextend, getScreenHeight()-8, 0x00, 0, 0x9f7e)
-					}
-					else if (levelselect.characters == 3)
-					{
-						Renderer.drawCustomSprite("continue_icon_knuckles", getScreenWidth()-104+widthextend, getScreenHeight()-8, 0x00, 0, 0x9f7e)
-					}
-					else if (levelselect.characters == 4 && ExtraSlotStart == 5)
-					{
-						Renderer.drawCustomSprite("continue_icon_knuckles", getScreenWidth()-104+widthextend, getScreenHeight()-8, 0x00, 0, 0x9f7e)
-						Renderer.drawCustomSprite("continue_icon_tails", (getScreenWidth()-104)-16+widthextend, getScreenHeight()-8, 0x00, 0, 0x9f7e)
-					}		
+					u8 continueicon = 0
+					if (levelselect.characters > 0)
+						++continueicon
+					Renderer.drawCustomSprite(getCharacterContinueIcon(levelselect.characters-continueicon), getScreenWidth()-104+widthextend, getScreenHeight()-8, 0x00, 0, 0x9f7e)
+					if (levelselect.characters == 0 || (levelselect.characters == 4 && ExtraSlotStart == 5))
+						Renderer.drawCustomSprite(getCharacterContinueIcon(1), getScreenWidth()-120+widthextend, getScreenHeight()-8, 0x00, 0, 0x9f7e)
 		#if !EXTRA_CHARACTERS_ACTIVE
 					else if (levelselect.characters > ExtraSlotStart)
 					{
-						// TODO: (PROPER) Extra Slot Support
-						// probably coming whenever that new base is released. glad they're documenting it and stuff though
 						if ((levelselect.characters == ExtraSlotStart+1) && Mods.isModActive("Extra Slot Mighty"))
 						{
 							Renderer.drawCustomSprite("Continue_icon_S3_alt", (getScreenWidth()-102)+widthextend, (getScreenHeight()-7), 0x00, 0, 0x9f7e)
@@ -426,10 +443,11 @@ function void DrawSpritesToLevelSelect()
 			#if EXTRA_CHARACTERS_UNLIMITED
 				}
 				if (global.xtrachar)
-				{	
+				{
+					loadCharacterPalette(global.xtrachar, 0x000000, 0x00)
 					if !(Renderer.hasCustomSprite(stringformat("em_slot%d", global.xtrachar)))
 					{
-						u64 key = stringformat("continue_icon_slot%d", global.xtrachar)
+						u64 key = getCharacterContinueIcon(global.xtrachar)
 						if (global.xtrachar == 0x01 && Mods.isModActive("Extra Slot Mighty"))
 							key = "em_mighty"
 						else if (global.xtrachar == 0x02 && Mods.isModActive("Extra Slot Ray"))
@@ -603,7 +621,8 @@ function void LevelSelect.init()
 		u32[0xfffffbfc] = 0xfffffb00
 
 		Enigma.decompress(0x0cab54, 0xffff0000, (sprite_attribute.PALETTE.LINE3 | (LevelSelect.Background.targetInVRAM >> 0)))
-		copyRectToVRAM(0xffff0000, 0xe000, 0x28, 0x1c)
+		if (!LS_BG || !Mods.isModActive("Sonic 3 Complete Level Select+"))
+			copyRectToVRAM(0xffff0000, 0xe000, 0x28, 0x1c)
 
 		zeroMemory(0xffff0000, 0x460 * 2)
 
@@ -726,6 +745,8 @@ function bool LevelSelect.innerUpdate()
 				playSound(0xad)
 
 				u32 backupA0 = A0
+				if (Mods.isModActive("Sonic 3 Complete Level Select+"))
+					Renderer.drawCustomSprite("S3Complete_LevelSelectBG_S3", getScreenExtend() - 40, 0, 0x10, 0, 0x1000)
 				FadeOutScreenBlocking()
 				A0 = backupA0
 
