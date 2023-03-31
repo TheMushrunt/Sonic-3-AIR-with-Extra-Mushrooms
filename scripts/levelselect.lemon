@@ -834,9 +834,9 @@ function bool fn007d6c()
 			else if (levelselect.selection == 0x01) // BPZ
 				D0.u16 = 0x0f00
 			else if (levelselect.selection == 0x02) // CGZ
-				D0.u16 = 0x1000
-			else if (levelselect.selection == 0x03) // DPZ
 				D0.u16 = 0x1100
+			else if (levelselect.selection == 0x03) // DPZ
+				D0.u16 = 0x1000
 			else if (levelselect.selection == 0x04) // EMZ
 				D0.u16 = 0x1200
 			else if (levelselect.selection == 0x05) // Altar
