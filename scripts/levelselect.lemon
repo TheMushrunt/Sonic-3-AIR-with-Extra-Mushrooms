@@ -49,14 +49,12 @@ function void LevelSelect()
 	{
 		global.zone_act = 0
 
+		FadeOutScreenBlocking()
 	#if STANDALONE
 		Renderer.resetSprites()
 	#else
 		set_status_register(0x2700)
 	#endif
-
-		FadeOutScreenBlocking()
-
 		LevelSelect.init()
 
 		Menu.FadeInAfterInit()
