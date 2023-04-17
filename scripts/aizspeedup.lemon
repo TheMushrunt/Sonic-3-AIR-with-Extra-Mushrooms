@@ -60,42 +60,58 @@ function void fn06852c()
 	else base.fn06852c()
 }
 
+//# address-hook(0x050426) end(0x050452)
+function void fn050426()
+{
+	if (AIZ_BLIMP_SPEED > 2)
+		base.fn050426()
+}
+
 //# address-hook(0x05034a) end(0x05038c)
 function void fn05034a()
 {
-	objA0.update_address = 0x050390
-	u32[A0 + 0x2e] = 0x23c0a6
-	s16[A0 + 0x32] = 0x01a4		// Time until first bomb drop
-	if (AIZ_BLIMP_SPEED)
+	if (AIZ_BLIMP_SPEED == 2)
 	{
-		if (Game.getSetting(SETTING_AIZ_BLIMPSEQUENCE))
-			s16[A0 + 0x32] = 0x0120 - 0x50
-		else
-			s16[A0 + 0x32] = 0x0120 - 0x10
+		objA0.update_address = 0x0506be
+		u8[0xffffeec4] = 0xff
+		return
 	}
 	else
 	{
-		if (Game.getSetting(SETTING_AIZ_BLIMPSEQUENCE))
-			s16[A0 + 0x32] = 0x0120 - 0x50
+		objA0.update_address = 0x050390
+		u32[A0 + 0x2e] = 0x23c0a6
+		s16[A0 + 0x32] = 0x01a4		// Time until first bomb drop
+		if (AIZ_BLIMP_SPEED == 1)
+		{
+			if (Game.getSetting(SETTING_AIZ_BLIMPSEQUENCE))
+				s16[A0 + 0x32] = 0x0120 - 0x50
+			else
+				s16[A0 + 0x32] = 0x0120 - 0x10
+		}
+		else
+		{
+			if (Game.getSetting(SETTING_AIZ_BLIMPSEQUENCE))
+				s16[A0 + 0x32] = 0x0120 - 0x50
+		}
+		D1.u16 = 0x3fbc
+		D2 = 1
+		while (D2.s16 >= 0)
+		{
+			// Spawn blimp propellers
+			if (!allocDynamicObjectAfterA0())
+				break
+
+			objA1.update_address = 0x050426
+			u16[A1 + 0x2e] = D1.u16
+			D1.u16 = 0x3dcc
+			--D2.s16
+		}
+
+		// Loads palette colors 0x10 .. 0x1f
+		copyMemory(0xfffffc20, 0x23c05a, 0x20)
+
+		fn050390()
 	}
-	D1.u16 = 0x3fbc
-	D2 = 1
-	while (D2.s16 >= 0)
-	{
-		// Spawn blimp propellers
-		if (!allocDynamicObjectAfterA0())
-			break
-
-		objA1.update_address = 0x050426
-		u16[A1 + 0x2e] = D1.u16
-		D1.u16 = 0x3dcc
-		--D2.s16
-	}
-
-	// Loads palette colors 0x10 .. 0x1f
-	copyMemory(0xfffffc20, 0x23c05a, 0x20)
-
-	fn050390()
 }
 
 //# address-hook(0x050390) end(0x050424)
@@ -103,7 +119,7 @@ function void fn050390()
 {
 	// Blimp movement
 #if STANDALONE
-	if (AIZ_BLIMP_SPEED)
+	if (AIZ_BLIMP_SPEED == 1)
 	{
 		if (Game.getSetting(SETTING_AIZ_BLIMPSEQUENCE))
 			u32[0xffffee98] -= 0x10000
