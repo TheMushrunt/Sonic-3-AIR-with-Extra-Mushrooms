@@ -272,10 +272,20 @@ function string getOptionsText()
 			ex_key = "dagarden_"
 	}
 	// return phase
-	if (OPTIONS_GFX > 1) // if you aren't using S3 or S3 Origins
-		return stringformat("%s%soptions_%d", prefix_key, ex_key, op_num)
+	if (titlescreen.selection != 4)
+	{
+		if (OPTIONS_GFX > 1) // if you aren't using S3 or S3 Origins
+			return stringformat("%s%soptions_%d", prefix_key, ex_key, op_num)
+		else
+			return stringformat("%soptions_%d", ex_key, op_num)
+	}
 	else
-		return stringformat("%soptions_%d", ex_key, op_num)
+	{
+		if (OPTIONS_GFX > 1) // if you aren't using S3 or S3 Origins
+			return stringformat("%sairmenu", prefix_key)
+		else
+			return "airmenu"
+	}
 }
 
 function void OptionInit()
@@ -324,9 +334,18 @@ function void OptionInit()
 			{
 				extraMushroomsLS.discordRPC()
 				YOU_FUCKED_UP_KID = 1
+				FadeOutScreenBlocking()
+				Renderer.resetSprites()
 				EntryFunctions.levelSelect()
 				yieldExecution()
 			}
+	}
+	else if (D0.u8 == 3 && TS_BRANDING != 1)
+	{
+		FadeOutScreenBlocking()
+		Renderer.resetSprites()
+		EntryFunctions.blueSphereGame()
+		yieldExecution()
 	}
 	else
 	{
@@ -336,6 +355,34 @@ function void OptionInit()
 		yieldExecution()
 	}
 	return
+}
+
+//# address-hook(0x000418) end(0x000436)
+function void BlueSphereGame()
+{
+#if !STANDALONE
+	call 0x00043a
+	u8[0xffffff9f] = D4.u8
+
+	call 0x00111a
+	call 0x0012ce
+	call 0x0010ae
+#endif
+#if STANDALONE
+	bluespheregame.menu_flags = 1 // used to be bluespheregame.menu_flags = 1, this is literally fixing the worst issue ever
+	// the issue in question changes the vertical position of the animated sprites on screen and it looked BAD
+#else
+	bluespheregame.menu_flags = 0
+#endif
+	global.game_mode = 0x2c
+
+	while (true)
+	{
+		// See "GameModeControlLoop" for more information
+		D0.u16 = global.game_mode & 0x7c
+		A0 = u32[0x0004c6 + D0.u16]
+		call A0
+	}
 }
 
 //# address-hook(0x00db44) end(0x00dbb2)
@@ -380,6 +427,9 @@ function void RenderHUD()
 function void drawInfiniteLives(u16 px, u16 py, u16 renderQueue)
 {
 	HUD.drawSprite(getCharacterLivesIcon(getMainCharacter()), px, py, renderQueue)
+	u64 key = getCharacterNamesIcon(getMainCharacter())
+	if (Renderer.hasCustomSprite(key))
+		HUD.drawSprite((key), px, py, renderQueue)
 	++renderQueue
 	if (Mods.isModActive("Sawnic")) // Compatibility.
 		if (IsP1Sawnic() && (u8[0xffffb02b] & char.bonus.ELEMENTAL_SHIELDS))
@@ -392,6 +442,14 @@ function void drawInfiniteLives(u16 px, u16 py, u16 renderQueue)
 	}
 	else
 		HUD.drawSprite("inflives", px + 0x26, py + 8, renderQueue)
+}
+
+function string getCharacterNamesIcon(u8 character)
+{
+	if (Mods.isModActive("Expansion Pack") && !isExtraSlot())
+		return base.getCharacterNamesIcon(character)
+	else
+		return false
 }
 
 function bool isExtraSlot() // Function taken from Sawnic. This is (probably) the only way the code will work without Sawnic currently. (It might be code from ESCU since iCloudius was involved with programming assistance?)
@@ -1464,7 +1522,7 @@ function void fn004a88()
 					if (Mods.isModActive("Sonic 3: D.A. Garden Edition"))
 						D2.u8 = 1
 					else
-						D2.u8 = 3
+						D2.u8 = 4
 				}
 			}
 			if (D0 & CONTROL_DOWN)
@@ -1477,7 +1535,7 @@ function void fn004a88()
 				}
 				else
 				{
-					if (D2.u8 >= 4)
+					if (D2.u8 >= 5)
 						D2 = 0
 				}
 			}

@@ -33,6 +33,7 @@
 	"options_2": { "File": "menu.png", "Rect": "116,0,116,24"},
 	"exoptions_1": { "File": "exmenu.png", "Rect": "0,0,116,24"},
 	"exoptions_2": { "File": "exmenu.png", "Rect": "116,0,116,24"},
+	"airmenu": { "File": "exmenu.png", "Rect": "116,32,116,24"},
 	"dagarden_options_1": { "File": "dagardenmenu.png", "Rect": "0,0,116,24"},
 	"dagarden_options_2": { "File": "dagardenmenu.png", "Rect": "116,0,116,24"},
 
@@ -41,6 +42,7 @@
 	"s2options_2": { "File": "menu.png", "Rect": "344,0,112,24"},
 	"s2exoptions_1": { "File": "exmenu.png", "Rect": "232,0,112,24"},
 	"s2exoptions_2": { "File": "exmenu.png", "Rect": "344,0,112,24"},
+	"s2airmenu": { "File": "exmenu.png", "Rect": "344,32,112,24", "Center": "0,-4"},
 	"s2_dagarden_options_1": { "File": "dagardenmenu.png", "Rect": "232,0,112,24"},
 	"s2_dagarden_options_2": { "File": "dagardenmenu.png", "Rect": "344,0,112,24"},
 
@@ -49,6 +51,7 @@
 	"s3coptions_2": { "File": "menu.png", "Rect": "568,0,112,24"},
 	"s3cexoptions_1": { "File": "exmenu.png", "Rect": "456,0,112,24"},
 	"s3cexoptions_2": { "File": "exmenu.png", "Rect": "568,0,112,24"},
+	"s3cairmenu": { "File": "exmenu.png", "Rect": "568,32,112,24", "Center": "0,-4"},
 	"s3c_dagarden_options_1": { "File": "dagardenmenu.png", "Rect": "456,0,112,24"},
 	"s3c_dagarden_options_2": { "File": "dagardenmenu.png", "Rect": "568,0,112,24"},
 
