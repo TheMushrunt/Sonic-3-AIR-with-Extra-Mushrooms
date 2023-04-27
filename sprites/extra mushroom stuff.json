@@ -128,5 +128,7 @@
 	// bros (has a really small chance of appearing)
 	"bros": { "File": "bros.png" },
 	// wega (less small chance of appearing)
-	"wega": { "File": "wega bros.png"}
+	"wega": { "File": "wega bros.png"},
+	// the luigi board?
+	"luigiboard": { "File": "luigiboard.png"}
 }
