@@ -38,6 +38,12 @@ function void extraMushroomsCM.discordRPC() // Competition
 	Game.setDiscordState("Competition Mode")
 	Game.setDiscordLargeImage("gamemode_competition")
 }
+function void extraMushroomsBS.discordRPC() // Blue Spheres
+{
+	Game.setDiscordDetails("with Extra Mushrooms")
+	Game.setDiscordState("Blue Spheres")
+	Game.setDiscordLargeImage("gamemode_bluesphere")
+}
 
 function void MainMenuBG.Run()
 {
@@ -125,6 +131,8 @@ function void MainMenuBG.Run()
 			Letters.Main()
 			PrintVersionNumber()
 		}
+		if (bros_chancetime >= 200 && bros_chancetime <= 250)
+			Renderer.drawCustomSprite("luigiboard",MainMenuBG.logoPosition-80, 80, 0, 0, 0x1002) // the luigi board.....
 		if (bros_chancetime >= 10 && bros_chancetime <= 20 && NO_SECRETS_ON_3AIRMENU != 2) // face my wega storm
 			Renderer.drawCustomSprite("wega", MainMenuBG.logoPosition-64, 0, 0, 0, 0x1000)
 		if (bros_chancetime >= 50 && bros_chancetime <= 100 && NO_SECRETS_ON_3AIRMENU != 3)
@@ -304,9 +312,11 @@ function void OptionInit()
 		if (!(Game.isSecretUnlocked(SECRET_LEVELSELECT)) && titlescreen.selection == 2)
 				Standalone.playAudio(0x7B) // Eggman moving on Data Select sound
 	D0 = titlescreen.selection
+	
 	if (D0.u8 == 0 && TS_BRANDING != 1 || Mods.isModActive("Sonic 3: D.A. Garden Edition") && TS_BRANDING == 1)
 	{
 		// Data Select
+		Audio.fadeOutChannel(0, 0x60)
 		FadeOutScreenBlocking()
 		extraMushroomsDS.discordRPC()
 		EntryFunctions.dataSelect()
@@ -315,6 +325,7 @@ function void OptionInit()
 	else if (D0.u8 == 1 && TS_BRANDING != 1 && !Mods.isModActive("Sonic 3: D.A. Garden Edition"))
 	{
 		// Competition Mode
+		Audio.fadeOutChannel(0, 0x60)
 		extraMushroomsCM.discordRPC()
 		EntryFunctions.competitionMode()
 		yieldExecution()
@@ -324,9 +335,9 @@ function void OptionInit()
 		// Level Select
 		if (Mods.isModActive("Sonic 3 Complete Sound Test"))
 		{
+			Audio.fadeOutChannel(0, 0x40)
 			FadeOutScreenBlocking()
 			Game.returnToMainMenu()
-			Audio.fadeOutChannel(0, 0x40)
 			yieldExecution()
 		}
 		else
@@ -334,6 +345,7 @@ function void OptionInit()
 			{
 				extraMushroomsLS.discordRPC()
 				YOU_FUCKED_UP_KID = 1
+				Audio.fadeOutChannel(0, 0xA0)
 				FadeOutScreenBlocking()
 				Renderer.resetSprites()
 				EntryFunctions.levelSelect()
@@ -342,6 +354,8 @@ function void OptionInit()
 	}
 	else if (D0.u8 == 3 && TS_BRANDING != 1)
 	{
+		Audio.fadeOutChannel(0, 0xA0)
+		extraMushroomsBS.discordRPC()
 		FadeOutScreenBlocking()
 		Renderer.resetSprites()
 		EntryFunctions.blueSphereGame()
