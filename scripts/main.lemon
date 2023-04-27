@@ -517,7 +517,13 @@ function void Menu.FadeInAfterInit()
 			else if (EM_TM_R_DISPLAY == 2)
 				Renderer.drawCustomSprite("genesis_trademark", getScreenWidth()/2 + 80, 88, 0x00, 0, 0x2000, 0, 255)
 			if (EM_MODDED_GFX == 1)
-				Renderer.drawCustomSprite("sega_logo", getScreenExtend() - 40, 0, 0x00, 0, 0x2000, 0, 255)
+			{
+				u64 key = "sega_logo"
+				if (Renderer.hasCustomSprite(key))
+					Renderer.drawCustomSprite(key, getScreenExtend() - 40, 0, 0x00, 0, 0x2000, 0, 255)
+				else
+					Renderer.drawCustomSprite(stringformat("%s_em", key), getScreenExtend() - 40, 0, 0x00, 0, 0x2000, 0, 255)
+			}
 		}
 
 		else base.Menu.FadeInAfterInit()
@@ -713,7 +719,13 @@ function void TitleScreen()
 		else if (EM_TM_R_DISPLAY == 2)
 			Renderer.drawCustomSprite("genesis_trademark", getScreenWidth()/2 + 80, 88, 0x00, 0, 0x2000, 0, 255)
 		if (EM_MODDED_GFX == 1)
-			Renderer.drawCustomSprite("sega_logo", getScreenExtend() - 40, 0, 0x00, 0, 0x2000, 0, 255)
+		{
+			u64 key = "sega_logo"
+			if (Renderer.hasCustomSprite(key))
+				Renderer.drawCustomSprite(key, getScreenExtend() - 40, 0, 0x00, 0, 0x2000, 0, 255)
+			else
+				Renderer.drawCustomSprite(stringformat("%s_em", key), getScreenExtend() - 40, 0, 0x00, 0, 0x2000, 0, 255)
+		}
 	#endif
 	}
 
@@ -744,7 +756,13 @@ function void TitleScreen()
 			else if (EM_TM_R_DISPLAY == 2)
 				Renderer.drawCustomSprite("genesis_trademark", getScreenWidth()/2 + 80, 88, 0x00, 0, 0x2000, 0, u16(u8[0xfffffc01] & 0x0e) * 255 / 0x0e)
 			if (EM_MODDED_GFX == 1)
-				Renderer.drawCustomSprite("sega_logo", getScreenExtend() - 40, 0, 0x00, 0, 0x2000, 0, u16(u8[0xfffffc01] & 0x0e) * 255 / 0x0e)
+			{
+				u64 key = "sega_logo"
+				if Renderer.hasCustomSprite(key)
+					Renderer.drawCustomSprite(key, getScreenExtend() - 40, 0, 0x00, 0, 0x2000, 0, u16(u8[0xfffffc01] & 0x0e) * 255 / 0x0e)
+				else
+					Renderer.drawCustomSprite(stringformat("%s_em", key), getScreenExtend() - 40, 0, 0x00, 0, 0x2000, 0, u16(u8[0xfffffc01] & 0x0e) * 255 / 0x0e)
+			}
 	#endif
 	}
 
@@ -787,7 +805,13 @@ function void TitleScreen()
 			}
 		}
 		else
-			Renderer.drawCustomSprite((stringformat("Sonic_Intro_%d", titleintro.animstep-1)), getScreenExtend() - 40, 0, 0x00, 0, 0xfffe)
+		{
+			u64 key = stringformat("Sonic_Intro_%d", titleintro.animstep-1)
+			if Renderer.hasCustomSprite(key)
+				Renderer.drawCustomSprite(key, getScreenExtend() - 40, 0, 0x00, 0, 0xfffe)
+			else
+				Renderer.drawCustomSprite(stringformat("%s_em", key), getScreenExtend() - 40, 0, 0x00, 0, 0xfffe)
+		}
 		if (control.pad1.pressed)
 		{
 			u8[ptr] = control.pad1.pressed
@@ -812,7 +836,13 @@ function void TitleScreen()
 	if (!EM_MODDED_GFX)
 		fillMemory_u16(0xfffffc00, 0x80, 0x0eee)
 	else
-		Renderer.drawCustomSprite("Sonic_Intro_11", getScreenExtend() - 40, 0, 0x00, 0, 0xffff)
+	{
+		u64 key = "Sonic_Intro_11"
+		if (Renderer.hasCustomSprite(key))
+			Renderer.drawCustomSprite(key, getScreenExtend() - 40, 0, 0x00, 0, 0xffff)
+		else
+			Renderer.drawCustomSprite(stringformat("%s_em", key), getScreenExtend() - 40, 0, 0x00, 0, 0xffff)
+	}
 #if STANDALONE
 	titleintro.frames = 15
 	for (u8 k = 0; k < titleintro.frames; ++k)
@@ -845,7 +875,11 @@ function void TitleScreen()
 	{
 		Enigma.decompress(0x350018, 0xffff8000, 0)
 		copyRectToVRAM(0xffffc000, 0xc000, 0x28, 0x1c)
-		Renderer.drawCustomSprite("Sonic_Intro_11", getScreenExtend() - 40, 0, 0x00, 0, 0xffff)
+		u64 key = "Sonic_Intro_11"
+		if (Renderer.hasCustomSprite(key))
+			Renderer.drawCustomSprite(key, getScreenExtend() - 40, 0, 0x00, 0, 0xffff)
+		else
+			Renderer.drawCustomSprite(stringformat("%s_em", key), getScreenExtend() - 40, 0, 0x00, 0, 0xffff)
 	}
 	
 	Enigma.decompress(0x350112, 0xffff8000, (sprite_attribute.PALETTE.LINE2 | (TitleScreen.Intro_Background.targetInVRAM >> 5)))
@@ -1413,6 +1447,7 @@ function void drawCustomTSSonic()
 function void drawSonicFramesTS(s16 offset)
 {
 	u16 xOffset = getScreenWidth() / 2 - 200
+	u64 key
 	if (EM_MODDED_GFX == 1)
 	{
 		++modded_sonic_frame
@@ -1424,75 +1459,79 @@ function void drawSonicFramesTS(s16 offset)
 
 		if (modded_sonic_frame < 1)
 		{
-			Renderer.drawCustomSprite("TitleScreen_Sonic_Base", xOffset, offset, 0x00, 0, 0x9f7d)		
+			key = "TitleScreen_Sonic_Base"
 		}
 		else if (modded_sonic_frame > 40) && (modded_sonic_frame < 125)
 		{
 			if (modded_sonic_frame < 48)
 			{
-				Renderer.drawCustomSprite("TitleScreen_Sonic_Hand_0", xOffset, offset, 0x00, 0, 0x9f7d)
+				key = "TitleScreen_Sonic_Hand_0"
 			}
 			if (modded_sonic_frame > 47) && (modded_sonic_frame < 55)
 			{
-				Renderer.drawCustomSprite("TitleScreen_Sonic_Hand_1", xOffset, offset, 0x00, 0, 0x9f7d)
-			}		
+				key = "TitleScreen_Sonic_Hand_1"
+			}
 			if (modded_sonic_frame > 54) && (modded_sonic_frame < 62)
 			{
-				Renderer.drawCustomSprite("TitleScreen_Sonic_Hand_2", xOffset, offset, 0x00, 0, 0x9f7d)
+				key = "TitleScreen_Sonic_Hand_2"
 			}	
 			if (modded_sonic_frame > 61) && (modded_sonic_frame < 69)
 			{
-				Renderer.drawCustomSprite("TitleScreen_Sonic_Hand_3", xOffset, offset, 0x00, 0, 0x9f7d)
+				key = "TitleScreen_Sonic_Hand_3"
 			}	
 			if (modded_sonic_frame > 68) && (modded_sonic_frame < 76)
 			{
-				Renderer.drawCustomSprite("TitleScreen_Sonic_Hand_2", xOffset, offset, 0x00, 0, 0x9f7d)
+				key = "TitleScreen_Sonic_Hand_2"
 			}	
 			if (modded_sonic_frame > 75) && (modded_sonic_frame < 83)
 			{
-				Renderer.drawCustomSprite("TitleScreen_Sonic_Hand_1", xOffset, offset, 0x00, 0, 0x9f7d)
+				key = "TitleScreen_Sonic_Hand_1"
 			}
 			if (modded_sonic_frame > 82) && (modded_sonic_frame < 90)
 			{
-				Renderer.drawCustomSprite("TitleScreen_Sonic_Hand_2", xOffset, offset, 0x00, 0, 0x9f7d)
+				key = "TitleScreen_Sonic_Hand_2"
 			}
 			if (modded_sonic_frame > 89) && (modded_sonic_frame < 97)
 			{
-				Renderer.drawCustomSprite("TitleScreen_Sonic_Hand_3", xOffset, offset, 0x00, 0, 0x9f7d)
+				key = "TitleScreen_Sonic_Hand_3"
 			}
 			if (modded_sonic_frame > 96) && (modded_sonic_frame < 104)
 			{
-				Renderer.drawCustomSprite("TitleScreen_Sonic_Hand_2", xOffset, offset, 0x00, 0, 0x9f7d)
+				key = "TitleScreen_Sonic_Hand_2"
 			}
 			if (modded_sonic_frame > 103) && (modded_sonic_frame < 111)
 			{
-				Renderer.drawCustomSprite("TitleScreen_Sonic_Hand_1", xOffset, offset, 0x00, 0, 0x9f7d)
+				key = "TitleScreen_Sonic_Hand_1"
 			}
 			if (modded_sonic_frame > 110) && (modded_sonic_frame < 118)
 			{
-				Renderer.drawCustomSprite("TitleScreen_Sonic_Hand_2", xOffset, offset, 0x00, 0, 0x9f7d)
+				key = "TitleScreen_Sonic_Hand_2"
 			}
 			if (modded_sonic_frame > 117) && (modded_sonic_frame < 125)
 			{
-				Renderer.drawCustomSprite("TitleScreen_Sonic_Hand_3", xOffset, offset, 0x00, 0, 0x9f7d)
+				key = "TitleScreen_Sonic_Hand_3"
 			}																				
 		}	
 		else if (modded_sonic_frame > 0) && (modded_sonic_frame < 7)
 		{
-			Renderer.drawCustomSprite("TitleScreen_Sonic_Eye_0", xOffset, offset, 0x00, 0, 0x9f7d)	
+			key = "TitleScreen_Sonic_Eye_0"
 		}	
 		else if (modded_sonic_frame > 6) && (modded_sonic_frame < 13)
 		{
-			Renderer.drawCustomSprite("TitleScreen_Sonic_Eye_1", xOffset, offset, 0x00, 0, 0x9f7d)	
+			key = "TitleScreen_Sonic_Eye_1"
 		}
 		else if (modded_sonic_frame > 12) && (modded_sonic_frame < 19)
 		{
-			Renderer.drawCustomSprite("TitleScreen_Sonic_Eye_2", xOffset, offset, 0x00, 0, 0x9f7d)	
+			key = "TitleScreen_Sonic_Eye_2"
 		}
 		else if (modded_sonic_frame > 18)
 		{
-			Renderer.drawCustomSprite("TitleScreen_Sonic_Base", xOffset, offset, 0x00, 0, 0x9f7d)		
+			key = "TitleScreen_Sonic_Base"	
 		}
+		if (Renderer.hasCustomSprite(key))
+			Renderer.drawCustomSprite(key, xOffset, offset, 0x00, 0, 0x9f7d)
+		else
+			Renderer.drawCustomSprite(stringformat("%s_em", key), getScreenExtend() - 40, 0, 0x00, 0, 0xffff)
 	}
 }
 
@@ -1716,12 +1755,19 @@ function void fn004be4()
 		if (u8[A0 + 0x30] == 1)
 		{
 			tornado = stringformat("tornado2_%d", tornado_timer)
-			Renderer.drawCustomSprite(tornado, objA0.position.x.u16-152, objA0.position.y.u16/4+21, 0x00, (objA0.render_flags & 0x00) || SPRITE_FLAG_PRIO, 0x1200)
+			if Renderer.hasCustomSprite(tornado)
+				Renderer.drawCustomSprite(tornado, objA0.position.x.u16-152, objA0.position.y.u16/4+21, 0x00, (objA0.render_flags & 0x00) || SPRITE_FLAG_PRIO, 0x1200)
+			else
+				Renderer.drawCustomSprite(stringformat("%s_em", tornado), objA0.position.x.u16-152, objA0.position.y.u16/4+21, 0x00, (objA0.render_flags & 0x00) || SPRITE_FLAG_PRIO, 0x1200)
+
 		}
 		else
 		{
 			tornado = stringformat("tornado_%d", tornado_timer)
-			Renderer.drawCustomSprite(tornado, objA0.position.x.u16-154, objA0.position.y.u16/4+9, 0x00, (objA0.render_flags & 0x00) || SPRITE_FLAG_PRIO, 0x1200)
+			if Renderer.hasCustomSprite(tornado)
+				Renderer.drawCustomSprite(tornado, objA0.position.x.u16-154, objA0.position.y.u16/4+9, 0x00, (objA0.render_flags & 0x00) || SPRITE_FLAG_PRIO, 0x1200)
+			else
+				Renderer.drawCustomSprite(stringformat("%s_em", tornado), objA0.position.x.u16-154, objA0.position.y.u16/4+9, 0x00, (objA0.render_flags & 0x00) || SPRITE_FLAG_PRIO, 0x1200)
 		}
 	}
 }

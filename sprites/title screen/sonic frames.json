@@ -1,10 +1,10 @@
 {
-	"TitleScreen_Sonic_Base":  { "File": "sonic.png", "Rect": "0,0,240,173", "Center": "-84,96" },
-	"TitleScreen_Sonic_Eye_0":  { "File": "sonic.png", "Rect": "720,0,240,173", "Center": "-84,96" },
-	"TitleScreen_Sonic_Eye_1":  { "File": "sonic.png", "Rect": "960,0,240,173", "Center": "-84,96" },
-	"TitleScreen_Sonic_Eye_2":  { "File": "sonic.png", "Rect": "720,0,240,173", "Center": "-84,96" },
-	"TitleScreen_Sonic_Hand_0":  { "File": "sonic.png", "Rect": "0,0,240,173", "Center": "-84,96" },
-	"TitleScreen_Sonic_Hand_1":  { "File": "sonic.png", "Rect": "240,0,240,173", "Center": "-84,96" },
-	"TitleScreen_Sonic_Hand_2":  { "File": "sonic.png", "Rect": "0,0,240,173", "Center": "-84,96" },
-	"TitleScreen_Sonic_Hand_3":  { "File": "sonic.png", "Rect": "480,0,240,173", "Center": "-84,96" }
+	"TitleScreen_Sonic_Base_em":  { "File": "sonic.png", "Rect": "0,0,240,173", "Center": "-84,96" },
+	"TitleScreen_Sonic_Eye_0_em":  { "File": "sonic.png", "Rect": "720,0,240,173", "Center": "-84,96" },
+	"TitleScreen_Sonic_Eye_1_em":  { "File": "sonic.png", "Rect": "960,0,240,173", "Center": "-84,96" },
+	"TitleScreen_Sonic_Eye_2_em":  { "File": "sonic.png", "Rect": "720,0,240,173", "Center": "-84,96" },
+	"TitleScreen_Sonic_Hand_0_em":  { "File": "sonic.png", "Rect": "0,0,240,173", "Center": "-84,96" },
+	"TitleScreen_Sonic_Hand_1_em":  { "File": "sonic.png", "Rect": "240,0,240,173", "Center": "-84,96" },
+	"TitleScreen_Sonic_Hand_2_em":  { "File": "sonic.png", "Rect": "0,0,240,173", "Center": "-84,96" },
+	"TitleScreen_Sonic_Hand_3_em":  { "File": "sonic.png", "Rect": "480,0,240,173", "Center": "-84,96" }
 }
