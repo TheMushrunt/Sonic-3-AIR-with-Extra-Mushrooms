@@ -598,6 +598,10 @@ function void fn00440c()
 //# address-hook(0x003e32) end(0x004342)
 function void TitleScreen()
 {
+	#if EXPANSION_PACK_ACTIVE
+	eplogo_timer = 0
+	timer2_ep = 0
+	#endif
 	extraMushroomsTS.discordRPC()
 	playMusic(MUSIC_CTRL_FADEOUT)
 	kosinski.queue_size = 0
@@ -1246,6 +1250,15 @@ function void fn00486c()
 //# address-hook(0x0048dc) end(0x0048fe)
 function void fn0048dc()
 {
+	#if EXPANSION_PACK_ACTIVE
+	if (Mods.getModPriority("Expansion Pack") < Mods.getModPriority("Sonic 3 A.I.R. with Extra Mushrooms"))
+	{
+		if (timer2_ep < 255)
+			++timer2_ep
+		if (eplogo_timer < 10 && timer2_ep > 50 && timer2_ep % 2 == 0)
+			++eplogo_timer
+	}
+	#endif
 	--objA0.animation.timer
 	if (s8(objA0.animation.timer) < 0)
 	{
@@ -1354,7 +1367,7 @@ function void fn0048dc()
 		px = getScreenWidth() / 2 - 84
 		py = objA0.position.y.u16 - 48
 		if (Mods.isModActive("Expansion Pack"))
-			py += 16
+			py += 19
 		Renderer.drawCustomSprite("andknuckles", px, py, 0x00, SPRITE_FLAG_PRIO, 0x9f7e)
 	}
 	if (TS_BRANDING == 1 || (Mods.isModActive("Expansion Pack")) || (Mods.isModActive("Deez Nut Title Screen") || Mods.isModActive("Sonic 3: D.A. Garden Edition") || EM_MODDED_GFX == 1))
