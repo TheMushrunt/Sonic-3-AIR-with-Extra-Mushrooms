@@ -3,7 +3,6 @@
 	"em_deathegg_fall": {"File": "em_deathegg_fall.ogg", "Type": "Jingle"},
 	"em_levelselect": {"File": "em_levelselect.ogg", "Type": "Music"},
 	"custom_levelselect": {"File": "custom_levelselect.ogg", "Type": "Music"},
-	"pause": {"File": "pause.ogg", "Type": "Jingle"},
 	"mario_pause": {"File": "mario_pause.ogg", "Type": "Sound", "Channel": "36"},
 	"rsdk_pause": {"File": "rsdk_pause.ogg", "Type": "Sound", "Channel": "36"},
 	"rsdk_pause_exit": {"File": "rsdk_pause_exit.ogg", "Type": "Sound", "Channel": "36"},
