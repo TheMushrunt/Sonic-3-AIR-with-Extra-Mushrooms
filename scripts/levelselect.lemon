@@ -1,41 +1,41 @@
-constant array<u64> LSNames =
+constant array<u64> LSNames = // default ordering
 {
 	"angel island", "[ZONE 2]", "marble garden", "carnival night", "[ZONE 5]", "launch base", "[ZONE 7]", "flying battery", "sandopolis",
 	"lava reef", "hidden palace", "sky sanctuary", "death egg", "the doomsday", "bonus stage", "special stage", "sound test"
 }
 
-constant array<u64> LSNames_OGOrder =
+constant array<u64> LSNames_OGOrder = // prototype ordering, flying battery is after carnival night
 {
 	"angel island", "[ZONE 2]", "marble garden", "carnival night", "flying battery", "[ZONE 5]", "launch base", "[ZONE 7]", "sandopolis",
 	"lava reef", "hidden palace", "sky sanctuary", "death egg", "the doomsday", "bonus stage", "special stage", "sound test"
 }
 
-constant array<u64> HCZNames =
+constant array<u64> HCZNames = // replaces "[ZONE 2]"
 {
 	"hydrocity", "hydro city", "hydrossity", "toilet town"
 }
 
-constant array<u64> ICZNames =
+constant array<u64> ICZNames = // replaces "[ZONE 5]"
 {
 	"icecap", "ice cap", "mount shiver"
 }
 
-constant array<u64> MHZNames =
+constant array<u64> MHZNames = // replaces "[ZONE 7]"
 {
 	"mushroom valley", "mushroom hill", "mushroom forest"
 }
 
-constant array<u64> LSNames_2P =
+constant array<u64> LSNames_2P = // used in the "extra menu" when pressing keys/buttons mapped to Y
 {
 	"azure lake", "balloon park", "chrome gadget", "desert palace", "endless mine", "hidden palace altar", "game ending"
 }
 
-constant array<u64> LSNumbers =
+constant array<u64> LSNumbers = // used for the act numbers next to a zone name
 {
 	"1", "2", "[BOSS TEXT]", "s", "k", "1", "2", "3", "g", "r", "s", "a", "b", "c", "s3", "s&k"
 }
 
-constant array<u64> LSBossText =
+constant array<u64> LSBossText = // replaces "[BOSS TEXT]"
 {
 	"3", "x", "boss", "{}"
 }
@@ -87,11 +87,11 @@ function void Renderer.drawCustomSprite(u64 key, s16 px, s16 py, u8 atex, u8 fla
 {
 	if (key == "ls_icon_12" && LS_DEZ)
 		key = stringformat("%s_origins", key)
-	if (key == "ls_bonus_1" && LS_BONUS == 2)
+	if (key == "ls_bonus_1" && (LS_BONUS == 2 || Mods.isModActive("Sonic 3 Complete Level Select+")))
 		key = "ls_bonus_2"
-	if (key == "ls_bonus_2" && LS_BONUS == 2)
+	else if (key == "ls_bonus_2" && (LS_BONUS == 2 || Mods.isModActive("Sonic 3 Complete Level Select+")))
 		key = "ls_bonus_1"
-	if (Mods.isModActive("Sonic 3 Complete Level Select+") && !LS_FORCE_BASE && global.game_mode == 0x1c)
+	if (Mods.isModActive("Sonic 3 Complete Level Select+") && !LS_FORCE_BASE && (global.game_mode == 0x1c || global.game_mode == 0x34))
 	{
 		if (Mods.getModPriority("Sonic 3 Complete Level Select+") < Mods.getModPriority("Sonic 3 A.I.R. with Extra Mushrooms"))
 		{
@@ -151,7 +151,7 @@ function void Renderer.drawLSText(u64 FONT_LS, u64 FONT_LS_Y)
 					xposition = 176
 					yposition = 8
 				}
-				if (!LS_ZONEORDER)
+				if ((!LS_ZONEORDER && !Mods.isModActive("Sonic 3 Complete Level Select+")) || (Mods.isModActive("Sonic 3 Complete Level Select+") && System.getGlobalVariableValueByName("S3Complete_SoundTest_Order") == 0))
 					u64 zonename = LSNames[i]
 				else
 					zonename = LSNames_OGOrder[i]
@@ -161,16 +161,15 @@ function void Renderer.drawLSText(u64 FONT_LS, u64 FONT_LS_Y)
 					zonename = ICZNames[LS_ICZ]
 				else if (zonename == "[ZONE 7]") // MHZ Names
 					zonename = MHZNames[LS_MHZ]
-				u8 test = 0
-				if ((levelselect.selection / 2) == i && (levelselect.selection != 0x14 && levelselect.selection != 0x1b && levelselect.selection != 0xff))
+				u8 test = 0 // i forgot what this variable does but it probably breaks something so it remains
+				if ((levelselect.selection / 2) - (levelselect.selection == 0x20 ? 1 : 0) == i && (levelselect.selection != 0x14 && levelselect.selection != 0x1a && levelselect.selection != 0x1e))
 					u64 font = FONT_LS_Y
-				else if ((i == 9 && levelselect.selection == 0x14) || (i == 12 && levelselect.selection == 0x1b) || (i == 14 && levelselect.selection == 0xff))
+				else if ((i == 9 && levelselect.selection == 0x14) || (i == 12 && levelselect.selection == 0x1a) || (i == 14 && levelselect.selection == 0x1e))
 				{
 					font = FONT_LS_Y
 					test = 1
 				}
-				else
-					font = FONT_LS
+				else font = FONT_LS
 				Renderer.drawText(font, xposition+widthextend, yposition, zonename, 0xFFFFFFFF, 1, 0, 0x9f7e, true)
 				u16 numberXposition = xposition + 120
 				u16 numberYposition = yposition
@@ -191,9 +190,9 @@ function void Renderer.drawLSText(u64 FONT_LS, u64 FONT_LS_Y)
 					if (i == 14)
 					{
 						offset += 5
-						if (LS_BONUS == 1 || LS_BONUS == 2)
+						if (LS_BONUS == 1 || LS_BONUS == 2 || Mods.isModActive("Sonic 3 Complete Level Select+"))
 							offset += 3
-						else if (LS_BONUS == 3)
+						else if (LS_BONUS == 3 && !Mods.isModActive("Sonic 3 Complete Level Select+"))
 							offset += 6
 					}
 					if (i == 15)
@@ -208,11 +207,11 @@ function void Renderer.drawLSText(u64 FONT_LS, u64 FONT_LS_Y)
 						else if (LS_SPECIAL == 3)
 							offset += 11
 					}
-					if (levelselect.selection/2 == i)
+					if (levelselect.selection/2 - (levelselect.selection == 0x20 ? 1 : 0) == i)
 					{
-						if (j == 0 && levelselect.selection % 2 == 0)
+						if (j == 0 && levelselect.selection % 2 == 0 && levelselect.selection < 0x1e || j == 0 && levelselect.selection % 2 != 0 && levelselect.selection >= 0x1f)
 							numberfont = FONT_LS_Y
-						else if (j == 1 && levelselect.selection % 2 != 0)
+						else if (j == 1 && levelselect.selection % 2 != 0 && levelselect.selection < 0x1f || j == 1 && levelselect.selection % 2 == 0 && levelselect.selection >= 0x1f)
 							numberfont = FONT_LS_Y
 						else
 							numberfont = FONT_LS
@@ -230,7 +229,7 @@ function void Renderer.drawLSText(u64 FONT_LS, u64 FONT_LS_Y)
 						else if (LS_BOSS == 2)
 							numberXposition -= 24
 					}
-					else if (number == "r" && LS_BONUS == 2)
+					else if (number == "r" && (LS_BONUS == 2 || Mods.isModActive("Sonic 3 Complete Level Select+")))
 						number = "m"
 					if (i != 10 && i != 13)
 						Renderer.drawText(numberfont, numberXposition+widthextend, numberYposition, number, 0xFFFFFFFF, 1, 0, 0x9f7e, true)
@@ -243,7 +242,7 @@ function void Renderer.drawLSText(u64 FONT_LS, u64 FONT_LS_Y)
 		// sound test values
 		// this determines whether the text will be highlighted or not, since this isn't a zone in the game (no worrying about an act 2)
 		u64 determineSTcolor
-		if (levelselect.selection == 0x20)
+		if (levelselect.selection == 0x21)
 			determineSTcolor = FONT_LS_Y
 		else
 			determineSTcolor = FONT_LS
@@ -463,9 +462,9 @@ function void DrawSpritesToLevelSelect()
 		{
 			if (levelselect.selection < 0x05 && EM_2PSTAGES)
 				Renderer.drawCustomSprite(stringformat("ls_icon_%d_2p", levelselect.selection), getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
-			else if (levelselect.selection < 0x10 && levelselect.selection > 0x07 && LS_ZONEORDER && !EM_2PSTAGES)
+			else if (levelselect.selection < 0x10 && levelselect.selection > 0x07 && ((LS_ZONEORDER && !Mods.isModActive("Sonic 3 Complete Level Select+")) || (Mods.isModActive("Sonic 3 Complete Level Select+") && System.getGlobalVariableValueByName("S3Complete_SoundTest_Order") == 1)) && !EM_2PSTAGES)
 				Renderer.drawCustomSprite(stringformat("ls_icon_%d_a", levelselect.selection/2), getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
-			else if (levelselect.selection < 0x20 && levelselect.selection != 0x1b && levelselect.selection != 0x14 && (levelselect.selection < 0x1c) && !EM_2PSTAGES)
+			else if (levelselect.selection < 0x21 && levelselect.selection != 0x1a && levelselect.selection != 0x14 && (levelselect.selection < 0x1c) && !EM_2PSTAGES)
 				Renderer.drawCustomSprite(stringformat("ls_icon_%d", levelselect.selection/2), getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
 			else
 			{
@@ -473,19 +472,19 @@ function void DrawSpritesToLevelSelect()
 					Renderer.drawCustomSprite("ls_icon_10", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
 				if (levelselect.selection == 0x14)
 					Renderer.drawCustomSprite("ls_icon_9", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
-				else if (levelselect.selection == 0x1b)
+				else if (levelselect.selection == 0x1a)
 					Renderer.drawCustomSprite("ls_icon_12", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
 
 				else if (levelselect.selection == 0x1c)
 					Renderer.drawCustomSprite("ls_bonus_0", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
 				else if (levelselect.selection == 0x1d)
 					Renderer.drawCustomSprite("ls_bonus_1", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
-				else if (levelselect.selection == 255)
+				else if (levelselect.selection == 0x1e)
 					Renderer.drawCustomSprite("ls_bonus_2", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
 
-				else if (levelselect.selection == 0x1e)
-					Renderer.drawCustomSprite("ls_special_0", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
 				else if (levelselect.selection == 0x1f)
+					Renderer.drawCustomSprite("ls_special_0", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+				else if (levelselect.selection == 0x20)
 					Renderer.drawCustomSprite("ls_special_1", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
 			}
 			// sound test	
@@ -711,14 +710,49 @@ function bool LevelSelect.innerUpdate()
 			DrawSpritesToLevelSelect()
 			if ((control.pad1.pressed | control.pad2.pressed) & CONTROL_START)
 			{
+				if (levelselect.selection == 0x1e)
+				{
+					if (fn007d6c())
+					{
+						playSound(0xaf)
+						if (Mods.isModActive("Sonic 3 Complete Level Select+"))
+							Renderer.drawCustomSprite("S3Complete_LevelSelectBG_S3", getScreenExtend() - 40, 0, 0x10, 0, 0x1000)
+						return false
+					}
+				}
+				if (levelselect.selection == 0x21)
+				{
+					return true
+				}
+				if (levelselect.selection == 0x1f || levelselect.selection == 0x20)
+				{
+					// Start Blue Spheres
+					if (levelselect.selection == 0x1f)
+					{
+						// Blue Spheres from Sonic 3
+						if (global.lock_on_state != 0)
+						{
+							global.sk_bluespheres = 1
+						}
+					}
+					else if (levelselect.selection == 0x20)
+					{
+						// Blue Spheres from Sonic & Knuckles
+						global.sk_bluespheres = 1
+					}
+
+					// Start Blue Spheres
+					global.game_mode = 0x34
+					playSound(0xaf)
+				}
 				if (ScaredHaters != 1 && notExtraSlot)
 				{
-					Standalone.playAudio(0xaf)
+					playSound(0xaf)
 					return base.LevelSelect.innerUpdate()
 				}
 				else if ScaredHaters != 1 && (!YOU_FUCKED_UP_KID && !notExtraSlot)
 				{
-					Standalone.playAudio(0xaf)
+					playSound(0xaf)
 					return base.LevelSelect.innerUpdate()
 				}
 				// fun fact, this script below doesn't execute with ESCU which is really funny to me because everything works as it should
@@ -756,7 +790,7 @@ function bool LevelSelect.innerUpdate()
 			}
 			else if (Input.buttonPressed(BUTTON_Y))
 			{
-				if (levelselect.selection != 0x20)
+				if (levelselect.selection != 0x21)
 				{
 					levelselect.selection = 0
 					if (!EM_2PSTAGES)
@@ -816,14 +850,22 @@ function bool fn007d6c()
 {
 	if (!LS_FORCE_BASE)
 	{
+		if (levelselect.selection == 0x1a) // "Doomsday"
+		{
+			D0.u16 = 0x1700 // go to DEZ2 boss
+		}
+		else if (levelselect.selection == 0x1b) // "DEZ2"
+		{
+			D0.u16 = 0x0c00 // go to Doomsday
+		}
 		if (levelselect.selection == 0x1c) // Gachapon
 		{
 			D0.u16 = 0x1300
 			Nemesis.loadDataToVRAM(0x1927fe, 0x9280)
 		}
-		else if (levelselect.selection == 0x1d && LS_BONUS != 2 || levelselect.selection == 0xff && LS_BONUS == 2) // Rotating
+		else if (levelselect.selection == 0x1d && LS_BONUS != 2 || levelselect.selection == 0x1e && (LS_BONUS == 2 || Mods.isModActive("Sonic 3 Complete Level Select+"))) // Rotating
 			D0.u16 = 0x1500
-		else if (levelselect.selection == 0xff && LS_BONUS != 2 || levelselect.selection == 0x1d && LS_BONUS == 2) // Spheres (please don't ask why i chose 0xff)
+		else if (levelselect.selection == 0x1e && LS_BONUS != 2 || levelselect.selection == 0x1d && LS_BONUS == 2) // Spheres
 			D0.u16 = 0x1400
 		if (EM_2PSTAGES)
 		{
@@ -889,50 +931,30 @@ function void fn007e64()
 			u16[0xffffff80] = 11
 			if (control.pad1.state & CONTROL_UP)
 			{
-				if (levelselect.selection == 0x20 && EM_2PSTAGES)
-					levelselect.selection = 0x07
-				if (levelselect.selection == 0x1c)
-					levelselect.selection = 0x1a
-				else if (levelselect.selection == 0x1a)
-					levelselect.selection = 0x1b
-				else if (levelselect.selection == 0x1b)
-					levelselect.selection = 0x19
-				else if (levelselect.selection == 0xff)
-					levelselect.selection = 0x1d
-				else if (levelselect.selection == 0x1e)
-					levelselect.selection = 0xff
+				if (levelselect.selection == 0x21 && EM_2PSTAGES)
+					levelselect.selection = 0x06
 				else
 				{
 					--levelselect.selection
 					if (s16(levelselect.selection) < 0)
-						levelselect.selection = 0x20
+						levelselect.selection = 0x21
 				}
 			}
 			if (control.pad1.state & CONTROL_DOWN)
 			{
 				if (levelselect.selection == 0x06 && EM_2PSTAGES)
-					levelselect.selection = 0x1f
-				if (levelselect.selection == 0x1a)
-					levelselect.selection = 0x1c
-				else if (levelselect.selection == 0x1b)
-					levelselect.selection = 0x1a
-				else if (levelselect.selection == 0x19)
-					levelselect.selection = 0x1b
-				else if (levelselect.selection == 0x1d)
-					levelselect.selection = 0xff
-				else if (levelselect.selection == 0xff)
-					levelselect.selection = 0x1e
+					levelselect.selection = 0x21
 				else
 				{
 					++levelselect.selection
-					if (levelselect.selection > 0x20)
+					if (levelselect.selection > 0x21)
 						levelselect.selection = 0
 				}
 			}
 			return
 		}
 
-		if (levelselect.selection == 0x20)
+		if (levelselect.selection == 0x21)
 		{
 			// Sound test
 			if (control.pad1.pressed & CONTROL_LEFT)
@@ -980,18 +1002,14 @@ function void fn007e64()
 		{
 			if (control.pad1.pressed & (CONTROL_LEFT | CONTROL_RIGHT) && !EM_2PSTAGES)
 			{
-				if (levelselect.selection == 0x1b)
-					levelselect.selection = 0x07
-				else if (levelselect.selection == 0x08)
-					levelselect.selection = 0x1a
-				else if (levelselect.selection == 0x1a)
-					levelselect.selection = 0x08
-				else if (levelselect.selection == 0x09)
-					levelselect.selection = 0x1a
-				else if (levelselect.selection == 0xff)
-					levelselect.selection = 0x0b
-				else
-					levelselect.selection = u8[0x007f22 + levelselect.selection]
+				u8 location = u8[0x007f22 + levelselect.selection]
+				if (levelselect.selection == 0x02 || levelselect.selection == 0x08 || levelselect.selection == 0x0c || levelselect.selection == 0x0d)
+					location++
+				if (levelselect.selection == 0x14 || levelselect.selection == 0x15 || levelselect.selection == 0x1a || levelselect.selection == 0x1b || levelselect.selection == 0x1e || levelselect.selection == 0x1f || levelselect.selection == 0x20)
+					location--
+				levelselect.selection = location
+				if (levelselect.selection == 0x20)
+					++levelselect.selection
 			}
 
 			if (control.pad1.pressed & CONTROL_C)

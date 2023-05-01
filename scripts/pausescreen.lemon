@@ -47,12 +47,13 @@ function void UpdateGamePause()
 }
 function void Game.onGamePause(u8 canRestart)
 {
-	if (debug_mode.state && DEBUG_PAUSE_TO_LS)
+	if (debug_mode.state && DEBUG_PAUSE_TO_LS && global.game_mode != 0x34)
 	{
 		YOU_FUCKED_UP_KID = 0
 		Audio.fadeOutChannel(0, 0xA0)
 		FadeOutScreenBlocking()
 		Renderer.resetSprites()
+		playMusic(MUSIC_CTRL_STOP)
 		EntryFunctions.levelSelect()
 	}
 	base.Game.onGamePause(canRestart)
