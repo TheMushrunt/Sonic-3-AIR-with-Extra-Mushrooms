@@ -349,9 +349,12 @@ function void DrawLevelSelectBG()
 		suffix_key = "em"
 	else // EM ALT
 		suffix_key = "priorityissue"
-	if (LS_BG != 3)
-		Renderer.drawCustomSprite(stringformat("%sls_%s", prefix_key, suffix_key), getScreenExtend() - 40, 0, 0x00, 0, 0x1000)
-	Renderer.drawCustomSprite("ls_s&k", getScreenExtend() - 40, 0, 0x00, 0, 0x1000)
+	if (!Mods.isModActive("Sonic 3 Complete Level Select+")) // background overlap fix
+	{
+		if (LS_BG != 3)
+			Renderer.drawCustomSprite(stringformat("%sls_%s", prefix_key, suffix_key), getScreenExtend() - 40, 0, 0x00, 0, 0x1000)
+		Renderer.drawCustomSprite("ls_s&k", getScreenExtend() - 40, 0, 0x00, 0, 0x1000)
+	}
 }
 
 function void DrawSpritesToLevelSelect()
@@ -714,6 +717,7 @@ function bool LevelSelect.innerUpdate()
 				{
 					if (fn007d6c())
 					{
+						lives_counter = 3
 						playSound(0xaf)
 						if (Mods.isModActive("Sonic 3 Complete Level Select+"))
 							Renderer.drawCustomSprite("S3Complete_LevelSelectBG_S3", getScreenExtend() - 40, 0, 0x10, 0, 0x1000)
@@ -726,14 +730,12 @@ function bool LevelSelect.innerUpdate()
 				}
 				if (levelselect.selection == 0x1f || levelselect.selection == 0x20)
 				{
+					lives_counter = 3
 					// Start Blue Spheres
 					if (levelselect.selection == 0x1f)
 					{
 						// Blue Spheres from Sonic 3
-						if (global.lock_on_state != 0)
-						{
-							global.sk_bluespheres = 1
-						}
+						global.sk_bluespheres = 0
 					}
 					else if (levelselect.selection == 0x20)
 					{
@@ -744,6 +746,14 @@ function bool LevelSelect.innerUpdate()
 					// Start Blue Spheres
 					global.game_mode = 0x34
 					playSound(0xaf)
+					global.zone_act = 0x0000
+					if (control.pad1.state & CONTROL_A)
+					{
+						debug_mode.unlocked = 1
+					}
+					if (Mods.isModActive("Sonic 3 Complete Level Select+"))
+						Renderer.drawCustomSprite("S3Complete_LevelSelectBG_S3", getScreenExtend() - 40, 0, 0x10, 0, 0x1000)
+					return false
 				}
 				if (ScaredHaters != 1 && notExtraSlot)
 				{
