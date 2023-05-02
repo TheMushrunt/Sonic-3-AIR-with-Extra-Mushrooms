@@ -7,7 +7,7 @@ constant array<u64> LSNames = // default ordering
 constant array<u64> LSNames_OGOrder = // prototype ordering, flying battery is after carnival night
 {
 	"angel island", "[ZONE 2]", "marble garden", "carnival night", "flying battery", "[ZONE 5]", "launch base", "[ZONE 7]", "sandopolis",
-	"lava reef", "hidden palace", "sky sanctuary", "death egg", "the doomsday", "bonus stage", "special stage", "sound test"
+	"lava reef", "hidden palace", "sky sanctuary", "death egg", "[ZONE 14]", "bonus stage", "special stage", "sound test"
 }
 
 constant array<u64> HCZNames = // replaces "[ZONE 2]"
@@ -23,6 +23,11 @@ constant array<u64> ICZNames = // replaces "[ZONE 5]"
 constant array<u64> MHZNames = // replaces "[ZONE 7]"
 {
 	"mushroom valley", "mushroom hill", "mushroom forest"
+}
+
+constant array<u64> DDZNames = // replaces "[ZONE 14]"
+{
+	"doomsday", "the doomsday"
 }
 
 constant array<u64> LSNames_2P = // used in the "extra menu" when pressing keys/buttons mapped to Y
@@ -44,11 +49,11 @@ constant array<u64> LSBossText = // replaces "[BOSS TEXT]"
 //# translated(0x007d64) end(0x007d6a)
 function void LevelSelect()
 {
+	global.zone_act = 0x0000
+	global.zone_act.apparent = 0x0000
 	Game.endSkippableCutscene()
 	if (!LS_FORCE_BASE && !Mods.isModActive("Sonic 3 Complete Level Select+"))
 	{
-		global.zone_act = 0
-
 		FadeOutScreenBlocking()
 	#if STANDALONE
 		Renderer.resetSprites()
@@ -160,7 +165,19 @@ function void Renderer.drawLSText(u64 FONT_LS, u64 FONT_LS_Y)
 				else if (zonename == "[ZONE 5]") // ICZ Names
 					zonename = ICZNames[LS_ICZ]
 				else if (zonename == "[ZONE 7]") // MHZ Names
-					zonename = MHZNames[LS_MHZ]
+				{
+					if (!Mods.isModActive("Sonic 3 Complete Level Select+"))
+						zonename = MHZNames[LS_MHZ]
+					else
+						zonename = MHZNames[System.getGlobalVariableValueByName("S3Complete_SoundTest_MVZ") * (System.getGlobalVariableValueByName("S3Complete_SoundTest_MVZ") < 2 ? -1 : 1) + (System.getGlobalVariableValueByName("S3Complete_SoundTest_MVZ") < 2 ? 1 : 0)]
+				}
+				else if (zonename == "[ZONE 14]") // DDZ Names
+				{
+					if (!Mods.isModActive("Sonic 3 Complete Level Select+"))
+						zonename = DDZNames[LS_DDZ]
+					else
+						zonename = DDZNames[System.getGlobalVariableValueByName("S3Complete_SoundTest_DDZ")]
+				}
 				u8 test = 0 // i forgot what this variable does but it probably breaks something so it remains
 				if ((levelselect.selection / 2) - (levelselect.selection == 0x20 ? 1 : 0) == i && (levelselect.selection != 0x14 && levelselect.selection != 0x1a && levelselect.selection != 0x1e))
 					u64 font = FONT_LS_Y
@@ -182,9 +199,9 @@ function void Renderer.drawLSText(u64 FONT_LS, u64 FONT_LS_Y)
 					u8 offset = 0
 					if (i == 11)
 					{
-						if (LS_SSZ == 1)
+						if (LS_SSZ == 1 && !(Mods.isModActive("Sonic 3 Complete Level Select+")))
 							offset += 3
-						else if (LS_SSZ == 2)
+						else if (LS_SSZ == 2 || (Mods.isModActive("Sonic 3 Complete Level Select+")))
 							offset += 11
 					}
 					if (i == 14)
@@ -197,14 +214,14 @@ function void Renderer.drawLSText(u64 FONT_LS, u64 FONT_LS_Y)
 					}
 					if (i == 15)
 					{
-						if (LS_SPECIAL == 1)
+						if (LS_SPECIAL == 1 && !(Mods.isModActive("Sonic 3 Complete Level Select+")))
 							offset += 3
-						else if (LS_SPECIAL == 2)
+						else if (LS_SPECIAL == 2 && !(Mods.isModActive("Sonic 3 Complete Level Select+")))
 						{
 							numberXposition -= 8
 							offset += 14
 						}
-						else if (LS_SPECIAL == 3)
+						else if (LS_SPECIAL == 3 || (Mods.isModActive("Sonic 3 Complete Level Select+")))
 							offset += 11
 					}
 					if (levelselect.selection/2 - (levelselect.selection == 0x20 ? 1 : 0) == i)
@@ -223,11 +240,15 @@ function void Renderer.drawLSText(u64 FONT_LS, u64 FONT_LS_Y)
 					u64 number = LSNumbers[j+offset]
 					if (number == "[BOSS TEXT]")
 					{
-						number = LSBossText[LS_BOSS]
-						if (LS_BOSS == 3)
-							numberXposition -= 8
-						else if (LS_BOSS == 2)
-							numberXposition -= 24
+						if (!Mods.isModActive("Sonic 3 Complete Level Select+"))
+						{
+							number = LSBossText[LS_BOSS]
+							if (LS_BOSS == 3)
+								numberXposition -= 8
+							else if (LS_BOSS == 2)
+								numberXposition -= 24
+						}
+						else number = LSBossText[1]
 					}
 					else if (number == "r" && (LS_BONUS == 2 || Mods.isModActive("Sonic 3 Complete Level Select+")))
 						number = "m"
@@ -306,7 +327,7 @@ function void ScareAwayTheHaters()
 
 function void playLevelSelectMusic()
 {
-	if (!initiateStandaloneCredits)
+	//if (!initiateStandaloneCredits)
 	{
 		if (LS_MUSIC != 0)
 			playMusic(MUSIC_CTRL_STOP)
@@ -325,11 +346,13 @@ function void playLevelSelectMusic()
 		else
 			playMusic(MUSIC_DATASELECT)
 	}
+	/*
 	else
 	{
 		playMusic(MUSIC_CTRL_STOP)
 		Audio.playAudio("26_proto", AudioContext.CONTEXT_MUSIC)
 	}
+	*/
 }
 
 function void DrawLevelSelectBG()
@@ -704,7 +727,7 @@ function bool notExtraSlotInLevelSelect()
 
 function bool LevelSelect.innerUpdate()
 {
-	if (!initiateStandaloneCredits)
+	//if (!initiateStandaloneCredits)
 	{
 		if (!LS_FORCE_BASE)
 		{
@@ -726,6 +749,8 @@ function bool LevelSelect.innerUpdate()
 				}
 				if (levelselect.selection == 0x21)
 				{
+					if (Mods.isModActive("Sonic 3 Complete Level Select+"))
+						Renderer.drawCustomSprite("S3Complete_LevelSelectBG_S3", getScreenExtend() - 40, 0, 0x10, 0, 0x1000)
 					return true
 				}
 				if (levelselect.selection == 0x1f || levelselect.selection == 0x20)
@@ -747,6 +772,7 @@ function bool LevelSelect.innerUpdate()
 					global.game_mode = 0x34
 					playSound(0xaf)
 					global.zone_act = 0x0000
+					global.zone_act.apparent = 0x0000
 					if (control.pad1.state & CONTROL_A)
 					{
 						debug_mode.unlocked = 1
@@ -1086,32 +1112,48 @@ function void EM.checkCheats()
 {
 	// Chaos/Super Emerald checking
 	if (EM_CHAOSEMERALDS == 0 && levelselect.soundtest == 0x04)
-		++EM_CHAOSEMERALDS
-
-	if (EM_CHAOSEMERALDS == 1 && levelselect.soundtest == 0x01)
-		++EM_CHAOSEMERALDS
-
-	if (EM_CHAOSEMERALDS == 2 && levelselect.soundtest == 0x02)
-		++EM_CHAOSEMERALDS
-
-	else if (EM_CHAOSEMERALDS == 3 && levelselect.soundtest == 0x06)
 	{
-		++EM_CHAOSEMERALDS
+		EM_CHAOSEMERALDS = 1
+		return
+	}
+	if (EM_CHAOSEMERALDS == 1 && levelselect.soundtest == 0x01)
+	{
+		EM_CHAOSEMERALDS = 2
+		return
+	}
+	if (EM_CHAOSEMERALDS == 2 && levelselect.soundtest == 0x02)
+	{
+		EM_CHAOSEMERALDS = 3
+		return
+	}
+	if (EM_CHAOSEMERALDS == 3 && levelselect.soundtest == 0x06)
+	{
+		EM_CHAOSEMERALDS = 4
 		global.chaos_emeralds = 7 // Give the Chaos Emeralds
 		Audio.playAudio(0x2B) // Chaos Emerald Sound
 		System.writeDisplayLine("7 CHAOS EMERALDS IN HAND") // Make-believes reborn
 		for (u8 i = 1; i <= 7; i++)
 			u8[0xffffffb2 + (i - 1)] = 0x01
+		return
 	}
 	else if (EM_CHAOSEMERALDS == 4 && levelselect.soundtest == 0x04)
-		++EM_CHAOSEMERALDS
+	{
+		EM_CHAOSEMERALDS = 5
+		return
+	}
 	else if (EM_CHAOSEMERALDS == 5 && levelselect.soundtest == 0x01)
-		++EM_CHAOSEMERALDS
+	{
+		EM_CHAOSEMERALDS = 6
+		return
+	}
 	else if (EM_CHAOSEMERALDS == 6 && levelselect.soundtest == 0x02)
-		++EM_CHAOSEMERALDS
+	{
+		EM_CHAOSEMERALDS = 7
+		return
+	}
 	else if (EM_CHAOSEMERALDS == 7 && levelselect.soundtest == 0x06)
 	{
-		++EM_CHAOSEMERALDS
+		EM_CHAOSEMERALDS = 8
 		Audio.playAudio(0x2B) // Chaos Emerald Sound
 		Audio.playAudio(0xAC) // Continue Sound
 		global.super_emeralds = 7 // Give the Super Emeralds
@@ -1119,6 +1161,22 @@ function void EM.checkCheats()
 		System.writeDisplayLine("7 SUPER EMERALDS IN HAND") // Legends blurred and torn
 		for (u8 i = 1; i <= 7; i++)
 			u8[0xffffffb2 + (i - 1)] = 0x03
+		return
+	}
+	else
+	{
+		if (EM_CHAOSEMERALDS < 3)
+		{
+			if (levelselect.soundtest != 0x04)
+				EM_CHAOSEMERALDS = 0
+			else
+				EM_CHAOSEMERALDS = 1
+		}
+		else if (EM_CHAOSEMERALDS < 7)
+			EM_CHAOSEMERALDS = 4
+		else
+			EM_CHAOSEMERALDS = 8
+		return
 	}
 }
 

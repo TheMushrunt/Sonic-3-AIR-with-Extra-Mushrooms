@@ -44,6 +44,7 @@ global u8 ST_STYLE
 global u8 LS_HCZ
 global u8 LS_ICZ
 global u8 LS_MHZ
+global u8 LS_DDZ
 global u8 ScaredHaters
 global u8 LS_MUSIC
 global u8 EM_CHAOSEMERALDS
@@ -57,10 +58,12 @@ global u8 LS_SSZ
 global u8 LS_BONUS
 global u8 LS_SPECIAL
 global u8 LS_ICONS
-global u8 initiateStandaloneCredits
-global s32 startingYPosCredits
-global u16 globalCreditsTimer
-global u8 moveTextOrNotinCredits
+// these were used in the standalone credits i scrapped.
+//global u8 initiateStandaloneCredits
+//global s32 startingYPosCredits
+//global u16 globalCreditsTimer
+//global u8 moveTextOrNotinCredits
+// they're commented out now so there is very little chance of it breaking other mods
 // MISC.LEMON
 global u8 SHTS // Super Hyper Transform Spam
 global u8 AUTODD // Auto Drop Dash

@@ -274,6 +274,17 @@
 				}
 			},
 			{
+				"InternalName": "Doomsday or The Doomsday",
+				"DisplayName": "Doomsday or The Doomsday",
+				"Variable": "LS_DDZ",
+				"Category": "Level Select",
+				"DefaultValue": "1",
+				"Options": {
+					"0": "Doomsday",
+					"1": "The Doomsday"
+				}
+			},
+			{
 				"InternalName": "Death Egg Zone Icon",
 				"DisplayName": "Death Egg Zone Icon",
 				"Variable": "LS_DEZ",
