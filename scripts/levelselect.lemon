@@ -289,7 +289,7 @@ function void Renderer.drawLSText(u64 FONT_LS, u64 FONT_LS_Y)
 			s32 xpos = 280
 			if (levelselect.soundtest < 0x10)
 			{
-				Renderer.drawText(determineSTcolor, xpos+widthextend, 176,(stringformat("%x", levelselect.soundtest/10)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+				Renderer.drawText(determineSTcolor, xpos+widthextend, 176,(stringformat("%x", levelselect.soundtest/0x10)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
 				xpos += 8
 			}
 			Renderer.drawText(determineSTcolor, xpos+widthextend, 176,(stringformat("%x", levelselect.soundtest)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
@@ -501,17 +501,10 @@ function void DrawSpritesToLevelSelect()
 				else if (levelselect.selection == 0x1a)
 					Renderer.drawCustomSprite("ls_icon_12", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
 
-				else if (levelselect.selection == 0x1c)
-					Renderer.drawCustomSprite("ls_bonus_0", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
-				else if (levelselect.selection == 0x1d)
-					Renderer.drawCustomSprite("ls_bonus_1", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
-				else if (levelselect.selection == 0x1e)
-					Renderer.drawCustomSprite("ls_bonus_2", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
-
-				else if (levelselect.selection == 0x1f)
-					Renderer.drawCustomSprite("ls_special_0", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
-				else if (levelselect.selection == 0x20)
-					Renderer.drawCustomSprite("ls_special_1", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+				else if (levelselect.selection == 0x1c || levelselect.selection == 0x1d || levelselect.selection == 0x1e)
+					Renderer.drawCustomSprite(stringformat("ls_bonus_%x", levelselect.selection - 0x1c), getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+				else if (levelselect.selection == 0x1f || levelselect.selection == 0x20)
+					Renderer.drawCustomSprite(stringformat("ls_special_%x", levelselect.selection - 0x1f), getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
 			}
 			// sound test	
 			if (levelselect.selection >= 0x00)
