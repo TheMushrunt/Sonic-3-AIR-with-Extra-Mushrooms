@@ -475,6 +475,8 @@ function void DrawSpritesToLevelSelect()
 							key = "em_mighty"
 						else if (global.xtrachar == 0x02 && Mods.isModActive("Extra Slot Ray"))
 							key = "em_ray"
+						else if (global.xtrachar == 0x03 && Mods.isModActive("Extra Slot Amy"))
+							key = "em_amy"
 						if (Renderer.hasCustomSprite(key))
 							Renderer.drawCustomSprite(key, getScreenWidth()-104+widthextend, getScreenHeight()-8, 0x00, 0, 0x9f7e)
 						else Renderer.drawCustomSprite("unknown_extraslot", (getScreenWidth()-104)-11+widthextend, (getScreenHeight()-8)-24, 0x00, 0, 0x9f7e)
@@ -549,6 +551,8 @@ function void DrawSpritesToLevelSelect()
 									key = "ls_mighty"
 								else if (global.xtrachar == 0x02 && Mods.isModActive("Extra Slot Ray"))
 									key = "ls_ray"
+								else if (global.xtrachar == 0x03 && Mods.isModActive("Extra Slot Amy"))
+									key = "ls_amy"
 								if (Renderer.hasCustomSprite(key))
 									Renderer.drawSprite(key, getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7d)
 								else Renderer.drawCustomSprite("ls_unknown", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7d)

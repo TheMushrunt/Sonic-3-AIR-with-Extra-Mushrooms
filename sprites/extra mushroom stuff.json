@@ -120,10 +120,12 @@
 	"ls_kte": { "File": "ls_playericons.png", "Rect": "64,0,32,24"},
 	"unknown_extraslot": { "File": "unknownesc.png"},
 	"ls_unknown": { "File": "ls_playericons.png", "Rect": "96,0,32,24"},
-	"ls_mighty": { "File": "mighty and ray.bmp", "Rect": "0,24,32,24"},
-	"ls_ray": { "File": "mighty and ray.bmp", "Rect": "32,24,32,24"},
-	"em_mighty": { "File": "mighty and ray.bmp", "Rect": "0,0,16,24",  "Center": "8,24" },
-	"em_ray": { "File": "mighty and ray.bmp", "Rect": "16,0,20,24",  "Center": "11,24" },
+	"ls_mighty": { "File": "supported extra slots.bmp", "Rect": "0,24,32,24"},
+	"ls_ray": { "File": "supported extra slots.bmp", "Rect": "32,24,32,24"},
+	"ls_amy": { "File": "supported extra slots.bmp", "Rect": "64,24,32,24"},
+	"em_mighty": { "File": "supported extra slots.bmp", "Rect": "0,0,16,24",  "Center": "8,24" },
+	"em_ray": { "File": "supported extra slots.bmp", "Rect": "16,0,20,24",  "Center": "11,24" },
+	"em_amy": { "File": "supported extra slots.bmp", "Rect": "96,0,16,24",  "Center": "8,21" },
 	
 	// bros (has a really small chance of appearing)
 	"bros": { "File": "bros.png" },
