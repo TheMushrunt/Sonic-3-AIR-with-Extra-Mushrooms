@@ -428,11 +428,16 @@ function void DrawSpritesToLevelSelect()
 		#if EXTRA_CHARACTERS_ACTIVE
 			#if EXTRA_CHARACTERS_UNLIMITED
 					if (levelselect.xtrachar)
+					{
 						character_num = ExtraSlotStart-1 + u16(global.xtrachar)
+						//Renderer.drawText(FONT_LS_Y, (getScreenWidth()-104)-52+widthextend, getScreenHeight()-24,"id", 0xFFFFFFFF, 3, 0, 0xFFFD, true) //very important
+						//Renderer.drawText(FONT_LS, (getScreenWidth()-104)-28+widthextend, getScreenHeight()-24,(stringformat("%d", u16(global.xtrachar))), 0xFFFFFFFF, 3, 0, 0xFFFD, true)
+					}
 			#endif
 		#endif
-		Renderer.drawText(FONT_LS_Y, (getScreenWidth()-104)-44+widthextend, getScreenHeight()-16,(stringformat("%x", (character_num / 10) % 10)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
-		Renderer.drawText(FONT_LS_Y, (getScreenWidth()-104)-36+widthextend, getScreenHeight()-16,(stringformat("%x", character_num % 10)), 0xFFFFFFFF, 1, 0, 0xFFFD, true)
+		Renderer.drawText(FONT_LS_Y, (getScreenWidth()-104)-52+widthextend, getScreenHeight()-16,(stringformat("%d", (character_num / 100) % 10)), 0xFFFFFFFF, 1, 0, 0xFFFD, true) //100s place
+		Renderer.drawText(FONT_LS_Y, (getScreenWidth()-104)-44+widthextend, getScreenHeight()-16,(stringformat("%d", (character_num / 10) % 10)), 0xFFFFFFFF, 1, 0, 0xFFFD, true) //10s place
+		Renderer.drawText(FONT_LS_Y, (getScreenWidth()-104)-36+widthextend, getScreenHeight()-16,(stringformat("%d", character_num % 10)), 0xFFFFFFFF, 1, 0, 0xFFFD, true) //1s place
 
 		#if EXTRA_CHARACTERS_ACTIVE
 			#if EXTRA_CHARACTERS_UNLIMITED
