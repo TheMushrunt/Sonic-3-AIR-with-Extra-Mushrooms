@@ -125,7 +125,7 @@
 	"ls_amy": { "File": "supported extra slots.bmp", "Rect": "64,24,32,24"},
 	"em_mighty": { "File": "supported extra slots.bmp", "Rect": "0,0,16,24",  "Center": "8,24" },
 	"em_ray": { "File": "supported extra slots.bmp", "Rect": "16,0,20,24",  "Center": "11,24" },
-	"em_amy": { "File": "supported extra slots.bmp", "Rect": "40,0,16,24",  "Center": "8,21" },
+	"em_amy": { "File": "supported extra slots.bmp", "Rect": "40,0,16,24",  "Center": "8,24" },
 	
 	// bros (has a really small chance of appearing)
 	"bros": { "File": "bros.png" },
