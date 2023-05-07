@@ -1542,9 +1542,9 @@ function void drawSonicFramesTS(s16 offset)
 			key = "TitleScreen_Sonic_Base"	
 		}
 		if (Renderer.hasCustomSprite(key))
-			Renderer.drawCustomSprite(key, xOffset, offset, 0x00, 0, 0x9f7d)
+			Renderer.drawCustomSprite(key, xOffset, offset, 0x00, SPRITE_FLAG_PRIO, 0x9000)
 		else
-			Renderer.drawCustomSprite(stringformat("%s_em", key), getScreenExtend() - 40, 0, 0x00, 0, 0xffff)
+			Renderer.drawCustomSprite(stringformat("%s_em", key), getScreenExtend() - 40, 0, 0x00, SPRITE_FLAG_PRIO, 0x9000)
 	}
 }
 
@@ -1617,15 +1617,15 @@ function void fn004a88()
 			//DrawObject()
 			string optionsText = getOptionsText()
 			if (titlescreen.selection % 2 != 0 && OPTIONS_GFX >= 2) // fix for vertical positioning
-				Renderer.drawCustomSprite(optionsText, getScreenWidth()/2-64, getScreenHeight()-30, 0x00, 0, 0xa001)
+				Renderer.drawCustomSprite(optionsText, getScreenWidth()/2-64, getScreenHeight()-30, 0x00, SPRITE_FLAG_PRIO, 0xa001)
 			else 
-				Renderer.drawCustomSprite(optionsText, getScreenWidth()/2-64, getScreenHeight()-32, 0x00, 0, 0xa001)
+				Renderer.drawCustomSprite(optionsText, getScreenWidth()/2-64, getScreenHeight()-32, 0x00, SPRITE_FLAG_PRIO, 0xa001)
 		}
 		else
 		{
 			string startText = getStartText()
 			if (pbutt_timer >= (55/2))
-				Renderer.drawCustomSprite(startText, getScreenWidth()/2-64, getScreenHeight()-24, 0x00, 0, 0xa001)
+				Renderer.drawCustomSprite(startText, getScreenWidth()/2-64, getScreenHeight()-24, 0x00, SPRITE_FLAG_PRIO, 0xa001)
 		}
 	}
 }
