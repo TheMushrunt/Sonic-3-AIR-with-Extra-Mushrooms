@@ -757,6 +757,7 @@ function bool LevelSelect.innerUpdate()
 				}
 				if (levelselect.selection == 0x1f || levelselect.selection == 0x20)
 				{
+					camefromLS_SpecialStage = true
 					lives_counter = 3
 					// Start Blue Spheres
 					if (levelselect.selection == 0x1f)
@@ -769,7 +770,6 @@ function bool LevelSelect.innerUpdate()
 						// Blue Spheres from Sonic & Knuckles
 						global.sk_bluespheres = 1
 					}
-
 					// Start Blue Spheres
 					global.game_mode = 0x34
 					playSound(0xaf)
@@ -846,6 +846,23 @@ function bool LevelSelect.innerUpdate()
 		}
 	}
 	return base.LevelSelect.innerUpdate()
+}
+
+function u8 BlueSpheres.getNextOpenStageIndex()
+{
+	if (camefromLS_SpecialStage && !(debug_mode.unlocked && (control.pad1.state & CONTROL_A)))
+	{
+		D0 = 0x00
+		D0.u16 &= 0x07
+		return D0.u8
+	}
+	else return base.BlueSpheres.getNextOpenStageIndex()
+}
+
+function void initializeMainGame()
+{
+	camefromLS_SpecialStage = false
+	base.initializeMainGame()
 }
 
 //# address-hook(0x007f62) end(0x008010)
@@ -1046,7 +1063,7 @@ function void fn007e64()
 				if (levelselect.selection == 0x14 || levelselect.selection == 0x15 || levelselect.selection == 0x1a || levelselect.selection == 0x1b || levelselect.selection == 0x1e || levelselect.selection == 0x1f || levelselect.selection == 0x20)
 					location--
 				levelselect.selection = location
-				if (levelselect.selection == 0x20)
+				if (levelselect.selection == 0x20 && location != 0x20)
 					++levelselect.selection
 			}
 
