@@ -738,6 +738,8 @@ function bool LevelSelect.innerUpdate()
 			DrawSpritesToLevelSelect()
 			if ((control.pad1.pressed | control.pad2.pressed) & CONTROL_START)
 			{
+				global.characters = levelselect.characters
+				competition_mode.character.player1 = levelselect.characters - (levelselect.characters > 0 ? 1 : 0)
 				if (levelselect.selection == 0x1e)
 				{
 					if (fn007d6c())
