@@ -739,6 +739,8 @@ function bool LevelSelect.innerUpdate()
 			if ((control.pad1.pressed | control.pad2.pressed) & CONTROL_START)
 			{
 				global.characters = levelselect.characters
+				useKnucklesAndTails = (global.characters == CHARS_KNUCKLES_AND_TAILS)
+				global.characters = min(global.characters, 3)
 				competition_mode.character.player1 = levelselect.characters - (levelselect.characters > 0 ? 1 : 0)
 				if (levelselect.selection == 0x1e)
 				{
