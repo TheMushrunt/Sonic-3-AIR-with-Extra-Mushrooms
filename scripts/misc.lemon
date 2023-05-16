@@ -209,106 +209,108 @@ function void determineExtraRingSound()
 
 function void Character.updateJumpMoves()
 {
+	#if EXTRA_CHARACTERS_UNLIMITED
+	if (IsP1Sawnic() || global.xtrachar)
+	#else
 	if (IsP1Sawnic() || isExtraSlot())
+	#endif
 	{
 		base.Character.updateJumpMoves()
+		return
 	}
-	else
+	u8 input_state     = (char.character == CHARACTER_TAILS) ? control.tails.state   : control.player1.state
+	u8 input_pressed   = (char.character == CHARACTER_TAILS) ? control.tails.pressed : control.player1.pressed
+	bool isSuperActive = (char.character == CHARACTER_TAILS) ? super.active.tails    : super.active
+
+	if (char.jumping)
 	{
-		u8 input_state     = (char.character == CHARACTER_TAILS) ? control.tails.state   : control.player1.state
-		u8 input_pressed   = (char.character == CHARACTER_TAILS) ? control.tails.pressed : control.player1.pressed
-		bool isSuperActive = (char.character == CHARACTER_TAILS) ? super.active.tails    : super.active
-
-		if (char.jumping)
+		s16 max_vy = (char.flags & char.flag.UNDERWATER) ? -0x200 : -0x400
+		if (char.velocity.y < max_vy)
 		{
-			s16 max_vy = (char.flags & char.flag.UNDERWATER) ? -0x200 : -0x400
-			if (char.velocity.y < max_vy)
+			if ((input_state & CONTROL_ABC) == 0)
 			{
-				if ((input_state & CONTROL_ABC) == 0)
-				{
-					char.velocity.y = max_vy
-				}
+				char.velocity.y = max_vy
 			}
-			else
+		}
+		else
+		{
+			if (char.double_jump_state == 0)
 			{
-				if (char.double_jump_state == 0)
-				{
-						if (Input.buttonPressed(BUTTON_Y))
-						{
-							if (!isSuperActive && SHTS == 0 && !Mods.isModActive("Sonic 3: D.A. Garden Edition"))
-							{
-								if (Character.performSuperTransformation())
-									return
-							}
-							else if (!Mods.isModActive("Sonic 3: D.A. Garden Edition"))
-								base.Character.updateJumpMoves()
-						}
-					if (input_pressed & CONTROL_ABC)
+					if (Input.buttonPressed(BUTTON_Y))
 					{
-						if (onCharacterPressedJumpInMidAir(input_state, input_pressed))
+						if (!isSuperActive && SHTS == 0 && !Mods.isModActive("Sonic 3: D.A. Garden Edition"))
 						{
-							if (char.character == CHARACTER_SONIC)
-								SonicPressedJumpInMidAir()
-							else if (char.character == CHARACTER_TAILS)
-								TailsPressedJumpInMidAir()
-							else if (!competition_mode.active)
-								KnucklesPressedJumpInMidAir()
-							#if EXTRA_CHARACTERS_ACTIVE
-								#if EXTRA_CHARACTERS_UNLIMITED
-									else if (global.xtrachar = 0x00)
-								#endif
-							#else
-									else if (!isExtraSlot())
-							#endif
-								SonicPressedJumpInMidAir()
-							else
-								base.Character.updateJumpMoves()
+							if (Character.performSuperTransformation())
+								return
 						}
+						else if (!Mods.isModActive("Sonic 3: D.A. Garden Edition"))
+							base.Character.updateJumpMoves()
 					}
-				}
-
-				if (Game.getSetting(SETTING_DROPDASH) && char.character == CHARACTER_SONIC && !competition_mode.active)
+				if (input_pressed & CONTROL_ABC)
 				{
-					if (((super.active != 0xff && Game.getSetting(SETTING_SUPER_SONIC_ABILITY) != 2) || (!super.active && Game.getSetting(SETTING_SUPER_SONIC_ABILITY) == 2)) || (!performHyperDash || ORIGINS_HD) || (char.double_jump_state == 0 && AUTODD == 1))
+					if (onCharacterPressedJumpInMidAir(input_state, input_pressed))
 					{
-						if (AUTODD == 1)
-						{
-							bool chargeDropDash = (control.player1.state & CONTROL_ABC) && (AUTODD == 1 || (char.bonus_effect & char.bonus.INVINCIBLE) || sonic.dropdash_counter > 0) && ((char.double_jump_state == 0 || !char.double_jump_state && AUTODD == 1) && super.active == 0 || (char.double_jump_state || !char.double_jump_state) && (super.active != 0 || (((char.bonus_effect & char.bonus.ELEMENTAL_SHIELDS) == 0 || (char.bonus_effect & char.bonus.INVINCIBLE) || (char.bonus_effect & char.bonus.SHIELD_LIGHTNING)) && AUTODD == 1)))
-							
-							if (chargeDropDash)
-							{
-								if (sonic.dropdash_counter < DROPDASH_FULLCHARGE)
-								{
-									// Drop dash charging
-									char.flags &= ~char.flag.CONTROL_LOCK // this unlocks roll jump regardless of the setting. it makes the game more fun with auto-dropdash when using roll jump lock
-									++sonic.dropdash_counter
-									if (sonic.dropdash_counter == DROPDASH_FULLCHARGE)
-									{
-										// Fully charged now
-										char.state = char.state.SONIC_DROPDASH
-										Audio.playAudio("dropdash_charge", AudioContext.CONTEXT_SOUND)
-									}
-								}
-							}
-							else if (sonic.dropdash_counter > 0)
-							{
-								// Abort drop dash
-								sonic.dropdash_counter = 0
-								char.state = char.state.ROLLING
-							}
-						}
+						if (char.character == CHARACTER_SONIC)
+							SonicPressedJumpInMidAir()
+						else if (char.character == CHARACTER_TAILS)
+							TailsPressedJumpInMidAir()
+						else if (!competition_mode.active)
+							KnucklesPressedJumpInMidAir()
+						#if EXTRA_CHARACTERS_ACTIVE
+							#if EXTRA_CHARACTERS_UNLIMITED
+								else if (global.xtrachar = 0x00)
+							#endif
+						#else
+								else if (!isExtraSlot())
+						#endif
+							SonicPressedJumpInMidAir()
 						else
 							base.Character.updateJumpMoves()
 					}
 				}
 			}
-		}
-		else
-		{
-			if (char.spindash == 0)
+
+			if (Game.getSetting(SETTING_DROPDASH) && char.character == CHARACTER_SONIC && !competition_mode.active)
 			{
-				char.velocity.y = max(char.velocity.y, -0x0fc0)
+				if (((super.active != 0xff && Game.getSetting(SETTING_SUPER_SONIC_ABILITY) != 2) || (!super.active && Game.getSetting(SETTING_SUPER_SONIC_ABILITY) == 2)) || (!performHyperDash || ORIGINS_HD) || (char.double_jump_state == 0 && AUTODD == 1))
+				{
+					if (AUTODD == 1)
+					{
+						bool chargeDropDash = (control.player1.state & CONTROL_ABC) && (AUTODD == 1 || (char.bonus_effect & char.bonus.INVINCIBLE) || sonic.dropdash_counter > 0) && ((char.double_jump_state == 0 || !char.double_jump_state && AUTODD == 1) && super.active == 0 || (char.double_jump_state || !char.double_jump_state) && (super.active != 0 || (((char.bonus_effect & char.bonus.ELEMENTAL_SHIELDS) == 0 || (char.bonus_effect & char.bonus.INVINCIBLE) || (char.bonus_effect & char.bonus.SHIELD_LIGHTNING)) && AUTODD == 1)))
+						
+						if (chargeDropDash)
+						{
+							if (sonic.dropdash_counter < DROPDASH_FULLCHARGE)
+							{
+								// Drop dash charging
+								char.flags &= ~char.flag.CONTROL_LOCK // this unlocks roll jump regardless of the setting. it makes the game more fun with auto-dropdash when using roll jump lock
+								++sonic.dropdash_counter
+								if (sonic.dropdash_counter == DROPDASH_FULLCHARGE)
+								{
+									// Fully charged now
+									char.state = char.state.SONIC_DROPDASH
+									Audio.playAudio("dropdash_charge", AudioContext.CONTEXT_SOUND)
+								}
+							}
+						}
+						else if (sonic.dropdash_counter > 0)
+						{
+							// Abort drop dash
+							sonic.dropdash_counter = 0
+							char.state = char.state.ROLLING
+						}
+					}
+					else
+						base.Character.updateJumpMoves()
+				}
 			}
+		}
+	}
+	else
+	{
+		if (char.spindash == 0)
+		{
+			char.velocity.y = max(char.velocity.y, -0x0fc0)
 		}
 	}
 }

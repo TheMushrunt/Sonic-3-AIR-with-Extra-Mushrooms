@@ -58,6 +58,7 @@ global u8 LS_SSZ
 global u8 LS_BONUS
 global u8 LS_SPECIAL
 global u8 LS_ICONS
+global bool camefromLS_SpecialStage = false
 // these were used in the standalone credits i scrapped.
 //global u8 initiateStandaloneCredits
 //global s32 startingYPosCredits
