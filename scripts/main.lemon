@@ -448,6 +448,15 @@ function void drawInfiniteLives(u16 px, u16 py, u16 renderQueue)
 	if (Mods.isModActive("Sawnic")) // Compatibility.
 		if (IsP1Sawnic() && (u8[0xffffb02b] & char.bonus.ELEMENTAL_SHIELDS))
 			DrawItems()
+	#if EXTRA_CHARACTERS_ACTIVE
+		if (Mods.isModActive("Extra Slot 3D2D Shadow") && global.xtrachar == 0x05) // ensures that the player is actually 3D2D Shadow
+		{
+			string hudname = (System.getGlobalVariableValueByName("hudtypeShadow") == 1) ? "_m" : (System.getGlobalVariableValueByName("hudtypeShadow") == 2) ? "_mm" : ""
+			string shadowkey = stringformat("hud_name_shadow%s", hudname)
+			if (Renderer.hasCustomSprite(shadowkey)) // idk there might end up being some bug that gets fixed by doing this
+				HUD.drawSprite(shadowkey, px, py, renderQueue)
+		}
+	#endif
 	if (INF_LIVES_DISPLAY == 1)
 	{
 		if (lives_counter >= 10)
