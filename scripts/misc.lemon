@@ -34,106 +34,105 @@ function void UpdatePaletteEffects.SuperForm.moddingVersion(u8 characterVersion)
 	bool isHyperEffect = (super.active == 0xff || super.active.tails == 0xff)
 	#if EXTRA_CHARACTERS_ACTIVE
 		#if EXTRA_CHARACTERS_UNLIMITED
-			if (global.xtrachar == CHARACTER_UNSET)
-		#endif
-	#else
-			if (true)
-	#endif
-	{
-		if (!isExtraSlot() && (super.palettefx.state & 0x80 && (ORIGINS_HYPER_FX % 2 != 0) && (isHyperEffect || (!isHyperEffect && FASTER_SUPER_FADE))))
-		{
-			// Update ongoing palette effect
-			u8 character = getMainCharacter()
-			u16 blendFactor
-			u16 nextFrame
-			if (character == CHARACTER_SONIC && isHyperEffect && ORIGINS_HYPER_FX % 2 != 0)
+			if (global.xtrachar)
 			{
-				blendFactor = super.palettefx.timer
-				nextFrame = (super.palettefx.frame + 9) % (isHyperEffect ? 108 : 18)
-			}
-			else
-			{
-				blendFactor = super.palettefx.timer * 0x100 / (isHyperEffect ? 0x07 : 0x0f)
-				nextFrame = (super.palettefx.frame + 6) % (isHyperEffect ? 108 : 18)
-			}
-			if (characterVersion == 2)
-			{
-				// Tails
-				nextFrame = (super.palettefx.frame.tails + 6) % (isHyperEffect ? 108 : 18)
-				blendFactor = super.palettefx.timer.tails * 0x100 / (isHyperEffect ? 0x07 : 0x0f)
-			}
-			if (isHyperEffect && character == CHARACTER_SONIC)
-			{
-				if (nextFrame % 2 == 0)
-					blendFactor = 0x100 - blendFactor
-			}
-			else
-			{
-				if (nextFrame % 18 == 0)
-					blendFactor = 0x100 - blendFactor
-				else if (nextFrame % 18 == 12)
-					blendFactor = 0
-			}
-			for (u8 underwater = 0; underwater < (level.water_present ? 2 : 1); ++underwater)
-			{
-				u32 offset = character * 0x40 + (underwater ? 0x300 : 0)
-				u32 source = 0x802180 + offset
-				u32 dest   = 0x802000 + offset
-
-				// Load modded Super palette
-				u8 line = getModdedPaletteLine(character, isHyperEffect, underwater)
-
-				zeroMemory(dest, 0x40)
-				u16 numColors = System.loadExternalPaletteData(getCharacterPaletteKey(character), line, 0x800000, 0x20)
-				for (u16 i = 0; i < numColors; ++i)
-				{
-					u32 rgba = u32[0x800000 + i * 4]
-					u16[dest + i * 2] = (rgba & 0xff000000) ? packColorExt(rgba) : 0
-				}
-
-				for (u8 k = 0; k < 0x40; k += 2)
-				{
-					if (u16[dest + k] == 0)
-					{
-						// Use original color as fallback
-						u16[dest + k] = u16[source + k]
-					}
-					else
-					{
-						// Apply flash effect
-						u16[dest + k] = blendColorsPacked(u16[dest + k], 0x0eee, blendFactor)
-					}
-				}
-			}
-			if (characterVersion == 2)
-			{
-				// Super/Hyper Tails
-				--super.palettefx.timer.tails
-				if (super.palettefx.timer.tails < 0)
-				{
-					super.palettefx.timer.tails = isHyperEffect ? 0x07 : 0x0f
-					super.palettefx.frame.tails = nextFrame
-				}
-
-				// Also update Sonic's colors, for the flickies
-				if (super.active.tails == 0xff && !isExtraSlot())
-					UpdatePaletteEffects.UpdateSuperSonic.Smoothed(0xff)
+				base.UpdatePaletteEffects.SuperForm.moddingVersion(characterVersion)
 				return
 			}
-			if (character == CHARACTER_SONIC && isHyperEffect && ORIGINS_HYPER_FX % 2 != 0)
-				super.palettefx.timer -= 3
-			else if (character == CHARACTER_SONIC && !isHyperEffect && FASTER_SUPER_FADE)
-				super.palettefx.timer -= (5/3)
-			else
-				--super.palettefx.timer
-			bool FasterSuperSonicFade = (FASTER_SUPER_FADE && character == CHARACTER_SONIC)
-			if (super.palettefx.timer < 0)
+		#endif
+	#endif
+	if (!isExtraSlot() && (super.palettefx.state & 0x80 && (ORIGINS_HYPER_FX % 2 != 0) && (isHyperEffect || (!isHyperEffect && FASTER_SUPER_FADE))))
+	{
+		// Update ongoing palette effect
+		u8 character = getMainCharacter()
+		u16 blendFactor
+		u16 nextFrame
+		if (character == CHARACTER_SONIC && isHyperEffect && ORIGINS_HYPER_FX % 2 != 0)
+		{
+			blendFactor = super.palettefx.timer
+			nextFrame = (super.palettefx.frame + 9) % (isHyperEffect ? 108 : 18)
+		}
+		else
+		{
+			blendFactor = super.palettefx.timer * 0x100 / (isHyperEffect ? 0x07 : 0x0f)
+			nextFrame = (super.palettefx.frame + 6) % (isHyperEffect ? 108 : 18)
+		}
+		if (characterVersion == 2)
+		{
+			// Tails
+			nextFrame = (super.palettefx.frame.tails + 6) % (isHyperEffect ? 108 : 18)
+			blendFactor = super.palettefx.timer.tails * 0x100 / (isHyperEffect ? 0x07 : 0x0f)
+		}
+		if (isHyperEffect && character == CHARACTER_SONIC)
+		{
+			if (nextFrame % 2 == 0)
+				blendFactor = 0x100 - blendFactor
+		}
+		else
+		{
+			if (nextFrame % 18 == 0)
+				blendFactor = 0x100 - blendFactor
+			else if (nextFrame % 18 == 12)
+				blendFactor = 0
+		}
+		for (u8 underwater = 0; underwater < (level.water_present ? 2 : 1); ++underwater)
+		{
+			u32 offset = character * 0x40 + (underwater ? 0x300 : 0)
+			u32 source = 0x802180 + offset
+			u32 dest   = 0x802000 + offset
+
+			// Load modded Super palette
+			u8 line = getModdedPaletteLine(character, isHyperEffect, underwater)
+
+			zeroMemory(dest, 0x40)
+			u16 numColors = System.loadExternalPaletteData(getCharacterPaletteKey(character), line, 0x800000, 0x20)
+			for (u16 i = 0; i < numColors; ++i)
 			{
-				super.palettefx.timer = isHyperEffect ? 0x0e : FasterSuperSonicFade ? 0x0d : 0x0f
-				super.palettefx.frame = isHyperEffect ? nextFrame: FasterSuperSonicFade ? nextFrame*2: nextFrame
+				u32 rgba = u32[0x800000 + i * 4]
+				u16[dest + i * 2] = (rgba & 0xff000000) ? packColorExt(rgba) : 0
+			}
+
+			for (u8 k = 0; k < 0x40; k += 2)
+			{
+				if (u16[dest + k] == 0)
+				{
+					// Use original color as fallback
+					u16[dest + k] = u16[source + k]
+				}
+				else
+				{
+					// Apply flash effect
+					u16[dest + k] = blendColorsPacked(u16[dest + k], 0x0eee, blendFactor)
+				}
 			}
 		}
-		else base.UpdatePaletteEffects.SuperForm.moddingVersion(characterVersion)
+		if (characterVersion == 2)
+		{
+			// Super/Hyper Tails
+			--super.palettefx.timer.tails
+			if (super.palettefx.timer.tails < 0)
+			{
+				super.palettefx.timer.tails = isHyperEffect ? 0x07 : 0x0f
+				super.palettefx.frame.tails = nextFrame
+			}
+
+			// Also update Sonic's colors, for the flickies
+			if (super.active.tails == 0xff && !isExtraSlot())
+				UpdatePaletteEffects.UpdateSuperSonic.Smoothed(0xff)
+			return
+		}
+		if (character == CHARACTER_SONIC && isHyperEffect && ORIGINS_HYPER_FX % 2 != 0)
+			super.palettefx.timer -= 3
+		else if (character == CHARACTER_SONIC && !isHyperEffect && FASTER_SUPER_FADE)
+			super.palettefx.timer -= (5/3)
+		else
+			--super.palettefx.timer
+		bool FasterSuperSonicFade = (FASTER_SUPER_FADE && character == CHARACTER_SONIC)
+		if (super.palettefx.timer < 0)
+		{
+			super.palettefx.timer = isHyperEffect ? 0x0e : FasterSuperSonicFade ? 0x0d : 0x0f
+			super.palettefx.frame = isHyperEffect ? nextFrame: FasterSuperSonicFade ? nextFrame*2: nextFrame
+		}
 	}
 	else base.UpdatePaletteEffects.SuperForm.moddingVersion(characterVersion)
 }
