@@ -123,6 +123,7 @@
 	"ls_mighty": { "File": "supported extra slots.bmp", "Rect": "0,24,32,24"},
 	"ls_ray": { "File": "supported extra slots.bmp", "Rect": "32,24,32,24"},
 	"ls_amy": { "File": "supported extra slots.bmp", "Rect": "64,24,32,24"},
+	"ls_characters": { "File": "ls_playericons.png", "Rect": "128,0,32,24" },
 	"em_mighty": { "File": "supported extra slots.bmp", "Rect": "0,0,16,24",  "Center": "8,24" },
 	"em_ray": { "File": "supported extra slots.bmp", "Rect": "16,0,20,24",  "Center": "11,24" },
 	"em_amy": { "File": "supported extra slots.bmp", "Rect": "40,0,16,24",  "Center": "8,24" },

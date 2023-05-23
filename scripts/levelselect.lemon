@@ -503,11 +503,12 @@ function void DrawSpritesToLevelSelect()
 			{
 				if (levelselect.selection == 0x05 && EM_2PSTAGES)
 					Renderer.drawCustomSprite("ls_icon_10", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
+				if (levelselect.selection == 0x06 && EM_2PSTAGES)
+					Renderer.drawCustomSprite("ls_characters", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
 				if (levelselect.selection == 0x14)
 					Renderer.drawCustomSprite("ls_icon_9", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
 				else if (levelselect.selection == 0x1a)
 					Renderer.drawCustomSprite("ls_icon_12", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
-
 				else if (levelselect.selection == 0x1c || levelselect.selection == 0x1d || levelselect.selection == 0x1e)
 					Renderer.drawCustomSprite(stringformat("ls_bonus_%x", levelselect.selection - 0x1c), getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7e)
 				else if (levelselect.selection == 0x1f || levelselect.selection == 0x20)
@@ -560,7 +561,7 @@ function void DrawSpritesToLevelSelect()
 									key = "ls_amy"
 								if (Renderer.hasCustomSprite(key))
 									Renderer.drawSprite(key, getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7d)
-								else Renderer.drawCustomSprite("ls_unknown", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7d)
+								else Renderer.drawCustomSprite("ls_characters", getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7d)
 							}
 							else Renderer.drawSprite(stringformat("em_ls_slot%d", global.xtrachar), getScreenWidth()-64, getScreenHeight()-44, 0x00, 0, 0x9f7d)
 						}
