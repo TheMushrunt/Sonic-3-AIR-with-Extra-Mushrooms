@@ -44,7 +44,7 @@ function void fn06852c()
 			level.boss_encounter = 0
 			if !((super.active || super.active.tails) || (u8[0xffffb000 + 0x2b] & char.bonus.INVINCIBLE))
 				chooseFittingMusic()
-			if Mods.isModActive("Origins Parity Galore")
+			if (player1.control_override = 0xff)
 			{
 				player1.control_override = 0
 				control.player1 = 0
