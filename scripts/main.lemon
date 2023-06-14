@@ -45,6 +45,17 @@ function void extraMushroomsBS.discordRPC() // Blue Spheres
 	Game.setDiscordLargeImage("gamemode_bluesphere")
 }
 
+function void PlayMusic()
+{
+	u8 music = D0.u8
+	if (music == MUSIC_TITLESCREEN && global.game_mode == 0x04 && TS_KNUCKLES == 2)
+	{
+		playMusic(MUSIC_CTRL_STOP)
+		Audio.playAudio("em_title")
+	}
+	else base.PlayMusic()
+}
+
 function void MainMenuBG.Run()
 {
 	global.game_mode = 0x0c

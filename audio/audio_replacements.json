@@ -8,5 +8,6 @@
 	"rsdk_pause_exit": {"File": "rsdk_pause_exit.ogg", "Type": "Sound", "Channel": "36"},
 	"mania_pause": {"File": "mania_pause.ogg", "Type": "Sound", "Channel": "36"},
 	"mania_pause_exit": {"File": "mania_pause_exit.ogg", "Type": "Sound", "Channel": "36"},
-	"wega_storm": {"File": "face my wega storm.ogg", "Type": "Sound"}
+	"wega_storm": {"File": "face my wega storm.ogg", "Type": "Sound"},
+	"em_title": {"File": "em_title.ogg", "Type": "Jingle"}
 }
