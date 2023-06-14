@@ -489,7 +489,7 @@
 			},
 			{
 				"InternalName": "Faster Super Sonic Fading",
-				"DisplayName": "Faster Super Sonic Glow",
+				"DisplayName": "Better Super Sonic Glow",
 				"Variable": "FASTER_SUPER_FADE",
 				"Category": "Miscellaneous Stuff",
 				"DefaultValue": "0",

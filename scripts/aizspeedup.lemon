@@ -6,6 +6,7 @@ function void AIZ1.Transition.Update()
 	else
 	{
 		level.boss_encounter = 0
+		System.setGlobalVariableValueByName("OPG_AIZBombing", 0) // i really do not like how the cutscene goes with Time Attack flames and the Origins cutscene
 		call tableLookupAddress(0x0684fe, objA0.base_state)
 	}
 }
@@ -13,8 +14,11 @@ function void AIZ1.Transition.Update()
 //# address-hook(0x06852c) end(0x068550)
 function void fn06852c()
 {
-	if (AIZ_FLAME_SEQ)
+	if (!AIZ_FLAME_SEQ)
 	{
+		base.fn06852c()
+		return
+	}
 #if STANDALONE
 	// Extend level chunks a bit
 	u8[0xffff82ce] = u8[0xffff82cd]
@@ -22,47 +26,45 @@ function void fn06852c()
 	u8[0xffff8390] = u8[0xffff838f]
 #endif
 
-		D5.u16 = 0x2f10
-		if (camera.position.x.u16 < D5.u16)
-		{
-		#if STANDALONE
-			// Set right border here already to prevent camera going too far for one frame
-			move_area.right = D5.u16 + (getScreenWidth() - 320)
-		#endif
-			return
-		}
-
-		if (AIZ_FLAME_SEQ || Game.isTimeAttack())
-		{
-			// Trigger fire wall immediately
-			u16[0xffffeec6] = 0xff
-
-			addPatternLoadingCue(0x083d48)
-			playSound(0x48)
-			playSound(0x4e)
-			UnloadObject()
-			level.boss_encounter = 0
-			if !((super.active || super.active.tails) || (u8[0xffffb000 + 0x2b] & char.bonus.INVINCIBLE))
-				chooseFittingMusic()
-			if (player1.control_override = 0xff)
-			{
-				player1.control_override = 0
-				control.player1 = 0
-			}
-			return
-		}
-
-		// Trigger AIZ 1 transition cutscene
-		objA0.countdown_callback = 0x06857a
-
-		// "spawnIdenticalChildObjects(0x06906a)" replaced by:
-		spawnChildObjects(0x068dfa, 0, 0, 6)
-
-		loadPaletteLine1(0x06917c)
-
-		fn068556()
+	D5.u16 = 0x2f10
+	if (camera.position.x.u16 < D5.u16)
+	{
+	#if STANDALONE
+		// Set right border here already to prevent camera going too far for one frame
+		move_area.right = D5.u16 + (getScreenWidth() - 320)
+	#endif
+		return
 	}
-	else base.fn06852c()
+
+	if (AIZ_FLAME_SEQ || Game.isTimeAttack())
+	{
+		// Trigger fire wall immediately
+		u16[0xffffeec6] = 0xff
+
+		addPatternLoadingCue(0x083d48)
+		playSound(0x48)
+		playSound(0x4e)
+		UnloadObject()
+		level.boss_encounter = 0
+		if !((super.active || super.active.tails) || (u8[0xffffb000 + 0x2b] & char.bonus.INVINCIBLE))
+			chooseFittingMusic()
+		if (player1.control_override = 0xff) // ENSURE that there is no softlock with a mod overriding player control.
+		{
+			player1.control_override = 0
+			control.player1 = 0
+		}
+		return
+	}
+
+	// Trigger AIZ 1 transition cutscene
+	objA0.countdown_callback = 0x06857a
+
+	// "spawnIdenticalChildObjects(0x06906a)" replaced by:
+	spawnChildObjects(0x068dfa, 0, 0, 6)
+
+	loadPaletteLine1(0x06917c)
+
+	fn068556()
 }
 
 //# address-hook(0x050426) end(0x050452)
