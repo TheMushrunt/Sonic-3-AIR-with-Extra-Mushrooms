@@ -590,8 +590,8 @@
 				"Category": "Miscellaneous Stuff",
 				"DefaultValue": "1",
 				"Options": {
-					"0": "Off (Origins Behavior)",
-					"1": "On (A.I.R. Behavior)"
+					"0": "Off (a la Pre-Plus Origins)",
+					"1": "On (Default)"
 				}
 			},
 			{
