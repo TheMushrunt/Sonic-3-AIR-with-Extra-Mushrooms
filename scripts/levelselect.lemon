@@ -382,9 +382,12 @@ function void DrawLevelSelectBG()
 
 function void DrawSpritesToLevelSelect()
 {
-	loadCharacterPalette(CHARACTER_SONIC, 0x802180, 0)
-	loadCharacterPalette(CHARACTER_TAILS, 0x8021c0, 0x00)
-	loadCharacterPalette(CHARACTER_KNUCKLES, 0x802180 + 0x80, 0)
+	loadCharacterPalette(CHARACTER_SONIC,    0x802180, 0) // normal
+	loadCharacterPalette(CHARACTER_SONIC,    0x802000, 0) // fading
+	loadCharacterPalette(CHARACTER_TAILS,    0x8021c0, 0) // normal
+	loadCharacterPalette(CHARACTER_TAILS,    0x802040, 0) // fading
+	loadCharacterPalette(CHARACTER_KNUCKLES, 0x802200, 0) // normal
+	loadCharacterPalette(CHARACTER_KNUCKLES, 0x802080, 0) // fading
 	u16 widthextend = 0
 	if (!LS_ICONS)
 		widthextend = getScreenExtend()+4
@@ -472,7 +475,6 @@ function void DrawSpritesToLevelSelect()
 				}
 				if (global.xtrachar)
 				{
-					loadCharacterPalette(global.xtrachar, 0x000000, 0x00)
 					if !(Renderer.hasCustomSprite(stringformat("em_slot%d", global.xtrachar)))
 					{
 						u64 key = getCharacterContinueIcon(global.xtrachar)
@@ -483,7 +485,7 @@ function void DrawSpritesToLevelSelect()
 						else if (global.xtrachar == 0x03 && Mods.isModActive("Extra Slot Amy"))
 							key = "em_amy"
 						if (Renderer.hasCustomSprite(key))
-							Renderer.drawCustomSprite(key, getScreenWidth()-104+widthextend, getScreenHeight()-8, 0x00, 0, 0x9f7e)
+							Renderer.drawCustomSprite(key, getScreenWidth()-104+widthextend, getScreenHeight()-8, (key == getCharacterContinueIcon(global.xtrachar) ? getatex(global.xtrachar)+0x41 : 0x00), 0, 0x9f7e)
 						else Renderer.drawCustomSprite("unknown_extraslot", (getScreenWidth()-104)-11+widthextend, (getScreenHeight()-8)-24, 0x00, 0, 0x9f7e)
 					}
 					else Renderer.drawCustomSprite(stringformat("em_slot%d", global.xtrachar), getScreenWidth()-104+widthextend, getScreenHeight()-8, 0x00, 0, 0x9f7e)
@@ -617,10 +619,11 @@ function void scareTheHaters(u64 FONT_LS)
 
 function void LevelSelect.init()
 {
-	levelselect.selection = 0
-	levelselect.characters = 0
+	if (EM_2PSTAGES)
+		levelselect.selection = 0
 	#if EXTRA_CHARACTERS_ACTIVE
-		global.xtrachar = 0 // this fixes a very specific bug that i don't wanna talk about
+	if (global.xtrachar)
+		levelselect.xtrachar = global.xtrachar // this fixes a very specific bug that i don't wanna talk about
 	#endif
 	if (YOU_FUCKED_UP_KID != 1)
 		YOU_FUCKED_UP_KID = 0
