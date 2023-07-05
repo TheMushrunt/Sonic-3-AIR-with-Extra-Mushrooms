@@ -38,6 +38,10 @@ function void fn06852c()
 
 	if (AIZ_FLAME_SEQ || Game.isTimeAttack())
 	{
+		bool queueAIZ2Music = Mods.isModActive("Music Cues Customization") && System.getGlobalVariableValueByName("MCC_AIZ1Fire_music") == 1
+		bool playingInvincibilityMusic = (u8[0xffffb000 + 0x2b] & char.bonus.INVINCIBLE && !(super.active || super.active.tails)) || ((super.active || super.active.tails) && Game.getSetting(SETTING_AUDIO_SUPER_THEME) > 1)
+		if (queueAIZ2Music && !playingInvincibilityMusic)
+			playMusic(MUSIC_CTRL_FADEOUT)
 		// Trigger fire wall immediately
 		u16[0xffffeec6] = 0xff
 
@@ -46,7 +50,7 @@ function void fn06852c()
 		playSound(0x4e)
 		UnloadObject()
 		level.boss_encounter = 0
-		if !((super.active || super.active.tails) || (u8[0xffffb000 + 0x2b] & char.bonus.INVINCIBLE))
+		if (!playingInvincibilityMusic && !queueAIZ2Music)
 			chooseFittingMusic()
 		if (player1.control_override = 0xff) // ENSURE that there is no softlock with a mod overriding player control.
 		{
@@ -65,6 +69,24 @@ function void fn06852c()
 	loadPaletteLine1(0x06917c)
 
 	fn068556()
+}
+
+/# address-hook(0x04fd62)
+function void fn04fd62()
+{
+	base.fn04fd62()
+	if (kosinski.waiting_modules == 0)
+	{
+		if (Mods.isModActive("Music Cues Customization") && System.getGlobalVariableValueByName("MCC_AIZ1Fire_music") == 1)
+		{
+			if !((u8[0xffffb000 + 0x2b] & char.bonus.INVINCIBLE && !(super.active || super.active.tails)) || ((super.active || super.active.tails) && Game.getSetting(SETTING_AUDIO_SUPER_THEME) > 1))
+			{
+				chooseFittingMusic()
+				if ((super.active || super.active.tails) && Game.getSetting(SETTING_AUDIO_SUPER_THEME) == 1)
+					Standalone.setFastMusicFlag(FastMusicFlag.SUPER_THEME, true)
+			}
+		}
+	}
 }
 
 //# address-hook(0x050426) end(0x050452)
