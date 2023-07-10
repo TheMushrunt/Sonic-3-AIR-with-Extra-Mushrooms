@@ -48,11 +48,8 @@ function void extraMushroomsBS.discordRPC() // Blue Spheres
 function void PlayMusic()
 {
 	u8 music = D0.u8
-	if (music == MUSIC_TITLESCREEN && global.game_mode == 0x04 && TS_KNUCKLES == 2)
-	{
-		playMusic(MUSIC_CTRL_STOP)
-		Audio.playAudio("em_title")
-	}
+	if (music == MUSIC_TITLESCREEN && global.game_mode == 0x04 && TS_KNUCKLES == 2 && !Game.getSetting(SETTING_TITLE_SCREEN))
+		Audio.playAudio("em_title", AudioContext.CONTEXT_MUSIC)
 	else base.PlayMusic()
 }
 
@@ -385,20 +382,8 @@ function void OptionInit()
 //# address-hook(0x000418) end(0x000436)
 function void BlueSphereGame()
 {
-#if !STANDALONE
-	call 0x00043a
-	u8[0xffffff9f] = D4.u8
-
-	call 0x00111a
-	call 0x0012ce
-	call 0x0010ae
-#endif
-#if STANDALONE
 	bluespheregame.menu_flags = 1 // used to be bluespheregame.menu_flags = 1, this is literally fixing the worst issue ever
 	// the issue in question changes the vertical position of the animated sprites on screen and it looked BAD
-#else
-	bluespheregame.menu_flags = 0
-#endif
 	global.game_mode = 0x2c
 
 	while (true)
@@ -523,7 +508,6 @@ function void Menu.FadeInAfterInit()
 		LoadRequiredSpritePatterns()
 		--D4.s16
 
-	#if STANDALONE
 		// SEGA logo
 		if (global.game_mode == 0x04)
 		{
@@ -547,8 +531,6 @@ function void Menu.FadeInAfterInit()
 		}
 
 		else base.Menu.FadeInAfterInit()
-
-	#endif
 	}
 }
 
@@ -592,21 +574,10 @@ function void fn00440c()
 	Enigma.Decompress()
 	if (D7.u16 < 7)
 	{
-	#if !STANDALONE
-		if ((global.region_code & 0x80) == 0)
-	#endif
-		{
-			u32[0xffff83ac] = 0
-		}
+		u32[0xffff83ac] = 0
 	}
 
-#if !STANDALONE
-	set_status_register(0x2700)
-#endif
 	copyRectToVRAM(0xffff8000, (titleintro.buffer == 0) ? 0xc000 : 0xe000, 0x28, 0x1c)
-#if !STANDALONE
-	set_status_register(0x2300)
-#endif
 }
 
 
@@ -626,22 +597,16 @@ function void TitleScreen()
 	playMusic(MUSIC_CTRL_FADEOUT)
 	kosinski.queue_size = 0
 	zeroMemory(0xffffff10, 0x6c)
-#if GAMEAPP
 	// Setup region code according to settings
 	global.region_code = Game.getSetting(SETTING_REGION_CODE)
-#endif
 	startPress = 0
 	drawTrademark = 0
 	ClearPatternLoadingQueue()
 	global.zone_act = 0
 	FadeOutScreenBlocking()
 
-#if STANDALONE
 	u32 ptr = 0x003e32
 	zeroMemory(ptr, 8)
-#else
-	set_status_register(0x2700)
-#endif
 
 	VDP.Config.enableHInt(false)
 	VDP.Config.setNameTableBasePlaneA(0xc000)
@@ -662,13 +627,11 @@ function void TitleScreen()
 	zeroMemory(0xfffff700, 0x100)
 	zeroMemory(0xffffee00, 0x100)
 
-#if STANDALONE
 	Renderer.resetSprites()
 
 	// Move planes a bit to the right
 	for (u8 i = 0; i < getScreenHeight(); ++i)
 		u32[0xffffe000 + i*4] = getScreenExtend() * 0x10001
-#endif
 
 	fn01aa6e()
 
@@ -690,11 +653,7 @@ function void TitleScreen()
 	u16[0xfffffb00] = 0
 	u32[0xfffffbfc] = 0xfffffb00
 
-#if STANDALONE
 	if (Game.getSetting(SETTING_TITLE_SCREEN))
-#else
-	if (global.lock_on_state != 0)
-#endif
 	{
 		// Sonic & Knuckles title screen
 		TitleScreen_SK()
@@ -706,9 +665,6 @@ function void TitleScreen()
 
 	Enigma.decompress(0x34f6a0, 0xffff8000, (TitleScreen.Intro_Background.targetInVRAM >> 5))
 
-#if !STANDALONE
-	if ((global.region_code & 0x80) == 0)
-#endif
 	u32[0xffff83ac] = 0
 	if (!EM_MODDED_GFX)
 		copyRectToVRAM(0xffff8000, 0xc000, 0x28, 0x1c)
@@ -718,10 +674,8 @@ function void TitleScreen()
 	VDP.Config.setActiveDisplay(true)
 	Menu.FadeInAfterInit()
 
-#if STANDALONE
 	// Stop any music that might be playing or restarting (this can happen after aborting a rolling demo)
 	playMusic(MUSIC_CTRL_STOP)
-#endif
 	playMusic(0xff)
 
 	global.demo_countdown = 180		// 3 seconds
@@ -734,7 +688,6 @@ function void TitleScreen()
 		if (control.pad1.pressed & CONTROL_START)
 			break
 
-	#if STANDALONE
 		Renderer.resetSprites()
 		if (EM_OGB_DISPLAY == 1)
 			Renderer.drawCustomSprite("original_game_by", getScreenWidth() / 2 - 85, 60, 0x00, 0, 0x2000, 0, 96)
@@ -750,12 +703,7 @@ function void TitleScreen()
 			else
 				Renderer.drawCustomSprite(stringformat("%s_em", key), getScreenExtend() - 40, 0, 0x00, 0, 0x2000, 0, 255)
 		}
-	#endif
 	}
-
-#if !STANDALONE
-	playMusic(0xfe)
-#endif
 
 	// While loop: SEGA logo background fade from white to black
 	A1 = 0x00459c
@@ -770,7 +718,6 @@ function void TitleScreen()
 
 		A1 += 0x0e
 
-	#if STANDALONE
 		Renderer.resetSprites()
 		if (u8[0xfffffc01] & 0x0e)
 			if (EM_OGB_DISPLAY == 1)
@@ -787,7 +734,6 @@ function void TitleScreen()
 				else
 					Renderer.drawCustomSprite(stringformat("%s_em", key), getScreenExtend() - 40, 0, 0x00, 0, 0x2000, 0, u16(u8[0xfffffc01] & 0x0e) * 255 / 0x0e)
 			}
-	#endif
 	}
 
 	outro.wait_time = 0
@@ -799,10 +745,8 @@ function void TitleScreen()
 	fn00440c()
 
 	global.demo_countdown = (global.region_code & 0x40) ? 750 : 900
-#if STANDALONE
 	// Slightly increase the wait time until demo starts
 	global.demo_countdown += 20
-#endif
 
 	Kosinski.addToDecompressionQueue(0x351c86, 0xffff0000)
 	playMusic(MUSIC_TITLESCREEN)
@@ -815,7 +759,6 @@ function void TitleScreen()
 
 		waitForNextFrame()
 
-	#if STANDALONE
 		// Overwrite two frames with custom widescreen versions
 		if (!EM_MODDED_GFX)
 		{
@@ -841,7 +784,6 @@ function void TitleScreen()
 			u8[ptr] = control.pad1.pressed
 			++ptr
 		}
-	#endif
 
 		fn0043d4()
 		UpdateGameObjects()
@@ -867,7 +809,6 @@ function void TitleScreen()
 		else
 			Renderer.drawCustomSprite(stringformat("%s_em", key), getScreenExtend() - 40, 0, 0x00, 0, 0xffff)
 	}
-#if STANDALONE
 	titleintro.frames = 15
 	for (u8 k = 0; k < titleintro.frames; ++k)
 	{
@@ -880,11 +821,9 @@ function void TitleScreen()
 		VDP.Config.setActiveDisplay(false)
 	else
 		VDP.Config.setActiveDisplay(true)
-#else
 	titleintro.frames = 3
 	global.frame_state = 0x04
 	waitForNextFrame()
-#endif
 
 	// Fill the planes with decompressed screen content
 	Kosinski.decompress(0x359fc6, 0xffff0000)	// After this, A1 points to where uncompressed data ends
@@ -912,9 +851,7 @@ function void TitleScreen()
 	global.frame_state = 0x04
 	waitForNextFrame()
 
-#if STANDALONE
 	VDP.Config.setActiveDisplay(true)
-#endif
 
 	copyMemory(0xfffffc80, 0x0047ac, 0x80)
 
@@ -942,30 +879,28 @@ function void TitleScreen()
 	u32[0xffffb206] = 0x00496a		// "& Knuckles" logo append
 	titleintro.frames = 0
 
-	#if STANDALONE
-		global.whiteflash_timeout = 25
-		airHighlightAnimationTimer = 0
+	global.whiteflash_timeout = 25
+	airHighlightAnimationTimer = 0
 
-		// This is needed for the background to be shown in first frame at all (when VDP sprite rendering seems to be disabled)
-		if (!TS_ANIMATED_BG)
-		{
-			if (!Mods.isModActive("Sonic 3: D.A. Garden Edition"))
-				Renderer.drawCustomSprite("bg_title_screen", getScreenExtend() - 40, 0, 0x00, 0, 0x1100)
-			else
-				Renderer.drawCustomSprite("bg_title_screen_new", getScreenExtend() - 40, 0, 0x00, 0, 0x1100)
-		}
+	// This is needed for the background to be shown in first frame at all (when VDP sprite rendering seems to be disabled)
+	if (!TS_ANIMATED_BG)
+	{
+		if (!Mods.isModActive("Sonic 3: D.A. Garden Edition"))
+			Renderer.drawCustomSprite("bg_title_screen", getScreenExtend() - 40, 0, 0x00, 0, 0x1100)
 		else
-		{
-			++level.framecounter
-			u16 animFrame = (level.framecounter/(19/2)) % 12
-			if (!Mods.isModActive("Sonic 3: D.A. Garden Edition"))
-				u64 key = stringformat("bg_title_screen_%d", animFrame)
-			else
-				key = stringformat("bg_title_screen_new_%d", animFrame)
-			Renderer.drawCustomSprite(key, getScreenExtend() - 40, 0, 0x00, 0, 0x1100)
-		}
-	#endif
-
+			Renderer.drawCustomSprite("bg_title_screen_new", getScreenExtend() - 40, 0, 0x00, 0, 0x1100)
+	}
+	else
+	{
+		++level.framecounter
+		u16 animFrame = (level.framecounter/(19/2)) % 12
+		if (!Mods.isModActive("Sonic 3: D.A. Garden Edition"))
+			u64 key = stringformat("bg_title_screen_%d", animFrame)
+		else
+			key = stringformat("bg_title_screen_new_%d", animFrame)
+		Renderer.drawCustomSprite(key, getScreenExtend() - 40, 0, 0x00, 0, 0x1100)
+	}
+		
 	while (true)
 	{
 		global.frame_state = 0x04
@@ -976,14 +911,10 @@ function void TitleScreen()
 		RenderSprites()
 		LoadRequiredSpritePatterns()
 
-	#if STANDALONE
 		// Allow the player to press Start before the logo animation is finished already; only wait for the short white flash to finish
 		if (global.whiteflash_timeout > 0)
 			continue
-	#else
-		if (u32[0xffffb094] == 0)
-			continue
-	#endif
+
 		if (!Mods.isModActive("Sonic 3: D.A. Garden Edition"))
 		{
 			if (global.demo_countdown == 0)
@@ -991,10 +922,19 @@ function void TitleScreen()
 					break
 		}
 		if (TS_BRANDING == 2)
+		{
 			OriginsMenu()
+			if (startPress == 2 && control.pad1.pressed & CONTROL_START)
+				return
+		}
 		else
+		{
 			if (control.pad1.pressed & CONTROL_START)
+			{
 				OptionInit()
+				return
+			}
+		}
 	}
 
 	// Start rolling demo
@@ -1057,51 +997,6 @@ function void TitleScreen()
 	player2.score = 0
 	player.next_life_score = 5000
 	unused.player2.next_life_score = 5000
-}
-
-
-
-// Called from VInt
-
-//# address-hook(0x0007ba) end(0x0007d8)
-function void fn0007ba()
-{
-	fn004352()
-	fn000c50()
-
-	titlescreen.backup.control.pad1 = control.pad1
-	fn0017d8()
-
-	if (global.demo_countdown != 0)
-		--global.demo_countdown
-
-#if STANDALONE
-	// White flash effect fade
-	if (global.whiteflash_timeout > 0)
-	{
-		--global.whiteflash_timeout
-
-		u16 blendFactor = u16(global.whiteflash_timeout) * 0xff / 25
-		blendFactor = 0xff - (0xff - blendFactor) * (0xff - blendFactor) / 0xff
-		u32 paletteAddress = (water.fullscreen) ? 0xfffff080 : 0xfffffc00
-
-		for (u8 i = 0; i < 0x40; ++i)
-		{
-			u32 originalColor = unpackColor(u16[paletteAddress + i * 2])
-			u32 color = blendColors_BGR32(originalColor, 0xffffff, blendFactor)
-			if (i & 0x0f)
-				color |= 0xff000000
-			Renderer.setPaletteEntry(i, color)
-		}
-
-		globalComponentTintColorR = 0xff - blendFactor
-		globalComponentTintColorG = 0xff - blendFactor
-		globalComponentTintColorB = 0xff - blendFactor
-		globalComponentAddedColorR = blendFactor
-		globalComponentAddedColorG = blendFactor
-		globalComponentAddedColorB = blendFactor
-	}
-#endif
 }
 
 constant array<u16> TITLESCREEN_S3_FRAMEDELAY =
@@ -1181,24 +1076,6 @@ function void fn004352()
 //-------------------------------------------------------//
 
 // Banner ("Sonic 3 - Sonic The Hedgehog")
-
-//# address-hook(0x00482c) end(0x004866)
-function void fn00482c()
-{
-	objA0.mapping_offset = 0x3501e0
-	objA0.sprite_attributes = (sprite_attribute.PRIORITY | sprite_attribute.PALETTE.LINE3 | (TitleScreen.Banner.targetInVRAM >> 5))
-	objA0.sprite_priority = 0x80
-	objA0.box_size.x = 0x80
-	objA0.box_size.y = 0x40
-	objA0.position.x.u16 = 0x0120 + getScreenExtend()
-	objA0.position.y.u16 = 0xf0
-	objA0.velocity.y = 0x0400
-	u32[A0 + 0x30] = 0xffa00000
-
-	objA0.update_address = 0x00486c
-	fn00486c()
-}
-
 
 //# address-hook(0x00486c) end(0x0048d8)
 function void fn00486c()
@@ -1289,7 +1166,6 @@ function void fn0048dc()
 	u32[0xfffffcda] = u32[0x004904 + objA0.animation.frame]
 	//DrawObject()
 
-#if STANDALONE
 	// Here is a good place to draw the widescreen background
 	if (!TS_ANIMATED_BG)
 	{
@@ -1418,7 +1294,6 @@ function void fn0048dc()
 	}
 	drawCopyrightText()
 	drawCustomTSSonic()
-#endif
 }
 
 function void drawCopyrightText()
