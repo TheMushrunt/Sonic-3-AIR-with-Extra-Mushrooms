@@ -398,44 +398,34 @@ function void BlueSphereGame()
 //# address-hook(0x00db44) end(0x00dbb2)
 function void RenderHUD()
 {
-	if (NO_HUD == 0)
+	if (NO_HUD)
+		return
+	if (!debug_mode.state)
 	{
-		base.RenderHUD()
-		s16 baseX = global.level_started
-		if (baseX < 0x00)
+		if (INF_LIVES_DISPLAY && (!Mods.isModActive("Achievements Plus")))
 		{
-			baseX += 0x08
-			if !(global.zone_act == 0x0a01 || IsP1Sawnic()) // Fix for Origins SSZ Cutscene and Sawnic cutscenes
-				global.level_started = baseX
-		}
-		baseX += 0x0f
-		s16 baseY = 0x08
-		u16 renderQueue = 0xe000
-
-		if (!debug_mode.state)
-		{
-			if (INF_LIVES_DISPLAY && NO_HUD == 0 && (!Mods.isModActive("Achievements Plus")))
+			if (Game.getSetting(SETTING_INFINITE_LIVES))
 			{
-				if (Game.getSetting(SETTING_INFINITE_LIVES))
-				{
-					bool useMobilePosition = HUD.useMobileLivesDisplay()
-					u16 px = useMobilePosition ? (getScreenWidth() - baseX - 0x30) : baseX
-					u16	py = useMobilePosition ? baseY : 200
-					#if !EXTRA_CHARACTERS_ACTIVE
-						if (!isExtraSlot()) // Disables the HUD display when Infinite Lives are on with the HUD display and you're using an Extra Slot. (DOESN'T APPLY TO ESCU)
-					#endif
-					{
-						if (!Mods.isModActive("Achievements Plus HUD Compatibility"))
-							drawInfiniteLives(px, py, renderQueue)
-					}
-				}
+				drawInfiniteLives()
 			}
 		}
 	}
+	base.RenderHUD()
 }
 
-function void drawInfiniteLives(u16 px, u16 py, u16 renderQueue)
+function void drawInfiniteLives()
 {
+	s16 baseX = global.level_started
+	if (baseX < 0x00)
+		baseX += 0x08
+	baseX += 0x0f
+	s16 baseY = 0x08
+	u16 renderQueue = 0xe000
+	
+	bool useMobilePosition = HUD.useMobileLivesDisplay()
+	u16 px = useMobilePosition ? (getScreenWidth() - baseX - 0x30) : baseX
+	u16	py = useMobilePosition ? baseY : 200
+	
 	HUD.drawSprite(getCharacterLivesIcon(getMainCharacter()), px, py, renderQueue)
 	u64 key = getCharacterNamesIcon(getMainCharacter())
 	if (Renderer.hasCustomSprite(key))
