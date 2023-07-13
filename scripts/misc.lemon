@@ -1,7 +1,7 @@
 //# address-hook(0x01da60) end(0x01db26)
 function void ItemEffect.ApplySuperTransformation() // RSDK Parity
 {
-	if (super.active != 0xff) // Not Hyper?
+	if ((super.active | super.active.tails) != 0xff) // Not Hyper?
 	{
 		base.ItemEffect.ApplySuperTransformation()
 	}
