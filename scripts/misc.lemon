@@ -155,7 +155,9 @@ function void UpdatePaletteEffects.SuperForm.moddingVersion(u8 characterVersion)
 		if (isHyperEffect && character == CHARACTER_SONIC)
 		{
 			if (nextFrame % 2 == 0)
-				blendFactor = 0x100 - blendFactor
+				blendFactor = 0x100
+			else
+				blendFactor = 0
 		}
 		else
 		{
@@ -219,7 +221,7 @@ function void UpdatePaletteEffects.SuperForm.moddingVersion(u8 characterVersion)
 		bool FasterSuperSonicFade = (FASTER_SUPER_FADE && character == CHARACTER_SONIC)
 		if (super.palettefx.timer < 0)
 		{
-			super.palettefx.timer = isHyperEffect ? 0x0e : FasterSuperSonicFade ? 0x0d : 0x0f
+			super.palettefx.timer = isHyperEffect ? ((global.game_mode == 0x0c && isSonicIntro() && global.level_started == 0 || global.rolling_demo) ? 0x1C : 0x0e) : FasterSuperSonicFade ? 0x0d : 0x0f
 			super.palettefx.frame = isHyperEffect ? nextFrame: FasterSuperSonicFade ? nextFrame*2: nextFrame
 		}
 	}
