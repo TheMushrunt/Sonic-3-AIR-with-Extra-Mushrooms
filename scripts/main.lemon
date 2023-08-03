@@ -122,6 +122,175 @@ function void MainMenuBG.Run()
 	u32[0xffffa800] = 0x00738000		// Basically a timer for the animation; don't start at 0, that doesn't look all that nice
 	while (true)
 	{
+		if (Mods.isModActive("AudioOverhaul"))
+		{
+			Audio.stopChannel(AudioOverhaul.PAUSE_MENU_MUSIC_CHANNEL_ID)	
+			// Stop the hardcoded data select music to play our own
+			// TODO: Update this with new sound options (whenever that happens)
+			if(System.getGlobalVariableValueByName("AudioOverhaul_MainMenu") >= 0)
+			{
+				if(Audio.isPlayingAudio(MUSIC_DATASELECT))
+					Audio.stopChannel(0)
+
+				string soundKey
+
+
+				if(System.getGlobalVariableValueByName("AudioOverhaul_MainMenu") == 0)
+				{
+					soundKey = 0x2f
+				}
+				if(System.getGlobalVariableValueByName("AudioOverhaul_MainMenu") == 1)
+				{
+					soundKey = "2f_s3emulated"
+				}
+				if(System.getGlobalVariableValueByName("AudioOverhaul_MainMenu") == 2)
+				{
+					soundKey = "2f_s3"
+				}
+				if(System.getGlobalVariableValueByName("AudioOverhaul_MainMenu") == 3)
+				{
+					soundKey = "2f_remake"
+				}
+				if(System.getGlobalVariableValueByName("AudioOverhaul_MainMenu") == 4)
+				{
+					soundKey = "2f_s3gems"
+				}
+				if(System.getGlobalVariableValueByName("AudioOverhaul_MainMenu") == 5)
+				{
+					soundKey = "2f_s1"
+				}
+				if(System.getGlobalVariableValueByName("AudioOverhaul_MainMenu") == 6)
+				{
+					soundKey = "2f_scd"
+				}
+				if(System.getGlobalVariableValueByName("AudioOverhaul_MainMenu") == 7)
+				{
+					soundKey = "2f_scd2"
+				}
+				if(System.getGlobalVariableValueByName("AudioOverhaul_MainMenu") == 8)
+				{
+					soundKey = "2f_s2"
+				}
+				if(System.getGlobalVariableValueByName("AudioOverhaul_MainMenu") == 9)
+				{
+					soundKey = "2f_s21"
+				}
+				if(System.getGlobalVariableValueByName("AudioOverhaul_MainMenu") == 0x10)
+				{
+					soundKey = "2f_jam"
+				}
+				if(System.getGlobalVariableValueByName("AudioOverhaul_MainMenu") == 0x11)
+				{
+					soundKey = "2f_jingle_e"
+				}
+				if(System.getGlobalVariableValueByName("AudioOverhaul_MainMenu") == 0x12)
+				{
+					soundKey = "2f_megacollection"
+				}
+				if(System.getGlobalVariableValueByName("AudioOverhaul_MainMenu") == 0x13)
+				{
+					soundKey = "2f_megacollection_genesis"
+				}
+				if(System.getGlobalVariableValueByName("AudioOverhaul_MainMenu") == 0x14)
+				{
+					soundKey = "2f_megacollectionintro"
+				}
+				if(System.getGlobalVariableValueByName("AudioOverhaul_MainMenu") == 0x15)
+				{
+					soundKey = "2f_mjz_mix"
+				}
+				if(System.getGlobalVariableValueByName("AudioOverhaul_MainMenu") == 0x16)
+				{
+					soundKey = "2f_mjz_mix_instrumental"
+				}
+				if(System.getGlobalVariableValueByName("AudioOverhaul_MainMenu") == 0x17)
+				{
+					soundKey = "2f_megamix"
+				}
+				if(System.getGlobalVariableValueByName("AudioOverhaul_MainMenu") == 0x18)
+				{
+					soundKey = "2f_megamix2"
+				}
+				if(System.getGlobalVariableValueByName("AudioOverhaul_MainMenu") == 0x19)
+				{
+					soundKey = "2f_scd3"
+				}
+				if(System.getGlobalVariableValueByName("AudioOverhaul_MainMenu") == 0x20)
+				{
+					soundKey = "2f_broooo_da_shrooms_hitin_hard_rn"
+				}
+				if(System.getGlobalVariableValueByName("AudioOverhaul_MainMenu") == 0x21)
+				{
+					soundKey = "2f_generations"
+				}
+				if(System.getGlobalVariableValueByName("AudioOverhaul_MainMenu") == 0x22)
+				{
+					soundKey = "2d_gigglymen"
+				}
+				if(System.getGlobalVariableValueByName("AudioOverhaul_MainMenu") == 0x23)
+				{
+					soundKey = "2d_stream"
+				}
+				if(System.getGlobalVariableValueByName("AudioOverhaul_MainMenu") == 0x24)
+				{
+					soundKey = "2f_miracle_blue"
+				}
+				if(System.getGlobalVariableValueByName("AudioOverhaul_MainMenu") == 0x25)
+				{
+					soundKey = "2f_mania"
+				}
+				if(System.getGlobalVariableValueByName("AudioOverhaul_MainMenu") == 0x26)
+				{
+					soundKey = "2f_mania2"
+				}
+				if(System.getGlobalVariableValueByName("AudioOverhaul_MainMenu") == 0x27)
+				{
+					soundKey = "2f_mania3"
+				}
+				if(System.getGlobalVariableValueByName("AudioOverhaul_MainMenu") == 0x28)
+				{
+					soundKey = "2f_encore"
+				}
+				if(System.getGlobalVariableValueByName("AudioOverhaul_MainMenu") == 0x29)
+				{
+					soundKey = "2f_bonus1"
+				}
+				if(System.getGlobalVariableValueByName("AudioOverhaul_MainMenu") == 0x30)
+				{
+					soundKey = "2f_bonus2"
+				}
+				if(System.getGlobalVariableValueByName("AudioOverhaul_MainMenu") == 0x31)
+				{
+					soundKey = "2f_bonus3"
+				}
+				if(System.getGlobalVariableValueByName("AudioOverhaul_MainMenu") == 0x32)
+				{
+					soundKey = "2f_bonus4"
+				}
+				if(System.getGlobalVariableValueByName("AudioOverhaul_MainMenu") == 0x33)
+				{
+					soundKey = "2f_bonus5"
+				}
+				if(System.getGlobalVariableValueByName("AudioOverhaul_MainMenu") == 0x34)
+				{
+					soundKey = "2f_bonus6"
+				}
+				if(System.getGlobalVariableValueByName("AudioOverhaul_MainMenu") == 0x35)
+				{
+					soundKey = "2f_bonus7"
+				}
+				if(System.getGlobalVariableValueByName("AudioOverhaul_MainMenu") == 0x36)
+				{
+					soundKey = "2f_bonus8"
+				}
+				if(System.getGlobalVariableValueByName("AudioOverhaul_MainMenu") == 0x37)
+				{
+					soundKey = "2f_origins"
+				}
+				if(!Audio.isPlayingAudio(soundKey))
+				Audio.playOverride(soundKey, 0x10, AudioOverhaul.MAIN_MENU_MUSIC_CHANNEL_ID, 0)
+			}
+		}
 		Renderer.resetSprites()
 		Renderer.drawCustomSprite("sonic3air_logo", MainMenuBG.logoPosition, 11, 0, 0, 0xa000)
 		if (!Mods.isModActive("Sonic 3: D.A. Garden Edition"))
