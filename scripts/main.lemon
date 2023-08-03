@@ -10,6 +10,8 @@ constant u16 TitleScreen.Characters.targetInVRAM		= 0x8000
 constant u16 TitleScreen.AndKnucklesTitle.targetInVRAM	= 0x9800
 constant u16 TitleScreen.Banner.targetInVRAM			= 0xa000
 constant u16 TitleScreen.Menu.targetInVRAM				= 0xd000
+constant u8 AudioOverhaul.PAUSE_MENU_MUSIC_CHANNEL_ID = 0x04
+constant u8 AudioOverhaul.MAIN_MENU_MUSIC_CHANNEL_ID = 0x03
 
 // Extra Mushrooms Rich Presence, for fun
 // it only displays when using the Title Screen options, for fairness.
