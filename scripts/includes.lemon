@@ -16,6 +16,7 @@ include dagarden_fixes
 // GLOBAL VARIABLES
 
 // MAIN.LEMON
+global u8 bros_chancetime
 global u8 TS_BRANDING
 global u8 TS_KNUCKLES
 global u8 OPTIONS_GFX

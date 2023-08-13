@@ -1,3 +1,54 @@
+function void Renderer.drawCustomSprite(u64 key, s16 px, s16 py, u8 atex, u8 flags, u16 renderQueue) 
+{
+	if (key == "sonic3air_logo" && global.game_mode == 0x0c) // draw extra mushrooms logo
+	{
+		if (!Mods.isModActive("Sonic 3: D.A. Garden Edition"))
+		{
+			u8 emYPos = 22
+			if (Mods.isModActive("Consistent Sonic 3"))
+				emYPos += 2
+		}
+		else
+			u8 emYPos = 38
+		Renderer.drawCustomSprite("extramushrooms", px-84, emYPos, 0, 0, renderQueue-1)
+		
+		if (bros_chancetime >= 200 && bros_chancetime <= 250)
+			Renderer.drawCustomSprite("luigiboard", px-80, 80, 0, 0, 0x1002) // the luigi board.....
+		if (bros_chancetime >= 10 && bros_chancetime <= 20 && NO_SECRETS_ON_3AIRMENU != 2) // face my wega storm
+			Renderer.drawCustomSprite("wega", px-64, 0, 0, 0, 0x1000)
+		if (bros_chancetime >= 50 && bros_chancetime <= 100 && NO_SECRETS_ON_3AIRMENU != 3)
+			Renderer.drawCustomSprite("bros", px, 69, 0, 0, 0x1001) // i'm brosing out rn
+	}
+	
+	if (key == "ls_icon_12" && LS_DEZ)
+		key = stringformat("%s_origins", key)
+	if (key == "ls_bonus_1" && (LS_BONUS == 2 || Mods.isModActive("Sonic 3 Complete Level Select+")))
+		key = "ls_bonus_2"
+	else if (key == "ls_bonus_2" && (LS_BONUS == 2 || Mods.isModActive("Sonic 3 Complete Level Select+")))
+		key = "ls_bonus_1"
+	if (Mods.isModActive("Sonic 3 Complete Level Select+") && !LS_FORCE_BASE && (global.game_mode == 0x1c || global.game_mode == 0x34))
+	{
+		if (Mods.getModPriority("Sonic 3 Complete Level Select+") < Mods.getModPriority("Sonic 3 A.I.R. with Extra Mushrooms"))
+		{
+			if (key == "S3Complete_LevelSelectIcon_Sonic1" || key == "S3Complete_LevelSelectIcon_Sonic2" || key == "S3Complete_LevelSelectIcon_Sonic3" || key == "S3Complete_LevelSelectIcon_Sonic1Acc" || key == "S3Complete_LevelSelectIcon_Sonic2Acc" || key == "S3Complete_LevelSelectIcon_Sonic2Mobile" || key == "S3Complete_LevelSelectIcon_SonicCD" || key == "S3Complete_LevelSelectIcon_Tails" || key == "S3Complete_LevelSelectIcon_TailsOG" || key == "S3Complete_LevelSelectIcon_Knuckles" || key == "S3Complete_LevelSelectIcon_KnucklesS2")
+			{
+				px -= px
+				px += getScreenWidth()
+			}
+			#if EXTRA_CHARACTERS_ACTIVE
+				#if EXTRA_CHARACTERS_UNLIMITED
+					if (key == RenderExtraCharIcon(global.xtrachar))
+					{
+						px -= px
+						px += getScreenWidth()
+					}
+				#endif
+			#endif
+		}
+	}
+	base.Renderer.drawCustomSprite(key, px, py, atex, flags, renderQueue)
+}
+
 //# address-hook(0x01da60) end(0x01db26)
 function void ItemEffect.ApplySuperTransformation() // RSDK Parity
 {

@@ -88,37 +88,6 @@ function void LevelSelect()
 // yes this is just the base code above. i have no idea why but it breaks in D.A. Garden if it's not there.
 // i'm not taking any risks. sorry not sorry other script modders
 
-function void Renderer.drawCustomSprite(u64 key, s16 px, s16 py, u8 atex, u8 flags, u16 renderQueue) 
-{
-	if (key == "ls_icon_12" && LS_DEZ)
-		key = stringformat("%s_origins", key)
-	if (key == "ls_bonus_1" && (LS_BONUS == 2 || Mods.isModActive("Sonic 3 Complete Level Select+")))
-		key = "ls_bonus_2"
-	else if (key == "ls_bonus_2" && (LS_BONUS == 2 || Mods.isModActive("Sonic 3 Complete Level Select+")))
-		key = "ls_bonus_1"
-	if (Mods.isModActive("Sonic 3 Complete Level Select+") && !LS_FORCE_BASE && (global.game_mode == 0x1c || global.game_mode == 0x34))
-	{
-		if (Mods.getModPriority("Sonic 3 Complete Level Select+") < Mods.getModPriority("Sonic 3 A.I.R. with Extra Mushrooms"))
-		{
-			if (key == "S3Complete_LevelSelectIcon_Sonic1" || key == "S3Complete_LevelSelectIcon_Sonic2" || key == "S3Complete_LevelSelectIcon_Sonic3" || key == "S3Complete_LevelSelectIcon_Sonic1Acc" || key == "S3Complete_LevelSelectIcon_Sonic2Acc" || key == "S3Complete_LevelSelectIcon_Sonic2Mobile" || key == "S3Complete_LevelSelectIcon_SonicCD" || key == "S3Complete_LevelSelectIcon_Tails" || key == "S3Complete_LevelSelectIcon_TailsOG" || key == "S3Complete_LevelSelectIcon_Knuckles" || key == "S3Complete_LevelSelectIcon_KnucklesS2")
-			{
-				px -= px
-				px += getScreenWidth()
-			}
-			#if EXTRA_CHARACTERS_ACTIVE
-				#if EXTRA_CHARACTERS_UNLIMITED
-					if (key == RenderExtraCharIcon(global.xtrachar))
-					{
-						px -= px
-						px += getScreenWidth()
-					}
-				#endif
-			#endif
-		}
-	}
-	base.Renderer.drawCustomSprite(key, px, py, atex, flags, renderQueue)
-}
-
 function string RenderExtraCharIcon(u8 xtrachar)
 {
 	if (Mods.isModActive("Sonic 3 Complete Level Select+"))
