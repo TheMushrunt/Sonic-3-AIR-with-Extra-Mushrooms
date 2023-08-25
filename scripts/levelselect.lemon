@@ -68,8 +68,6 @@ function void LevelSelect()
 		bool running = true
 		while (running)
 		{
-			global.frame_state = 0x16
-
 			// End point for a single frame
 			//  -> Right here we place the entry point for the standalone version
 			waitForNextFrame()
@@ -1035,7 +1033,7 @@ function void fn007e64()
 			if (control.pad1.pressed & (CONTROL_LEFT | CONTROL_RIGHT) && !EM_2PSTAGES)
 			{
 				u8 location = u8[0x007f22 + levelselect.selection]
-				if (levelselect.selection == 0x02 || levelselect.selection == 0x08 || levelselect.selection == 0x0c || levelselect.selection == 0x0d)
+				if (levelselect.selection == 0x02 || levelselect.selection == 0x08 || (levelselect.selection >= 0x0c && levelselect.selection <= 0x11))
 					location++
 				if (levelselect.selection == 0x14 || levelselect.selection == 0x15 || levelselect.selection == 0x1a || levelselect.selection == 0x1b || levelselect.selection == 0x1e || levelselect.selection == 0x1f || levelselect.selection == 0x20)
 					location--
@@ -1124,6 +1122,7 @@ function void EM.checkCheats()
 	}
 	if (EM_CHAOSEMERALDS == 3 && levelselect.soundtest == 0x06)
 	{
+		playMusic(MUSIC_CTRL_STOP)
 		EM_CHAOSEMERALDS = 4
 		global.chaos_emeralds = 7 // Give the Chaos Emeralds
 		Audio.playAudio(0x2B) // Chaos Emerald Sound
@@ -1149,6 +1148,7 @@ function void EM.checkCheats()
 	}
 	else if (EM_CHAOSEMERALDS == 7 && levelselect.soundtest == 0x06)
 	{
+		playMusic(MUSIC_CTRL_STOP)
 		EM_CHAOSEMERALDS = 8
 		Audio.playAudio(0x2B) // Chaos Emerald Sound
 		Audio.playAudio(0xAC) // Continue Sound
@@ -1161,15 +1161,20 @@ function void EM.checkCheats()
 	}
 	else
 	{
-		if (EM_CHAOSEMERALDS < 3)
+		if (EM_CHAOSEMERALDS <= 3)
 		{
 			if (levelselect.soundtest != 0x04)
 				EM_CHAOSEMERALDS = 0
 			else
 				EM_CHAOSEMERALDS = 1
 		}
-		else if (EM_CHAOSEMERALDS < 7)
-			EM_CHAOSEMERALDS = 4
+		else if (EM_CHAOSEMERALDS <= 7)
+		{
+			if (levelselect.soundtest != 0x04)
+				EM_CHAOSEMERALDS = 4
+			else
+				EM_CHAOSEMERALDS = 5
+		}
 		else
 			EM_CHAOSEMERALDS = 8
 		return
