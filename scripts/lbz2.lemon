@@ -158,3 +158,30 @@ function void fn0057a2() // support for S3C LBZ transition, part 2
 	}
 	base.fn0057a2()
 }
+
+//# address-hook(0x005d94) end(0x005e94)
+function void fn005d94() // support for S3C LBZ transition, part 3
+{
+	if (global.demo_countdown > 0xdd)
+	{
+		base.fn005d94()
+		return
+	}
+	if (global.demo_countdown >= 0x5a)
+	{
+		if (global.demo_countdown % 2 == 0)
+			playSound(0xcc)
+	}
+	base.fn005d94()
+}
+
+function u64 Standalone.getModdedSoundKey(u64 soundKey, u8 sfxId, u8 soundRegType) // support for S3C LBZ transition, part 4
+{
+	if ((sfxId == 0x9b || sfxId == 0x4f) && objA0.update_address == 0x0057a2 && SODEFALL == 1)
+	{
+		if (sfxId == 0x9b)
+			playSound(SFX_COLLAPSE)
+		return false
+	}
+	return base.Standalone.getModdedSoundKey(soundKey, sfxId, soundRegType)
+}
