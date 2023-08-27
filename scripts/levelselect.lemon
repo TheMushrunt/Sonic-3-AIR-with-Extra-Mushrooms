@@ -346,8 +346,8 @@ function void DrawLevelSelectBG()
 	if (!Mods.isModActive("Sonic 3 Complete Level Select+")) // background overlap fix
 	{
 		if (LS_BG != 3)
-			Renderer.drawCustomSprite(stringformat("%sls_%s", prefix_key, suffix_key), s16(getScreenWidth() - 512), py, 0x00, 0, 0x1000)
-		Renderer.drawCustomSprite("ls_s&k", s16(getScreenWidth() - 512), py, 0x00, 0, 0x1000)
+			Renderer.drawCustomSprite(stringformat("%sls_%s", prefix_key, suffix_key), s16(getScreenWidth() - 512)/2, py, 0x00, 0, 0x1000)
+		Renderer.drawCustomSprite("ls_s&k", s16(getScreenWidth() - 512)/2, py, 0x00, 0, 0x1000)
 	}
 }
 
@@ -394,7 +394,7 @@ function void DrawSpritesToLevelSelect()
 		Renderer.drawLSText(FONT_LS, FONT_LS_Y)
 	//Renderer.drawCustomSprite("ls_text", 0, 0, 0x00, 0, 0x1000)
 	if (ScaredHaters != 1)
-	{	
+	{
 		u8 ExtraSlotStart = 4
 		if (Game.isSecretUnlocked(SECRET_KNUX_AND_TAILS))
 			++ExtraSlotStart
@@ -724,14 +724,14 @@ function bool LevelSelect.innerUpdate()
 						lives_counter = 3
 						playSound(0xaf)
 						if (Mods.isModActive("Sonic 3 Complete Level Select+"))
-							Renderer.drawCustomSprite("S3Complete_LevelSelectBG_S3", getScreenExtend() - 40, 0, 0x10, 0, 0x1000)
+							Renderer.drawCustomSprite("S3Complete_LevelSelectBG_S3", s16(getScreenWidth() - 512)/2, 0, 0x10, 0, 0x1000)
 						return false
 					}
 				}
 				if (levelselect.selection == 0x21)
 				{
 					if (Mods.isModActive("Sonic 3 Complete Level Select+"))
-						Renderer.drawCustomSprite("S3Complete_LevelSelectBG_S3", getScreenExtend() - 40, 0, 0x10, 0, 0x1000)
+						Renderer.drawCustomSprite("S3Complete_LevelSelectBG_S3", s16(getScreenWidth() - 512)/2, 0, 0x10, 0, 0x1000)
 					return true
 				}
 				if (levelselect.selection == 0x1f || levelselect.selection == 0x20)
@@ -759,7 +759,7 @@ function bool LevelSelect.innerUpdate()
 						debug_mode.unlocked = 1
 					}
 					if (Mods.isModActive("Sonic 3 Complete Level Select+"))
-						Renderer.drawCustomSprite("S3Complete_LevelSelectBG_S3", getScreenExtend() - 40, 0, 0x10, 0, 0x1000)
+						Renderer.drawCustomSprite("S3Complete_LevelSelectBG_S3", s16(getScreenWidth() - 512)/2, 0, 0x10, 0, 0x1000)
 					return false
 				}
 				if (ScaredHaters != 1 && notExtraSlot)
@@ -795,7 +795,7 @@ function bool LevelSelect.innerUpdate()
 
 				u32 backupA0 = A0
 				if (Mods.isModActive("Sonic 3 Complete Level Select+"))
-					Renderer.drawCustomSprite("S3Complete_LevelSelectBG_S3", getScreenExtend() - 40, 0, 0x10, 0, 0x1000)
+					Renderer.drawCustomSprite("S3Complete_LevelSelectBG_S3", s16(getScreenWidth() - 512)/2, 0, 0x10, 0, 0x1000)
 				FadeOutScreenBlocking()
 				A0 = backupA0
 
