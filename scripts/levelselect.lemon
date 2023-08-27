@@ -304,7 +304,7 @@ function void playLevelSelectMusic()
 				playMusic(0xfe)
 		else if (LS_MUSIC == 3)
 			Audio.playAudio("custom_levelselect", AudioContext.CONTEXT_MUSIC)
-		else if (LS_MUSIC == 4 || (LS_MUSIC == 5 && !Mods.isModActive("Sound Additions")))
+		else if (LS_MUSIC == 4 || (LS_MUSIC == 5 && !(Mods.isModActive("Sound Additions") || Mods.isModActive("Sound Additions Plus"))))
 			if (Game.getSetting(SETTING_AUDIO_CONTINUE_SCREEN) == 0)
 				Audio.playAudio("28_sonic3", AudioContext.CONTEXT_MUSIC)
 			else Audio.playAudio(MUSIC_CONTINUE, AudioContext.CONTEXT_MUSIC)
@@ -327,8 +327,12 @@ function void DrawLevelSelectBG()
 	u16[0xfffffc00] = 0x0000
 	u64 prefix_key // origins or not
 	u64 suffix_key // S2/3, S3C, S3A (in S3C), S&K (in S3C), EM, or EM (alt)
+	u64 py = 0
 	if (Mods.isModActive("Origins Title + Menu Backgrounds") || Mods.isModActive("Consistent Sonic 3"))
+	{
 		prefix_key = "origins_"
+		py -= 8
+	}
 	if (LS_BG == 1) // S3C
 		suffix_key = "s3c"
 	else if (LS_BG == 2) // S3A
@@ -342,8 +346,8 @@ function void DrawLevelSelectBG()
 	if (!Mods.isModActive("Sonic 3 Complete Level Select+")) // background overlap fix
 	{
 		if (LS_BG != 3)
-			Renderer.drawCustomSprite(stringformat("%sls_%s", prefix_key, suffix_key), getScreenExtend() - 40, 0, 0x00, 0, 0x1000)
-		Renderer.drawCustomSprite("ls_s&k", getScreenExtend() - 40, 0, 0x00, 0, 0x1000)
+			Renderer.drawCustomSprite(stringformat("%sls_%s", prefix_key, suffix_key), s16(getScreenWidth() - 512), py, 0x00, 0, 0x1000)
+		Renderer.drawCustomSprite("ls_s&k", s16(getScreenWidth() - 512), py, 0x00, 0, 0x1000)
 	}
 }
 
@@ -405,9 +409,9 @@ function void DrawSpritesToLevelSelect()
 					}
 			#endif
 		#endif
-		Renderer.drawText(FONT_LS_Y, (getScreenWidth()-104)-52+widthextend, getScreenHeight()-16,(stringformat("%d", (character_num / 100) % 10)), 0xFFFFFFFF, 1, 0, 0xFFFD, true) //100s place
-		Renderer.drawText(FONT_LS_Y, (getScreenWidth()-104)-44+widthextend, getScreenHeight()-16,(stringformat("%d", (character_num / 10) % 10)), 0xFFFFFFFF, 1, 0, 0xFFFD, true) //10s place
-		Renderer.drawText(FONT_LS_Y, (getScreenWidth()-104)-36+widthextend, getScreenHeight()-16,(stringformat("%d", character_num % 10)), 0xFFFFFFFF, 1, 0, 0xFFFD, true) //1s place
+		Renderer.drawText(FONT_LS_Y, (getScreenWidth()-104)-64+widthextend, getScreenHeight()-16,(stringformat("%d", (character_num / 100) % 10)), 0xFFFFFFFF, 1, 0, 0xFFFD, true) //100s place
+		Renderer.drawText(FONT_LS_Y, (getScreenWidth()-104)-56+widthextend, getScreenHeight()-16,(stringformat("%d", (character_num / 10) % 10)), 0xFFFFFFFF, 1, 0, 0xFFFD, true) //10s place
+		Renderer.drawText(FONT_LS_Y, (getScreenWidth()-104)-48+widthextend, getScreenHeight()-16,(stringformat("%d", character_num % 10)), 0xFFFFFFFF, 1, 0, 0xFFFD, true) //1s place
 
 		#if EXTRA_CHARACTERS_ACTIVE
 			#if EXTRA_CHARACTERS_UNLIMITED
@@ -418,9 +422,9 @@ function void DrawSpritesToLevelSelect()
 					u8 continueicon = 0
 					if (levelselect.characters > 0)
 						++continueicon
-					Renderer.drawCustomSprite(getCharacterContinueIcon(levelselect.characters-continueicon), getScreenWidth()-104+widthextend, getScreenHeight()-8, 0x00, 0, 0x9f7e)
+					Renderer.drawCustomSprite(getCharacterContinueIcon(levelselect.characters-continueicon), getScreenWidth()-112+widthextend, getScreenHeight()-8, 0x00, 0, 0x9f7e)
 					if (levelselect.characters == 0 || (levelselect.characters == 4 && ExtraSlotStart == 5))
-						Renderer.drawCustomSprite(getCharacterContinueIcon(1), getScreenWidth()-120+widthextend, getScreenHeight()-8, 0x00, 0, 0x9f7e)
+						Renderer.drawCustomSprite(getCharacterContinueIcon(1), getScreenWidth()-128+widthextend, getScreenHeight()-8, 0x00, 0, 0x9f7e)
 		#if !EXTRA_CHARACTERS_ACTIVE
 					else if (levelselect.characters > ExtraSlotStart)
 					{
@@ -452,10 +456,10 @@ function void DrawSpritesToLevelSelect()
 						else if (global.xtrachar == 0x03 && Mods.isModActive("Extra Slot Amy"))
 							key = "em_amy"
 						if (Renderer.hasCustomSprite(key))
-							Renderer.drawCustomSprite(key, getScreenWidth()-104+widthextend, getScreenHeight()-8, (key == getCharacterContinueIcon(global.xtrachar) ? getatex(global.xtrachar)+0x41 : 0x00), 0, 0x9f7e)
+							Renderer.drawCustomSprite(key, getScreenWidth()-112+widthextend, getScreenHeight()-8, (key == getCharacterContinueIcon(global.xtrachar) ? getatex(global.xtrachar)+0x41 : 0x00), 0, 0x9f7e)
 						else Renderer.drawCustomSprite("unknown_extraslot", (getScreenWidth()-104)-11+widthextend, (getScreenHeight()-8)-24, 0x00, 0, 0x9f7e)
 					}
-					else Renderer.drawCustomSprite(stringformat("em_slot%d", global.xtrachar), getScreenWidth()-104+widthextend, getScreenHeight()-8, 0x00, 0, 0x9f7e)
+					else Renderer.drawCustomSprite(stringformat("em_slot%d", global.xtrachar), getScreenWidth()-112+widthextend, getScreenHeight()-8, 0x00, 0, 0x9f7e)
 				}
 			#endif
 		#endif

@@ -555,10 +555,10 @@ function void TitleScreen()
 	A1 = 0x00459c
 	while (true)
 	{
-		global.frame_state = 0x02
+		global.frame_state = 0x04
 		waitForNextFrame()
 
-		//copyMemory(0xfffffc00, A1, 0x0e)
+		copyMemory(0xfffffc00, A1, 0x0e)
 		if (u16[A1] == 0)
 			break
 
@@ -744,7 +744,7 @@ function void TitleScreen()
 			u64 key = stringformat("bg_title_screen_%d", animFrame)
 		else
 			key = stringformat("bg_title_screen_new_%d", animFrame)
-		Renderer.drawCustomSprite(key, getScreenExtend() - 40, 0, 0x00, 0, 0x1100)
+		Renderer.drawCustomSprite(key, s16(getScreenWidth() - 476) / 2, 0, 0x00, 0, 0x1100)
 	}
 		
 	while (true)
@@ -993,6 +993,7 @@ function void fn00486c()
 //# address-hook(0x0048dc) end(0x0048fe)
 function void fn0048dc()
 {
+	++titleintro.frames
 	#if EXPANSION_PACK_ACTIVE
 	if (Mods.getModPriority("Expansion Pack") < Mods.getModPriority("Sonic 3 A.I.R. with Extra Mushrooms"))
 	{
@@ -1023,12 +1024,12 @@ function void fn0048dc()
 	else
 	{
 		++level.framecounter
-		u16 animFrame = (level.framecounter/(19/2)) % 12
+		u16 animFrame = (level.framecounter/(19/2)) % 6
 		if (!Mods.isModActive("Sonic 3: D.A. Garden Edition"))
 			u64 key = stringformat("bg_title_screen_%d", animFrame)
 		else
 			key = stringformat("bg_title_screen_new_%d", animFrame)
-		Renderer.drawCustomSprite(key, getScreenExtend() - 40, 0, 0x00, 0, 0x1100)
+		Renderer.drawCustomSprite(key, s16(getScreenWidth() - 512) / 2, -8, 0x00, 0, 0x1100)
 	}
 	++pbutt_timer
 	if (pbutt_timer > 55)
@@ -1513,7 +1514,6 @@ function void fn004be4()
 				Renderer.drawCustomSprite(tornado, objA0.position.x.u16-152, objA0.position.y.u16/4+21, 0x00, (objA0.render_flags & 0x00) || SPRITE_FLAG_PRIO, 0x1200)
 			else
 				Renderer.drawCustomSprite(stringformat("%s_em", tornado), objA0.position.x.u16-152, objA0.position.y.u16/4+21, 0x00, (objA0.render_flags & 0x00) || SPRITE_FLAG_PRIO, 0x1200)
-
 		}
 		else
 		{

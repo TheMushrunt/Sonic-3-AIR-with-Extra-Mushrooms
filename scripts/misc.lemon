@@ -1,5 +1,6 @@
 function void Renderer.drawCustomSprite(u64 key, s16 px, s16 py, u8 atex, u8 flags, u16 renderQueue) 
 {
+#if GAMEAPP < 0x23082700
 	if (key == "sonic3air_logo" && global.game_mode == 0x0c) // draw extra mushrooms logo
 	{
 		if (!Mods.isModActive("Sonic 3: D.A. Garden Edition"))
@@ -19,6 +20,7 @@ function void Renderer.drawCustomSprite(u64 key, s16 px, s16 py, u8 atex, u8 fla
 		if (bros_chancetime >= 50 && bros_chancetime <= 100 && NO_SECRETS_ON_3AIRMENU != 3)
 			Renderer.drawCustomSprite("bros", px, 69, 0, 0, 0x1001) // i'm brosing out rn
 	}
+#endif
 	
 	if (key == "ls_icon_12" && LS_DEZ)
 		key = stringformat("%s_origins", key)
@@ -49,6 +51,29 @@ function void Renderer.drawCustomSprite(u64 key, s16 px, s16 py, u8 atex, u8 fla
 	base.Renderer.drawCustomSprite(key, px, py, atex, flags, renderQueue)
 }
 
+#if GAMEAPP >= 0x23082700
+function void MainMenuBG.Update(u16 cameraForegroundX, u16 cameraBackgroundX)
+{
+	base.MainMenuBG.Update(cameraForegroundX, cameraBackgroundX)
+	if (!Mods.isModActive("Sonic 3: D.A. Garden Edition"))
+	{
+		u8 emYPos = 22
+		if (Mods.isModActive("Consistent Sonic 3"))
+			emYPos += 2
+	}
+	else
+		u8 emYPos = 38
+	Renderer.drawCustomSprite("extramushrooms", MainMenuBG.logoPosition-84, emYPos, 0, 0, 0x9999)
+	
+	if (bros_chancetime >= 200 && bros_chancetime <= 250)
+		Renderer.drawCustomSprite("luigiboard", MainMenuBG.logoPosition-80, 80, 0, 0, 0x1002) // the luigi board.....
+	if (bros_chancetime >= 10 && bros_chancetime <= 20 && NO_SECRETS_ON_3AIRMENU != 2) // face my wega storm
+		Renderer.drawCustomSprite("wega", MainMenuBG.logoPosition-64, 0, 0, 0, 0x1000)
+	if (bros_chancetime >= 50 && bros_chancetime <= 100 && NO_SECRETS_ON_3AIRMENU != 3)
+		Renderer.drawCustomSprite("bros", MainMenuBG.logoPosition, 69, 0, 0, 0x1001) // i'm brosing out rn
+}
+#endif
+
 //# address-hook(0x01da60) end(0x01db26)
 function void ItemEffect.ApplySuperTransformation() // RSDK Parity
 {
@@ -62,21 +87,24 @@ function void ItemEffect.ApplySuperTransformation() // RSDK Parity
 	}
 }
 
+#if GAMEAPP < 0x23082700
+
 //# address-hook(0x00565a) end(0x0056e2)
-function void fn00565a() // function for Sonic falling in S&K title screen
+function void fn00565a() // fixing Sonic's horizontal position for those who do not have the latest test build as of this comment (08/27/2023)
 {
 	if (objA0.position.x.u16 != 0xe8 + getScreenExtend())
-		objA0.position.x.u16 = 0xe8 + getScreenExtend() // correct horizontal position at all times it's shown because AIR has it offset in most widths for no reason
+		objA0.position.x.u16 = 0xe8 + getScreenExtend()
 	base.fn00565a()
 }
-#if GAMEAPP <= 0x23051401
+
 //# address-hook(0x005b42) end(0x005c0a)
-function void fn005b42() // fix for S&K title screen for versions before some test build that hasn't released yet
+function void fn005b42() // fix for S&K title screen for people outside of those using the previously mentioned test build
 {
 	base.fn005b42()
 	u8[A2+10] = 0
 	u8[A2 + 11] = D5.u8
 }
+
 #endif
 
 function bool Standalone.onWriteToSpriteTable(s16 px, s16 py, u16 renderQueue)
