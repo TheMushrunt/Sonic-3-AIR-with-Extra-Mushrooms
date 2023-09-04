@@ -727,7 +727,7 @@ function void TitleScreen()
 	else
 	{
 		++level.framecounter
-		u16 animFrame = (level.framecounter/(19/2)) % 12
+		u16 animFrame = (level.framecounter/(19/2)) % 6
 		if (!Mods.isModActive("Sonic 3: D.A. Garden Edition"))
 			u64 key = stringformat("bg_title_screen_%d", animFrame)
 		else

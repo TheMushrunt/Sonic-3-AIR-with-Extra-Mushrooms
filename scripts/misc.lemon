@@ -4,13 +4,8 @@ function void Renderer.drawCustomSprite(u64 key, s16 px, s16 py, u8 atex, u8 fla
 	if (key == "sonic3air_logo" && global.game_mode == 0x0c) // draw extra mushrooms logo
 	{
 		if (!Mods.isModActive("Sonic 3: D.A. Garden Edition"))
-		{
 			u8 emYPos = 22
-			if (Mods.isModActive("Consistent Sonic 3"))
-				emYPos += 2
-		}
-		else
-			u8 emYPos = 38
+		else emYPos = 38
 		Renderer.drawCustomSprite("extramushrooms", px-84, emYPos, 0, 0, renderQueue-1)
 		
 		if (bros_chancetime >= 200 && bros_chancetime <= 250)
@@ -56,13 +51,8 @@ function void MainMenuBG.Update(u16 cameraForegroundX, u16 cameraBackgroundX)
 {
 	base.MainMenuBG.Update(cameraForegroundX, cameraBackgroundX)
 	if (!Mods.isModActive("Sonic 3: D.A. Garden Edition"))
-	{
 		u8 emYPos = 22
-		if (Mods.isModActive("Consistent Sonic 3"))
-			emYPos += 2
-	}
-	else
-		u8 emYPos = 38
+	else emYPos = 38
 	Renderer.drawCustomSprite("extramushrooms", MainMenuBG.logoPosition-84, emYPos, 0, 0, 0x9999)
 	
 	if (bros_chancetime >= 200 && bros_chancetime <= 250)
