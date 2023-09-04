@@ -328,7 +328,7 @@ function void DrawLevelSelectBG()
 	u64 prefix_key // origins or not
 	u64 suffix_key // S2/3, S3C, S3A (in S3C), S&K (in S3C), EM, or EM (alt)
 	u64 py = 0
-	if (Mods.isModActive("Origins Title + Menu Backgrounds") || Mods.isModActive("Consistent Sonic 3"))
+	if (Mods.isModActive("Origins Title + Menu Backgrounds") || Mods.isModActive("Polished Sprites"))
 	{
 		prefix_key = "origins_"
 		py -= 8

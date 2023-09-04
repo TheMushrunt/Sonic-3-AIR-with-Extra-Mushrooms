@@ -10,8 +10,6 @@ constant u16 TitleScreen.Characters.targetInVRAM		= 0x8000
 constant u16 TitleScreen.AndKnucklesTitle.targetInVRAM	= 0x9800
 constant u16 TitleScreen.Banner.targetInVRAM			= 0xa000
 constant u16 TitleScreen.Menu.targetInVRAM				= 0xd000
-constant u8 AudioOverhaul.PAUSE_MENU_MUSIC_CHANNEL_ID = 0x04
-constant u8 AudioOverhaul.MAIN_MENU_MUSIC_CHANNEL_ID = 0x03
 
 // Extra Mushrooms Rich Presence, for fun
 // it only displays when using the Title Screen options, for fairness.
@@ -64,16 +62,6 @@ function void MainMenuBG.Run()
 	if (bros_chancetime >= 10 && bros_chancetime <= 20 && NO_SECRETS_ON_3AIRMENU != 2)
 		Audio.playAudio("wega_storm")
 	base.MainMenuBG.Run()
-}
-
-// for Compatibility with D.A. Garden...
-function void Letters.Main()
-{
-	base.Letters.Main()
-}
-function void PrintVersionNumber()
-{
-	base.PrintVersionNumber()
 }
 
 function void OriginsMenu()
