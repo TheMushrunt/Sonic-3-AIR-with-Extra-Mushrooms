@@ -79,7 +79,7 @@ function void fn072e30()
 
 function void fleeingegg() // support for Minor Sonic 3 Tweaks's Fleeing Eggman
 {
-	if (SODEFALL == 1)
+	if (SODEFALL)
 		playSound(0x60)
 	base.fleeingegg()
 }
@@ -145,13 +145,13 @@ function void LBZFading(u8 scenario)
 
 function void DoLBZTransition() // support for S3C LBZ Transition
 {
-	if (SODEFALL == 1)
+	if (SODEFALL)
 		playMusic(MUSIC_CTRL_FADEOUT)
 	base.DoLBZTransition()
 }
 function void fn0057a2() // support for S3C LBZ transition, part 2
 {
-	if (SODEFALL == 1)
+	if (SODEFALL)
 	{
 		if (global.zone == 0x06)
 			Audio.playAudio("em_deathegg_fall")
@@ -164,7 +164,7 @@ function void fn005d94() // support for S3C LBZ transition, part 3
 {
 	if (global.zone == 0x06)
 	{
-		if (global.demo_countdown > 0xdd)
+		if (global.demo_countdown > 0xdd || !SODEFALL)
 		{
 			base.fn005d94()
 			return
@@ -180,7 +180,9 @@ function void fn005d94() // support for S3C LBZ transition, part 3
 
 function u64 Standalone.getModdedSoundKey(u64 soundKey, u8 sfxId, u8 soundRegType) // support for S3C LBZ transition, part 4
 {
-	if (((sfxId == 0x9b || sfxId == 0x4f) && objA0.update_address == 0x0057a2 && SODEFALL == 1) && global.zone == 0x06)
+	if (!SODEFALL)
+		return base.Standalone.getModdedSoundKey(soundKey, sfxId, soundRegType)
+	if (((sfxId == 0x9b || sfxId == 0x4f) && objA0.update_address == 0x0057a2) && global.zone == 0x06)
 	{
 		if (sfxId == 0x9b)
 			playSound(SFX_COLLAPSE)
