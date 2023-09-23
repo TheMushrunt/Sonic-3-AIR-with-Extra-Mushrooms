@@ -4,14 +4,6 @@ include misc
 include lbz2
 include aizspeedup
 include pausescreen
-// ACHIEVEMENTS PLUS COMPATIBILITY
-#if ACHIEVEMENTS_PLUS_ACTIVE
-include achievementplus_hud
-#endif
-// D.A. GARDEN COMPATIBILITY
-#if DAGE_running
-include dagarden_fixes
-#endif
 
 // GLOBAL VARIABLES
 
@@ -37,6 +29,7 @@ global u8 NO_SECRETS_ON_3AIRMENU
 global u8 TS_ANIMATED_BG
 global u8 YOU_FUCKED_UP_KID
 global u16 snkmoddedtitlespriteoffset
+global u8 AP_HUD_COMPAT
 // LEVELSELECT.LEMON
 global u8 LS_BG
 global u8 LS_FONT
@@ -92,5 +85,3 @@ global u8 S3EM_PAUSE_SFX
 global u8 S3EM_PAUSE_EXIT_SFX
 global u8 S3EM_PAUSE_COMPAT
 global u8 DEBUG_PAUSE_TO_LS
-// ACHIEVEMENTPLUS_HUD.LEMON
-global u8 AP_HUD_COMPAT

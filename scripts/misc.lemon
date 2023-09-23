@@ -323,16 +323,16 @@ function void Character.updateJumpMoves()
 		{
 			if (char.double_jump_state == 0)
 			{
-					if (Input.buttonPressed(BUTTON_Y))
+				if (Input.buttonPressed(BUTTON_Y))
+				{
+					if (!isSuperActive && SHTS == 0 && (!Mods.isModActive("Sonic 3: D.A. Garden Edition") || ((Mods.isModActive("Sonic 3: D.A. Garden Edition") && !System.getGlobalVariableValueByName("original_mode")))))
 					{
-						if (!isSuperActive && SHTS == 0 && !Mods.isModActive("Sonic 3: D.A. Garden Edition"))
-						{
-							if (Character.performSuperTransformation())
-								return
-						}
-						else if (!Mods.isModActive("Sonic 3: D.A. Garden Edition"))
-							base.Character.updateJumpMoves()
+						if (Character.performSuperTransformation())
+							return
 					}
+					else if (!Mods.isModActive("Sonic 3: D.A. Garden Edition"))
+						base.Character.updateJumpMoves()
+				}
 				if (input_pressed & CONTROL_ABC)
 				{
 					if (onCharacterPressedJumpInMidAir(input_state, input_pressed))

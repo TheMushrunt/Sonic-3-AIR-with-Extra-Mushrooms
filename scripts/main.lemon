@@ -239,6 +239,11 @@ function void BlueSphereGame()
 	}
 }
 
+function bool returnAPUsingCoinsHUD() // checking for Achievements Plus putting the Coins HUD in for various reasons
+{
+	return (Mods.isModActive("Achievements Plus") && System.getGlobalVariableValueByName("SETTING_ACHIEVEPLUS_COINS_HUD"))
+}
+
 //# address-hook(0x00db44) end(0x00dbb2)
 function void RenderHUD()
 {
@@ -246,12 +251,10 @@ function void RenderHUD()
 		return
 	if (!debug_mode.state)
 	{
-		if (INF_LIVES_DISPLAY && (!Mods.isModActive("Achievements Plus")))
+		if (INF_LIVES_DISPLAY || (AP_HUD_COMPAT && returnAPUsingCoinsHUD()))
 		{
-			if (Game.getSetting(SETTING_INFINITE_LIVES))
-			{
+			if ((Game.getSetting(SETTING_INFINITE_LIVES) && !Mods.isModActive("Achievements Plus")) || (AP_HUD_COMPAT && Mods.isModActive("Achievements Plus")))
 				drawInfiniteLives()
-			}
 		}
 	}
 	base.RenderHUD()
@@ -259,6 +262,9 @@ function void RenderHUD()
 
 function void drawInfiniteLives()
 {
+	if (Game.getSetting(SETTING_INFINITE_LIVES) && AP_HUD_COMPAT && !INF_LIVES_DISPLAY)
+		return
+		
 	s16 baseX = global.level_started
 	if (baseX < 0x00)
 		baseX += 0x08
@@ -266,7 +272,20 @@ function void drawInfiniteLives()
 	s16 baseY = 0x08
 	u16 renderQueue = 0xe000
 	
-	bool useMobilePosition = HUD.useMobileLivesDisplay()
+	u8 checkSettings = 0
+	if (returnAPUsingCoinsHUD())
+	{
+		if (System.getGlobalVariableValueByName("SETTING_ACHIEVEPLUS_COINS_HUD"))
+			++checkSettings
+		if (HUD.useMobileLivesDisplay())
+			++checkSettings
+	}
+		
+	bool useMobilePosition
+	if (returnAPUsingCoinsHUD())
+		useMobilePosition = checkSettings % 2 != 0
+	else
+		useMobilePosition = HUD.useMobileLivesDisplay()
 	u16 px = useMobilePosition ? (getScreenWidth() - baseX - 0x30) : baseX
 	u16	py = useMobilePosition ? baseY : 200
 	
@@ -287,7 +306,7 @@ function void drawInfiniteLives()
 				HUD.drawSprite(shadowkey, px, py, renderQueue)
 		}
 	#endif
-	if (INF_LIVES_DISPLAY == 1)
+	if (INF_LIVES_DISPLAY != 2 || !Game.getSetting(SETTING_INFINITE_LIVES))
 	{
 		if (lives_counter >= 10)
 			HUD.drawSmallDigit(u16((lives_counter / 10) % 10), px + 0x20, py + 8, renderQueue)
