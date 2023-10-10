@@ -30,6 +30,7 @@ global u8 TS_ANIMATED_BG
 global u8 YOU_FUCKED_UP_KID
 global u16 snkmoddedtitlespriteoffset
 global u8 AP_HUD_COMPAT
+global u8 EMmagicVariable = 0
 // LEVELSELECT.LEMON
 global u8 LS_BG
 global u8 LS_FONT

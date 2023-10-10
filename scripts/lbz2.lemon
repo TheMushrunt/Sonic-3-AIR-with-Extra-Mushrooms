@@ -182,6 +182,8 @@ function u64 Standalone.getModdedSoundKey(u64 soundKey, u8 sfxId, u8 soundRegTyp
 {
 	if (!SODEFALL)
 		return base.Standalone.getModdedSoundKey(soundKey, sfxId, soundRegType)
+	if (sfxId == 0x4e && global.zone == 0x06 && objA0.update_address == 0x072cda)
+		return false
 	if (((sfxId == 0x9b || sfxId == 0x4f) && objA0.update_address == 0x0057a2) && global.zone == 0x06)
 	{
 		if (sfxId == 0x9b)

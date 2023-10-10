@@ -518,7 +518,8 @@
 				"Options": {
 					"0": "Off",
 					"1": "On (Lives Count)",
-					"2": "On (Infinite Symbol)"
+					"2": "On (Infinite Symbol)",
+					"3": "On (Better Compat.)"
 				}
 			},
 			{

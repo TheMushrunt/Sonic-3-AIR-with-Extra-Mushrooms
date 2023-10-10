@@ -1,7 +1,7 @@
 constant array<u64> LSNames = // default ordering
 {
 	"angel island", "[ZONE 2]", "marble garden", "carnival night", "[ZONE 5]", "launch base", "[ZONE 7]", "flying battery", "sandopolis",
-	"lava reef", "hidden palace", "sky sanctuary", "death egg", "the doomsday", "bonus stage", "special stage", "sound test"
+	"lava reef", "hidden palace", "sky sanctuary", "death egg", "[ZONE 14]", "bonus stage", "special stage", "sound test"
 }
 
 constant array<u64> LSNames_OGOrder = // prototype ordering, flying battery is after carnival night

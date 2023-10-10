@@ -244,6 +244,13 @@ function bool returnAPUsingCoinsHUD() // checking for Achievements Plus putting 
 	return (Mods.isModActive("Achievements Plus") && System.getGlobalVariableValueByName("SETTING_ACHIEVEPLUS_COINS_HUD"))
 }
 
+function u32 Game.getSetting(u32 settingId)
+{
+	if (settingId == SETTING_INFINITE_LIVES && EMmagicVariable)
+		return 0
+	return base.Game.getSetting(settingId)
+}
+
 //# address-hook(0x00db44) end(0x00dbb2)
 function void RenderHUD()
 {
@@ -251,13 +258,16 @@ function void RenderHUD()
 		return
 	if (!debug_mode.state)
 	{
-		if (INF_LIVES_DISPLAY || (AP_HUD_COMPAT && returnAPUsingCoinsHUD()))
+		if ((INF_LIVES_DISPLAY && INF_LIVES_DISPLAY != 3) || (AP_HUD_COMPAT && returnAPUsingCoinsHUD()))
 		{
 			if ((Game.getSetting(SETTING_INFINITE_LIVES) && !Mods.isModActive("Achievements Plus")) || (AP_HUD_COMPAT && Mods.isModActive("Achievements Plus")))
 				drawInfiniteLives()
 		}
 	}
+	if (INF_LIVES_DISPLAY == 3)
+		EMmagicVariable = 1
 	base.RenderHUD()
+	EMmagicVariable = 0
 }
 
 function void drawInfiniteLives()
@@ -562,7 +572,7 @@ function void TitleScreen()
 	A1 = 0x00459c
 	while (true)
 	{
-		global.frame_state = 0x04
+		global.frame_state = 0x08
 		waitForNextFrame()
 
 		copyMemory(0xfffffc00, A1, 0x0e)
