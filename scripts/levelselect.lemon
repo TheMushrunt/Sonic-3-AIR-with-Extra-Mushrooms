@@ -448,7 +448,7 @@ function void DrawSpritesToLevelSelect()
 				{
 					if !(Renderer.hasCustomSprite(stringformat("em_slot%d", global.xtrachar)))
 					{
-						u64 key = getCharacterContinueIcon(global.xtrachar)
+						u64 key = stringformat("continue_icon_slot%d", global.xtrachar)
 						if (global.xtrachar == 0x01 && Mods.isModActive("Extra Slot Mighty"))
 							key = "em_mighty"
 						else if (global.xtrachar == 0x02 && Mods.isModActive("Extra Slot Ray"))
@@ -949,6 +949,9 @@ function bool fn007d6c()
 	}
 	return base.fn007d6c()
 }
+
+//# address-hook(0x007e64) end(0x007f1e)
+//# translated(0x007f46) end(0x007f60)
 function void fn007e64()
 {
 	if (!LS_FORCE_BASE)
@@ -1026,6 +1029,15 @@ function void fn007e64()
 						playMusic(levelselect.soundtest)
 				}
 				EM.checkCheats()
+				#if EXTRA_CHARACTERS_ACTIVE
+					#if EXTRA_CHARACTERS_UNLIMITED
+						levelselect.selection = Mods.isModActive("extended level select") ? 0x28 : 0x20
+						base.fn007e64()
+						levelselect.selection = 0x21
+						if (ESUScreen == 3 && levelselect.soundtest == 0x21)
+							playMusic(MUSIC_CTRL_STOP)
+					#endif
+				#endif
 			}
 			if (control.pad1.pressed & CONTROL_B)
 			{
@@ -1053,15 +1065,8 @@ function void fn007e64()
 					u8 maxCharacterSelection = Game.isSecretUnlocked(SECRET_KNUX_AND_TAILS) ? 0x04 : 0x03
 							
 					if (levelselect.characters < maxCharacterSelection && !levelselect.xtrachar)
-					{
-						++levelselect.characters
-						if (levelselect.characters > maxCharacterSelection)
-						levelselect.characters = 0x00
-					}
-					else
-					{
-						levelselect.xtrachar = true
-					}
+						levelselect.characters++
+					else levelselect.xtrachar = true
 					if (levelselect.xtrachar)
 					{
 						if (global.xtrachar < ExtraChar.getHighestSlot())
@@ -1084,7 +1089,7 @@ function void fn007e64()
 						else
 						{
 							global.xtrachar = CHARACTER_UNSET
-							levelselect.characters = 0x00
+							levelselect.characters = CHARS_SONIC_AND_TAILS
 							levelselect.xtrachar = false
 						}
 					}
@@ -1093,12 +1098,8 @@ function void fn007e64()
 						u8 maxCharacterSelection = WhatWillItBe(3)
 						// Knuckles & Tails
 						if (Game.isSecretUnlocked(SECRET_KNUX_AND_TAILS))
-						{
 							maxCharacterSelection = WhatWillItBe(4)
-						}
-						++levelselect.characters
-						if (levelselect.characters > maxCharacterSelection)
-							levelselect.characters = 0
+						levelselect.characters = (levelselect.characters < maxCharacterSelection) ? (levelselect.characters + 1) : CHARS_SONIC_AND_TAILS
 				#endif
 			}
 		}
