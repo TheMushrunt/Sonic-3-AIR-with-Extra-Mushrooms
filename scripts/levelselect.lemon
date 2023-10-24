@@ -55,11 +55,7 @@ function void LevelSelect()
 	if (!LS_FORCE_BASE && !Mods.isModActive("Sonic 3 Complete Level Select+"))
 	{
 		FadeOutScreenBlocking()
-	#if STANDALONE
 		Renderer.resetSprites()
-	#else
-		set_status_register(0x2700)
-	#endif
 		LevelSelect.init()
 
 		Menu.FadeInAfterInit()
@@ -1028,16 +1024,18 @@ function void fn007e64()
 					else
 						playMusic(levelselect.soundtest)
 				}
-				EM.checkCheats()
 				#if EXTRA_CHARACTERS_ACTIVE
 					#if EXTRA_CHARACTERS_UNLIMITED
 						levelselect.selection = Mods.isModActive("extended level select") ? 0x28 : 0x20
 						base.fn007e64()
 						levelselect.selection = 0x21
+						if (levelselect.soundtest == 0x19) // just in case
+							ESUScreen = 1
 						if (ESUScreen == 3 && levelselect.soundtest == 0x21)
 							playMusic(MUSIC_CTRL_STOP)
 					#endif
 				#endif
+				EM.checkCheats()
 			}
 			if (control.pad1.pressed & CONTROL_B)
 			{
