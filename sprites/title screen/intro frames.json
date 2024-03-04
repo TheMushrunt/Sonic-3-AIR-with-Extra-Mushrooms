@@ -1,6 +1,7 @@
 {
 	//SEGA
 	"sega_logo_em":  { "File": "sega_logo.png" },
+	"sega_logo_black_em":  { "File": "sega_logo_black.png" },
 	// intro frames
 	"Sonic_Intro_0_em":  { "File": "intro1.png" },
 	"Sonic_Intro_1_em":  { "File": "intro2.png" },

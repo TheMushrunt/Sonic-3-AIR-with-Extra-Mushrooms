@@ -5,8 +5,30 @@
 		"UniqueID": "extra-mushrooms",
 		"Author": "TheMushrunt",
 		"Description": "Edits to a few of Sonic 3 A.I.R.'s scripts to refine the overall experience, regardless of actual importance to the game.",
-		"ModVersion": "2.5.0",
+		"ModVersion": "3.0.0",
 		"GameVersion": "20.04.26.0"
+	},
+	"OtherMods": {
+		"extra-character-slots-unlimited": {
+		  "DisplayName": "extra-character-slots-unlimited",
+		  "IsRequired": "0",
+		  "Priority": "Lower"
+		},
+		"mrgrassman14-misc-fixes-and-tweaks": {
+		  "DisplayName": "Misc. Fixes and Tweaks",
+		  "IsRequired": "0",
+		  "Priority": "Lower"
+		},
+		"Sonic 3 Complete - Launch Base Zone Transition": {
+			"DisplayName": "Sonic 3 Complete - Launch Base Zone Transition",
+			"IsRequired": "0",
+			"Priority": "Lower"
+		},
+		"thorn-d.a.-garden-edition": {
+			"DisplayName": "Sonic 3: D.A. Garden Edition",
+			"IsRequired": "0",
+			"Priority": "Lower"
+		}
 	},
 	"Settings":
 	{
@@ -380,7 +402,7 @@
 			},
 			{
 				"InternalName": "Easier Big Arms",
-				"DisplayName": "Easier Big Arms",
+				"DisplayName": "Easier to hit Big Arms",
 				"Variable": "EBA",
 				"Category": "Launch Base",
 				"DefaultValue": "1",
@@ -455,7 +477,7 @@
 				"DisplayName": "Disable Menu Secrets",
 				"Variable": "NO_SECRETS_ON_3AIRMENU",
 				"Category": "Miscellaneous Stuff",
-				"DefaultValue": "0",
+				"DefaultValue": "2",
 				"Options": {
 					"0": "Off",
 					"1": "On",

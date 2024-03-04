@@ -24,22 +24,16 @@ function void DrawBossHealthBar(u8 boss.id, u8 bar.health, u8 bar.max)
 //# address-hook(0x0744a4) end(0x0744e2)
 function void fn0744a4()
 {
-	if (EBA == 1) // EBA makes the velocity lower to make it easier to hit when it's doing the ground attack
-		objA0.velocity.y += 0x35
-	else // Default Big Arms velocity
-		objA0.velocity.y += 0x40
-	UpdateMovementStraightSimple()
-	if (objA0.velocity.y >= 0)
+	if (EBA == 1) // EBA makes the velocity lower to make it easier to hit when it's moving up before it starts moving
+		objA0.velocity.y -= 15
+	base.fn0744a4()
+	if (objA0.velocity.y >= 0 && EBA == 1) // make it switch movements higher up so you can hit the boss while it moves left and right without an instashield
 	{
-    //BOTTOM OF SCREEN MOVING
-		D0.u16 = camera.foreground.y.u16 + 0xd0
-		if (D0.u16 <= objA0.position.y.u16)
+		if (camera.foreground.y.u16 + 0xcc <= objA0.position.y.u16)
 		{
-			objA0.base_state = 0x16
-			objA0.position.y.u16 = D0.u16 - 5
-			objA0.velocity.y = 0
-			objA0.countdown_value = 0x1f
-			objA0.countdown_callback = 0x0744ea
+			objA0.position.y.u16 += 4
+			base.fn0744a4()
+			objA0.position.y.u16 -= 4
 		}
 	}
 }

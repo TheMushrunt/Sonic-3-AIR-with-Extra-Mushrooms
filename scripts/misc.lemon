@@ -1,22 +1,5 @@
 function void Renderer.drawCustomSprite(u64 key, s16 px, s16 py, u8 atex, u8 flags, u16 renderQueue) 
 {
-#if GAMEAPP < 0x23082700
-	if (key == "sonic3air_logo" && global.game_mode == 0x0c) // draw extra mushrooms logo
-	{
-		if (!Mods.isModActive("Sonic 3: D.A. Garden Edition"))
-			u8 emYPos = 22
-		else emYPos = 38
-		Renderer.drawCustomSprite("extramushrooms", px-84, emYPos, 0, 0, renderQueue-1)
-		
-		if (bros_chancetime >= 200 && bros_chancetime <= 250)
-			Renderer.drawCustomSprite("luigiboard", px-80, 80, 0, 0, 0x1002) // the luigi board.....
-		if (bros_chancetime >= 10 && bros_chancetime <= 20 && NO_SECRETS_ON_3AIRMENU != 2) // face my wega storm
-			Renderer.drawCustomSprite("wega", px-64, 0, 0, 0, 0x1000)
-		if (bros_chancetime >= 50 && bros_chancetime <= 100 && NO_SECRETS_ON_3AIRMENU != 3)
-			Renderer.drawCustomSprite("bros", px, 69, 0, 0, 0x1001) // i'm brosing out rn
-	}
-#endif
-	
 	if (key == "ls_icon_12" && LS_DEZ)
 		key = stringformat("%s_origins", key)
 	if (key == "ls_bonus_1" && (LS_BONUS == 2 || Mods.isModActive("Sonic 3 Complete Level Select+")))
@@ -52,7 +35,10 @@ function void MainMenuBG.Update(u16 cameraForegroundX, u16 cameraBackgroundX)
 	base.MainMenuBG.Update(cameraForegroundX, cameraBackgroundX)
 	if (!Mods.isModActive("Sonic 3: D.A. Garden Edition"))
 		u8 emYPos = 22
-	else emYPos = 38
+	else if (Renderer.hasCustomSprite("title_screen_air_new")) // support for newer versions of DA garden
+		emYPos = 40
+	else // support for older DA garden versions, i guess. who uses the older versions if they know about the newer ones?
+		emYPos = 38
 	Renderer.drawCustomSprite("extramushrooms", MainMenuBG.logoPosition-84, emYPos, 0, 0, 0x9999)
 	
 	if (bros_chancetime >= 200 && bros_chancetime <= 250)
@@ -77,44 +63,49 @@ function void ItemEffect.ApplySuperTransformation() // RSDK Parity
 	}
 }
 
-#if GAMEAPP < 0x23082700
-
-//# address-hook(0x00565a) end(0x0056e2)
-function void fn00565a() // fixing Sonic's horizontal position for those who do not have the latest test build as of this comment (08/27/2023)
-{
-	if (objA0.position.x.u16 != 0xe8 + getScreenExtend())
-		objA0.position.x.u16 = 0xe8 + getScreenExtend()
-	base.fn00565a()
-}
-
-//# address-hook(0x005b42) end(0x005c0a)
-function void fn005b42() // fix for S&K title screen for people outside of those using the previously mentioned test build
-{
-	base.fn005b42()
-	u8[A2+10] = 0
-	u8[A2 + 11] = D5.u8
-}
-
-#endif
-
-function bool Standalone.onWriteToSpriteTable(s16 px, s16 py, u16 renderQueue)
-{
-	if (ALT_MGZ_PALETTE)
-		System.loadExternalRawData("mgz custom palette", 0x0A8F5C)
-	return base.Standalone.onWriteToSpriteTable(px, py, renderQueue)
-}
-
 function u64 Monitor.getIconSpriteKey(u8 type)
 {
 	if (type == 0x08)
+	{
 		if (super.active || super.active.tails)
 			return "monitor_icon_em_surprise"
 		else
 			return "monitor_icon_invincibility"
+	}
 	else return base.Monitor.getIconSpriteKey(type)
 }
 
-// creating the Hyper Palette stuff
+//# address-hook(0x003750) end(0x00398c)
+function void UpdatePaletteEffects.SuperForm()
+{
+#if EXTRA_CHARACTERS_ACTIVE
+	#if EXTRA_CHARACTERS_UNLIMITED
+	if (!global.xtrachar)
+	#endif
+#endif
+	{
+		if (!isExtraSlot() && ORIGINS_HYPER_FX % 2 != 0 && isMainCharacter(CHARACTER_SONIC))
+			EMmagicVar_Hyper = 1
+	}
+	base.UpdatePaletteEffects.SuperForm()
+	EMmagicVar_Hyper = 0
+}
+
+function bool UpdatePaletteEffects.SuperForm.endpose()
+{
+#if EXTRA_CHARACTERS_ACTIVE
+	#if EXTRA_CHARACTERS_UNLIMITED
+	if (!global.xtrachar)
+	#endif
+#endif
+	{
+		if (!isExtraSlot() && ORIGINS_HYPER_FX % 2 != 0 && isMainCharacter(CHARACTER_SONIC))
+			return false
+	}
+	return base.UpdatePaletteEffects.SuperForm.endpose()
+}
+
+// creating the Hyper Palette stuff for modded palettes
 function void UpdatePaletteEffects.SuperForm.moddingVersion(u8 characterVersion)
 {
 	bool isHyperEffect = (super.active == 0xff || super.active.tails == 0xff)
@@ -225,15 +216,140 @@ function void UpdatePaletteEffects.SuperForm.moddingVersion(u8 characterVersion)
 	else base.UpdatePaletteEffects.SuperForm.moddingVersion(characterVersion)
 }
 
+function void UpdatePaletteEffects.SuperForm.endpose.moddingVersion(u8 characterVersion)
+{
+	u8 character = getMainCharacter()
+	bool isHyperEffect = (character == CHARACTER_SONIC && objA0.subtype2c == 0x02)
+	#if EXTRA_CHARACTERS_ACTIVE
+		#if EXTRA_CHARACTERS_UNLIMITED
+			if (global.xtrachar)
+			{
+				base.UpdatePaletteEffects.SuperForm.endpose.moddingVersion(characterVersion)
+				return
+			}
+		#endif
+	#endif
+	if (!isExtraSlot() && (ORIGINS_HYPER_FX % 2 != 0) && (isHyperEffect || (!isHyperEffect && FASTER_SUPER_FADE)))
+	{
+		// Update ongoing palette effect
+		
+		u16 blendFactor
+		u16 nextFrame
+		if (character == CHARACTER_SONIC && isHyperEffect && ORIGINS_HYPER_FX % 2 != 0)
+		{
+			blendFactor = super.palettefx.timer
+			nextFrame = (super.palettefx.frame + 9) % (isHyperEffect ? 108 : 18)
+		}
+		else
+		{
+			nextFrame = (super.palettefx.frame + 6) % (isHyperEffect ? 108 : 18)
+			blendFactor = super.palettefx.timer * 0x100 / (isHyperEffect ? 0x07 : 0x0f)
+		}
+
+		if (characterVersion == 2)
+		{
+			// Tails
+			nextFrame = (super.palettefx.frame.tails + 6) % (isHyperEffect ? 108 : 18)
+			blendFactor = super.palettefx.timer.tails * 0x100 / (isHyperEffect ? 0x07 : 0x0f)
+		}
+		if (isHyperEffect && character == CHARACTER_SONIC)
+		{
+			if (nextFrame % 2 == 0)
+				blendFactor = 0x100
+			else
+				blendFactor = 0
+		}
+		else
+		{
+			if (nextFrame % 18 == 0)
+				blendFactor = 0x100 - blendFactor
+			else if (nextFrame % 18 == 12)
+				blendFactor = 0
+		}
+
+		u32 offset = character * 0x40
+		u32 source = 0x802180 + offset
+		u32 dest   = 0x802000 + offset
+
+		// Load modded Super palette
+		u8 line = getModdedEndPosePaletteLine(character, isHyperEffect)
+
+		zeroMemory(dest, 0x40)
+		u16 numColors = System.loadExternalPaletteData(getCharacterEndPosePaletteKey(character), line, 0x800000, 0x20)
+		for (u16 i = 0; i < numColors; ++i)
+		{
+			u32 rgba = u32[0x800000 + i * 4]
+			u16[dest + i * 2] = (rgba & 0xff000000) ? packColorExt(rgba) : 0
+		}
+
+		for (u8 k = 0; k < 0x40; k += 2)
+		{
+			if (u16[dest + k] == 0)
+			{
+				// Use original color as fallback
+				u16[dest + k] = u16[source + k]
+			}
+			else
+			{
+				// Apply flash effect
+				u16[dest + k] = blendColorsPacked(u16[dest + k], 0x0eee, blendFactor)
+			}
+		}
+
+		if (characterVersion == 2)
+		{
+			// Super/Hyper Tails
+			--super.palettefx.timer.tails
+			if (super.palettefx.timer.tails < 0)
+			{
+				super.palettefx.timer.tails = isHyperEffect ? 0x07 : 0x0f
+				super.palettefx.frame.tails = nextFrame
+			}
+			return
+		}
+
+		if (character == CHARACTER_SONIC && isHyperEffect && ORIGINS_HYPER_FX % 2 != 0)
+			super.palettefx.timer -= 3
+		else if (character == CHARACTER_SONIC && !isHyperEffect && FASTER_SUPER_FADE)
+			super.palettefx.timer -= (5/3)
+		else
+			--super.palettefx.timer
+		bool FasterSuperSonicFade = (FASTER_SUPER_FADE && character == CHARACTER_SONIC)
+		if (super.palettefx.timer < 0)
+		{
+			super.palettefx.timer = isHyperEffect ? ((global.game_mode == 0x0c && isSonicIntro() && global.level_started == 0 || global.rolling_demo) ? 0x1C : 0x0e) : FasterSuperSonicFade ? 0x0d : 0x0f
+			super.palettefx.frame = isHyperEffect ? nextFrame: FasterSuperSonicFade ? nextFrame*2: nextFrame
+		}
+	}
+	else base.UpdatePaletteEffects.SuperForm.endpose.moddingVersion(characterVersion)
+}
+
 // removing alpha from Hyper stars
 function bool Standalone.onDrawVdpSprite(s16 px, s16 py, u8 size, u16 index, u16 renderQueue)
 {
-	if (ORIGINS_HYPER_FX > 1 && objA0.update_address == 0x0193ec || objA0.update_address == 0x0193ca)
+	if (ORIGINS_HYPER_FX > 1 && (objA0.update_address == 0x0193ec || objA0.update_address == 0x0193ca))
 	{
-		Renderer.drawVdpSpriteWithAlpha(px, py, size, index, renderQueue, 0xff)
-		return true
+		EMmagicVar_Hyper = 1
+		bool vdp = base.Standalone.onDrawVdpSprite(px, py, size, index, renderQueue)
+		EMmagicVar_Hyper = 0
+		return vdp
 	}
-	else return base.Standalone.onDrawVdpSprite(px, py, size, index, renderQueue)
+	return base.Standalone.onDrawVdpSprite(px, py, size, index, renderQueue)
+}
+
+function bool Standalone.onWriteToSpriteTable(s16 px, s16 py, u16 renderQueue)
+{
+	if (ORIGINS_HYPER_FX > 1 && objA0.update_address == 0x2000DC) // removing alpha/additive blending from esu small hyper stars
+	{
+		EMmagicVar_Hyper = 1
+		bool sprite = base.Standalone.onWriteToSpriteTable(px, py, renderQueue)
+		EMmagicVar_Hyper = 0
+		return sprite
+	}
+	// good spot to load the custom mgz palette, actually
+	if (ALT_MGZ_PALETTE)
+		System.loadExternalRawData("mgz custom palette", 0x0A8F5C)
+	return base.Standalone.onWriteToSpriteTable(px, py, renderQueue)
 }
 
 //# address-hook(0x01da0e) end(0x01da5e)
@@ -314,92 +430,80 @@ function void Character.updateJumpMoves()
 		s16 max_vy = (char.flags & char.flag.UNDERWATER) ? -0x200 : -0x400
 		if (char.velocity.y < max_vy)
 		{
-			if ((input_state & CONTROL_ABC) == 0)
-			{
-				char.velocity.y = max_vy
-			}
+			base.Character.updateJumpMoves()
+			return
 		}
-		else
+		if (char.double_jump_state == 0)
 		{
-			if (char.double_jump_state == 0)
+			if (Input.buttonPressed(BUTTON_Y))
 			{
-				if (Input.buttonPressed(BUTTON_Y))
+				if (!isSuperActive && SHTS == 0 && (!Mods.isModActive("Sonic 3: D.A. Garden Edition") || ((Mods.isModActive("Sonic 3: D.A. Garden Edition") && !System.getGlobalVariableValueByName("original_mode")))))
 				{
-					if (!isSuperActive && SHTS == 0 && (!Mods.isModActive("Sonic 3: D.A. Garden Edition") || ((Mods.isModActive("Sonic 3: D.A. Garden Edition") && !System.getGlobalVariableValueByName("original_mode")))))
-					{
-						if (Character.performSuperTransformation())
-							return
-					}
-					else if (!Mods.isModActive("Sonic 3: D.A. Garden Edition"))
-						base.Character.updateJumpMoves()
+					if (Character.performSuperTransformation())
+						return
 				}
-				if (input_pressed & CONTROL_ABC)
-				{
-					if (onCharacterPressedJumpInMidAir(input_state, input_pressed))
-					{
-						if (char.character == CHARACTER_SONIC)
-							SonicPressedJumpInMidAir()
-						else if (char.character == CHARACTER_TAILS)
-							TailsPressedJumpInMidAir()
-						else if (!competition_mode.active)
-							KnucklesPressedJumpInMidAir()
-						#if EXTRA_CHARACTERS_ACTIVE
-							#if EXTRA_CHARACTERS_UNLIMITED
-								else if (global.xtrachar = 0x00)
-							#endif
-						#else
-								else if (!isExtraSlot())
-						#endif
-							SonicPressedJumpInMidAir()
-						else
-							base.Character.updateJumpMoves()
-					}
-				}
+				else if (!Mods.isModActive("Sonic 3: D.A. Garden Edition"))
+					base.Character.updateJumpMoves()
 			}
-
-			if (Game.getSetting(SETTING_DROPDASH) && char.character == CHARACTER_SONIC && !competition_mode.active)
+			if (input_pressed & CONTROL_ABC)
 			{
-				if (((super.active != 0xff && Game.getSetting(SETTING_SUPER_SONIC_ABILITY) != 2) || (!super.active && Game.getSetting(SETTING_SUPER_SONIC_ABILITY) == 2)) || (!performHyperDash || ORIGINS_HD) || (char.double_jump_state == 0 && AUTODD == 1))
+				if (onCharacterPressedJumpInMidAir(input_state, input_pressed))
 				{
-					if (AUTODD == 1)
-					{
-						bool chargeDropDash = (control.player1.state & CONTROL_ABC) && (AUTODD == 1 || (char.bonus_effect & char.bonus.INVINCIBLE) || sonic.dropdash_counter > 0) && ((char.double_jump_state == 0 || !char.double_jump_state && AUTODD == 1) && super.active == 0 || (char.double_jump_state || !char.double_jump_state) && (super.active != 0 || (((char.bonus_effect & char.bonus.ELEMENTAL_SHIELDS) == 0 || (char.bonus_effect & char.bonus.INVINCIBLE) || (char.bonus_effect & char.bonus.SHIELD_LIGHTNING)) && AUTODD == 1)))
-						
-						if (chargeDropDash)
-						{
-							if (sonic.dropdash_counter < DROPDASH_FULLCHARGE)
-							{
-								// Drop dash charging
-								char.flags &= ~char.flag.CONTROL_LOCK // this unlocks roll jump regardless of the setting. it makes the game more fun with auto-dropdash when using roll jump lock
-								++sonic.dropdash_counter
-								if (sonic.dropdash_counter == DROPDASH_FULLCHARGE)
-								{
-									// Fully charged now
-									char.state = char.state.SONIC_DROPDASH
-									Audio.playAudio("dropdash_charge", AudioContext.CONTEXT_SOUND)
-								}
-							}
-						}
-						else if (sonic.dropdash_counter > 0)
-						{
-							// Abort drop dash
-							sonic.dropdash_counter = 0
-							char.state = char.state.ROLLING
-						}
-					}
+					if (char.character == CHARACTER_SONIC)
+						SonicPressedJumpInMidAir()
+					else if (char.character == CHARACTER_TAILS)
+						TailsPressedJumpInMidAir()
+					else if (!competition_mode.active)
+						KnucklesPressedJumpInMidAir()
+					#if EXTRA_CHARACTERS_UNLIMITED
+							else if (global.xtrachar == 0x00)
+					#else
+							else if (!isExtraSlot())
+					#endif
+						SonicPressedJumpInMidAir()
 					else
 						base.Character.updateJumpMoves()
 				}
 			}
 		}
-	}
-	else
-	{
-		if (char.spindash == 0)
+
+		if (Game.getSetting(SETTING_DROPDASH) && char.character == CHARACTER_SONIC && !competition_mode.active)
 		{
-			char.velocity.y = max(char.velocity.y, -0x0fc0)
+			if (((super.active != 0xff && Game.getSetting(SETTING_SUPER_SONIC_ABILITY) != 2) || (!super.active && Game.getSetting(SETTING_SUPER_SONIC_ABILITY) == 2)) || (!performHyperDash || ORIGINS_HD) || (char.double_jump_state == 0 && AUTODD == 1))
+			{
+				if (AUTODD == 1)
+				{
+					bool holdingJump = ((control.player1.state & CONTROL_ABC) && !debug_mode.enabled) || (control.player1.state & CONTROL_C)
+					bool chargeDropDash = holdingJump && (AUTODD == 1 || (char.bonus_effect & char.bonus.INVINCIBLE) || sonic.dropdash_counter > 0) && ((char.double_jump_state == 0 || !char.double_jump_state && AUTODD == 1) && super.active == 0 || (char.double_jump_state || !char.double_jump_state) && (super.active != 0 || (((char.bonus_effect & char.bonus.ELEMENTAL_SHIELDS) == 0 || (char.bonus_effect & char.bonus.INVINCIBLE) || (char.bonus_effect & char.bonus.SHIELD_LIGHTNING)) && AUTODD == 1)))
+					
+					if (chargeDropDash)
+					{
+						if (sonic.dropdash_counter < DROPDASH_FULLCHARGE)
+						{
+							// Drop dash charging
+							char.flags &= ~char.flag.CONTROL_LOCK // this unlocks roll jump regardless of the setting. it makes the game more fun with auto-dropdash when using roll jump lock
+							++sonic.dropdash_counter
+							if (sonic.dropdash_counter == DROPDASH_FULLCHARGE)
+							{
+								// Fully charged now
+								char.state = char.state.SONIC_DROPDASH
+								Audio.playAudio("dropdash_charge", AudioContext.CONTEXT_SOUND)
+							}
+						}
+					}
+					else if (sonic.dropdash_counter > 0 && !holdingJump)
+					{
+						// Abort drop dash
+						sonic.dropdash_counter = 0
+						char.state = char.state.ROLLING
+					}
+				}
+				else
+					base.Character.updateJumpMoves()
+			}
 		}
 	}
+	else base.Character.updateJumpMoves()
 }
 
 function void SonicPressedJumpInMidAir()

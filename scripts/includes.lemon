@@ -14,7 +14,6 @@ global u8 TS_KNUCKLES
 global u8 OPTIONS_GFX
 global u8 startPress
 global u8 drawTrademark
-global u8 pbutt_timer
 global u8 TS_STARTBUTTON
 global u8 trademark_alpha
 global u8 TS_SOUNDS
@@ -71,6 +70,7 @@ global u8 FASTER_SUPER_FADE // Faster Super Sonic Fade
 global u8 ALT_MGZ_PALETTE // Custom MGZ Palette
 global u8 ORIGINS_HD // finally, it works again
 global bool performHyperDash // haha, i feel like this might break things but i don't really care lol
+global u8 EMmagicVar_Hyper = 0
 // LBZ2.LEMON
 global u8 LBZ2SKY // Early Sky Fade
 global u8 SKIPLBZ2 // Skippable Cutscene

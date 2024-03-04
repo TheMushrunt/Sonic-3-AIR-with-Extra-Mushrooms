@@ -53,6 +53,7 @@ function void PlayMusic()
 	else base.PlayMusic()
 }
 
+#if GAMEAPP >= 0x23082700 // now behind a gameapp check to keep it consistent with the Extra Mushrooms stuff that is seen in the main menu (to prevent invisible Wegas in older versions)
 function void MainMenuBG.Run()
 {
 	if (NO_SECRETS_ON_3AIRMENU != 1)
@@ -63,6 +64,7 @@ function void MainMenuBG.Run()
 		Audio.playAudio("wega_storm")
 	base.MainMenuBG.Run()
 }
+#endif
 
 function void OriginsMenu()
 {
@@ -227,8 +229,11 @@ function void OptionInit()
 function void BlueSphereGame()
 {
 	bluespheregame.menu_flags = 1 // used to be bluespheregame.menu_flags = 1, this is literally fixing the worst issue ever
-	// the issue in question changes the vertical position of the animated sprites on screen and it looked BAD
+	// the issue in question changes the vertical position of the animated sprites on screen and it looked BAD when loading blue spheres from certain spots
+	// ...also technically origins accuracy?
+	
 	global.game_mode = 0x2c
+	levelselect.characters = CHARS_SONIC_ALONE
 
 	while (true)
 	{
@@ -247,6 +252,8 @@ function bool returnAPUsingCoinsHUD() // checking for Achievements Plus putting 
 function u32 Game.getSetting(u32 settingId)
 {
 	if (settingId == SETTING_INFINITE_LIVES && EMmagicVariable)
+		return 0
+	if (settingId == SETTING_GFX_ANTIFLICKER && EMmagicVar_Hyper)
 		return 0
 	return base.Game.getSetting(settingId)
 }
@@ -406,7 +413,6 @@ global s16 airHighlightAnimationTimer
 //# address-hook(0x00440c) end(0x0044fe)
 function void fn00440c()
 {
-	pbutt_timer = 0
 	trademark_alpha = 0
 	D7.u16 = D0.u16
 	A2 = 0x004500 + D0.s16 * 12
@@ -452,10 +458,11 @@ function void fn00440c()
 //# address-hook(0x003e32) end(0x004342)
 function void TitleScreen()
 {
-	#if EXPANSION_PACK_ACTIVE
+	airHighlightAnimationTimer = 255
+#if EXPANSION_PACK_ACTIVE
 	eplogo_timer = 0
 	timer2_ep = 0
-	#endif
+#endif
 	extraMushroomsTS.discordRPC()
 	playMusic(MUSIC_CTRL_FADEOUT)
 	kosinski.queue_size = 0
@@ -546,18 +553,18 @@ function void TitleScreen()
 	{
 		global.frame_state = 0x14
 		waitForNextFrame()
-	@EntryPoint_003fd2:
-
+	@EntryPoint_003fd2:	
 		if (control.pad1.pressed & CONTROL_START)
 			break
 
 		Renderer.resetSprites()
+		
 		if (EM_OGB_DISPLAY == 1)
 			Renderer.drawCustomSprite("original_game_by", getScreenWidth() / 2 - 85, 60, 0x00, 0, 0x2000, 0, 96)
 		if (EM_TM_R_DISPLAY == 1)
-			Renderer.drawCustomSprite("origins_copyright", getScreenWidth()/2 + 77, 83, 0x00, 0, 0x2000, 0, 255)
+			Renderer.drawCustomSprite("origins_copyright", getScreenWidth()/2 + 77, 83, 0x00, 0, 0x2000, 0, airHighlightAnimationTimer)
 		else if (EM_TM_R_DISPLAY == 2)
-			Renderer.drawCustomSprite("genesis_trademark", getScreenWidth()/2 + 80, 88, 0x00, 0, 0x2000, 0, 255)
+			Renderer.drawCustomSprite("genesis_trademark", getScreenWidth()/2 + 80, 88, 0x00, 0, 0x2000, 0, airHighlightAnimationTimer)
 		if (EM_MODDED_GFX == 1)
 		{
 			u64 key = "sega_logo"
@@ -586,16 +593,22 @@ function void TitleScreen()
 			if (EM_OGB_DISPLAY == 1)
 				Renderer.drawCustomSprite("original_game_by", getScreenWidth() / 2 - 85, 60, 0x00, 0, 0x2000, 0, u16(u8[0xfffffc01] & 0x0e) * 96 / 0x0e)
 			if (EM_TM_R_DISPLAY == 1)
-				Renderer.drawCustomSprite("origins_copyright", getScreenWidth()/2 + 77, 83, 0x00, 0, 0x2000, 0, u16(u8[0xfffffc01] & 0x0e) * 255 / 0x0e)
+				Renderer.drawCustomSprite("origins_copyright", getScreenWidth()/2 + 77, 83, 0x00, 0, 0x2000, 0, airHighlightAnimationTimer)
 			else if (EM_TM_R_DISPLAY == 2)
-				Renderer.drawCustomSprite("genesis_trademark", getScreenWidth()/2 + 80, 88, 0x00, 0, 0x2000, 0, u16(u8[0xfffffc01] & 0x0e) * 255 / 0x0e)
+				Renderer.drawCustomSprite("genesis_trademark", getScreenWidth()/2 + 80, 88, 0x00, 0, 0x2000, 0, airHighlightAnimationTimer)
 			if (EM_MODDED_GFX == 1)
 			{
 				u64 key = "sega_logo"
-				if Renderer.hasCustomSprite(key)
+				if (Renderer.hasCustomSprite(key))
 					Renderer.drawCustomSprite(key, getScreenExtend() - 40, 0, 0x00, 0, 0x2000, 0, u16(u8[0xfffffc01] & 0x0e) * 255 / 0x0e)
 				else
 					Renderer.drawCustomSprite(stringformat("%s_em", key), getScreenExtend() - 40, 0, 0x00, 0, 0x2000, 0, u16(u8[0xfffffc01] & 0x0e) * 255 / 0x0e)
+				
+				key = "sega_logo_black"
+				if (Renderer.hasCustomSprite(key))
+					Renderer.drawCustomSprite(key, getScreenExtend() - 40, 0, 0x00, 0, 0x1fff)
+				else
+					Renderer.drawCustomSprite(stringformat("%s_em", key), getScreenExtend() - 40, 0, 0x00, 0, 0x1fff)
 			}
 	}
 
@@ -617,6 +630,15 @@ function void TitleScreen()
 	// While loop: Intro sequence with Sonic running towards the camera
 	while (true)
 	{
+		if (airHighlightAnimationTimer)
+		{
+			if (titleintro.animstep > 4)
+				airHighlightAnimationTimer -= 15
+			if (EM_TM_R_DISPLAY == 1)
+				Renderer.drawCustomSprite("origins_copyright", getScreenWidth()/2 + 77, 83, 0x00, 0, 0x2000, 0, (!TS_BRANDING ? 255: airHighlightAnimationTimer))
+			else if (EM_TM_R_DISPLAY == 2)
+				Renderer.drawCustomSprite("genesis_trademark", getScreenWidth()/2 + 80, 88, 0x00, 0, 0x2000, 0, (!TS_BRANDING ? 255: airHighlightAnimationTimer))
+		}
 		global.frame_state = 0x04
 		Kosinski.ProcessDecompressionQueue()
 
@@ -882,6 +904,14 @@ constant array<u16> TITLESCREEN_MUSHRUNT_FRAMEDELAY = // this is what the previo
 //# address-hook(0x004352) end(0x0043d2)
 function void fn004352()
 {
+	// Move planes based on screen width dynamically (because i'm a freak)
+	for (u8 i = 0; i < getScreenHeight(); ++i)
+		u32[0xffffe000 + i*4] = getScreenExtend() * 0x10001
+	if (Mods.isModActive("Misc. Fixes and Tweaks") && System.getGlobalVariableValueByName("MFT_TitleSpeed") > 0)
+	{
+		base.fn004352()
+		return
+	}
 	// Used in small intro sequence after SEGA logo (Sonic running towards camera)
 	//  -> Update palette
 	//  -> Alternate between two frames displayed in both plane A and plane B at the same time
@@ -943,73 +973,56 @@ function void fn004352()
 //# address-hook(0x00486c) end(0x0048d8)
 function void fn00486c()
 {
-	D2.u8 = u8[A0 + 0x34]
-	u32[A0 + 0x30] += objA0.velocity.y << 8
-	D0.u16 = u16[A0 + 0x30]
-	u8[A0 + 0x34] = 0
-	D1.u16 = 0x40
-
-	if (D0.u16 == 0 && objA0.velocity.y == 0xffa5)
+	base.fn00486c()
+	
+	if (TS_KNUCKLES)
 	{
-		objA0.update_address = 0x0048dc
-		u32[0xffffb094] = 0x004924		// Trademark
+		// Move it back up
+		objA0.position.y.u16 -= 0x0d
 	}
-	else
+	bool OriginsFreak = TS_BRANDING == 2 && TS_KNUCKLES == 1 && TS_COPYRIGHT == 3
+	u8 maxScrollOffset = (OriginsFreak ? 0x04 : 0x10)
+	if (TS_KNUCKLES)
+		objA0.position.y.u16 += (OriginsFreak ? 0x0d : 0)
+	
+	if (!EM_MODDED_GFX && TS_KNUCKLES)
 	{
-		if (D0.s16 >= 0)
+		if (OriginsFreak) // more accurate to Origins? i'm not sure if everyone would like this so i'm forcing it to only do this with all the important Origins options turned on
 		{
-
-			u8[A0 + 0x34] = 0xff
-			D1.u16 = 0xffc0
+			if (objA0.position.y.u16 == 0x13d)
+				scrolloffset.y.planeA -= 0x08
 		}
-
-		objA0.velocity.y += D1.u16
-		if (D2.u8 != u8[A0 + 0x34])
+		// Movement of Sonic and the ring around him
+		if (s8(scrolloffset.y.planeA) < maxScrollOffset)
 		{
-			objA0.velocity.y >>= 1
-		}
-	}
-
-	D0.s16 = 0xd4 - s16[A0 + 0x30]
-	objA0.position.y.u16 = D0.u16
-	if (!EM_MODDED_GFX)
-	{
-		if (!TS_KNUCKLES)
-		{
-			// Move it down
-			objA0.position.y.u16 += 0x1c
-		}
-		else
-		{
-			// Movement of Sonic and the ring around him
-			if (scrolloffset.y.planeA != 0x10)
-			{
-				++scrolloffset.y.planeA
-			}
+			scrolloffset.y.planeA++
 		}
 	}
-	else
+	else if (EM_MODDED_GFX)
 	{
-		if (TS_KNUCKLES == 0)
+		if (OriginsFreak)
 		{
-			// Move it down
-			objA0.position.y.u16 += 0x1c
+			if (objA0.position.y.u16 == 0x13d)
+				snkmoddedtitlespriteoffset += 0x0d
 		}
-		else
-		{
-			if (snkmoddedtitlespriteoffset >= 83)
-				--snkmoddedtitlespriteoffset
-		}
+		
+		if (snkmoddedtitlespriteoffset >= (100 - maxScrollOffset))
+			--snkmoddedtitlespriteoffset
 	}
-	if (Mods.isModActive("Expansion Pack"))
-		objA0.position.y.u16 -= 0x0E
-	fn0048dc()
 }
-
 
 //# address-hook(0x0048dc) end(0x0048fe)
 function void fn0048dc()
 {
+	// Move planes based on screen width dynamically (because i'm a freak)
+	for (u8 i = 0; i < getScreenHeight(); ++i)
+		u32[0xffffe000 + i*4] = getScreenExtend() * 0x10001
+	
+	if (!drawTrademark && TS_KNUCKLES)
+	{
+		// Moving the emblem here too
+		objA0.position.y.u16 -= 0x0f
+	}
 	++titleintro.frames
 	#if EXPANSION_PACK_ACTIVE
 	if (Mods.getModPriority("Expansion Pack") < Mods.getModPriority("Sonic 3 A.I.R. with Extra Mushrooms"))
@@ -1028,7 +1041,6 @@ function void fn0048dc()
 	}
 
 	u32[0xfffffcda] = u32[0x004904 + objA0.animation.frame]
-	//DrawObject()
 
 	// Here is a good place to draw the widescreen background
 	if (!TS_ANIMATED_BG)
@@ -1048,9 +1060,6 @@ function void fn0048dc()
 			key = stringformat("bg_title_screen_new_%d", animFrame)
 		Renderer.drawCustomSprite(key, s16(getScreenWidth() - 512) / 2, -8, 0x00, 0, 0x1100)
 	}
-	++pbutt_timer
-	if (pbutt_timer > 55)
-		pbutt_timer = 0
 	u16 px = getScreenWidth() / 2 - 128
 	u16 py = objA0.position.y.u16 - 112
 	if (!Mods.isModActive("Deez Nut Title Screen"))
@@ -1137,7 +1146,12 @@ function void fn0048dc()
 		// Also draw the "Angel Island Revisited" text and others
 		++airHighlightAnimationTimer
 		s16 time = airHighlightAnimationTimer - 80
-
+		
+#if DAGE_running >= 0x1912 // i'm sure this isn't the first version to implement the new logo but whatever.
+		if (palette_set >= 2)
+			Renderer.drawCustomSprite("title_screen_air_new", px, py - (TS_KNUCKLES ? 4 : 0), 0, SPRITE_FLAG_PRIO, 0x9f7e)
+		else
+#endif
 		Renderer.drawCustomSprite("title_screen_air", px, py, 0x00, SPRITE_FLAG_PRIO, 0x9f7e)
 
 		if (time > 0)
@@ -1145,6 +1159,11 @@ function void fn0048dc()
 			if (time < 65)
 			{
 				u8 alpha = (time < 20) ? (time * 255 / 20) : ((65 - time) * 255 / 45)
+#if DAGE_running >= 0x1912
+				if (palette_set >= 2)
+					Renderer.drawCustomSprite("title_screen_air_new_h", px, py - (TS_KNUCKLES ? 4 : 0), 0, SPRITE_FLAG_PRIO, 0x9f7f, 0, alpha)
+				else
+#endif
 				Renderer.drawCustomSprite("title_screen_air_h", px, py, 0x00, SPRITE_FLAG_PRIO, 0x9f7f, 0, alpha)
 			}
 
@@ -1211,7 +1230,7 @@ function void drawCustomTSSonic()
 {
 	u16 sonicOffset = 99
 	// Movement of Sonic and the ring around him
-	if (TS_KNUCKLES != 0)
+	if (TS_KNUCKLES)
 		sonicOffset = snkmoddedtitlespriteoffset
 	drawSonicFramesTS(sonicOffset)
 }
@@ -1303,7 +1322,7 @@ function void drawSonicFramesTS(s16 offset)
 		if (Renderer.hasCustomSprite(key))
 			Renderer.drawCustomSprite(key, xOffset, offset, 0x00, SPRITE_FLAG_PRIO, 0x9000)
 		else
-			Renderer.drawCustomSprite(stringformat("%s_em", key), getScreenExtend() - 40, 0, 0x00, SPRITE_FLAG_PRIO, 0x9000)
+			Renderer.drawCustomSprite(stringformat("%s_em", key), xOffset, offset, 0x00, SPRITE_FLAG_PRIO, 0x9000)
 	}
 }
 
@@ -1373,45 +1392,15 @@ function void fn004a88()
 				if (TS_SOUNDS >= 1)
 					playSound(SFX_CLICK)
 			}
-			//DrawObject()
-			string optionsText = getOptionsText()
-			if (titlescreen.selection % 2 != 0 && OPTIONS_GFX >= 2) // fix for vertical positioning
-				Renderer.drawCustomSprite(optionsText, getScreenWidth()/2-64, getScreenHeight()-30, 0x00, SPRITE_FLAG_PRIO, 0xa001)
-			else 
-				Renderer.drawCustomSprite(optionsText, getScreenWidth()/2-64, getScreenHeight()-32, 0x00, SPRITE_FLAG_PRIO, 0xa001)
+			u16 py = ((titlescreen.selection % 2 != 0 && OPTIONS_GFX >= 2) ? getScreenHeight()-30 : getScreenHeight()-32)
+			Renderer.drawCustomSprite(getOptionsText(), getScreenWidth()/2-64, py, 0x00, SPRITE_FLAG_PRIO, 0xa001)
 		}
 		else
 		{
-			string startText = getStartText()
-			if (pbutt_timer >= (55/2))
-				Renderer.drawCustomSprite(startText, getScreenWidth()/2-64, getScreenHeight()-24, 0x00, SPRITE_FLAG_PRIO, 0xa001)
+\			if (global.framecounter & 0x20)
+				Renderer.drawCustomSprite(getStartText(), getScreenWidth()/2-64, getScreenHeight()-24, 0x00, SPRITE_FLAG_PRIO, 0xa001)
 		}
 	}
-}
-
-// Trademark
-
-//# address-hook(0x004924) end(0x004956)
-function void fn004924()
-{
-	objA0.mapping_offset = 0x3501e0
-	objA0.sprite_attributes = (sprite_attribute.PRIORITY | sprite_attribute.PALETTE.LINE3 | (TitleScreen.Banner.targetInVRAM >> 5))
-	objA0.position.x.u16 = 0x0188 + getScreenExtend()
-	objA0.position.y.u16 = 0xec
-	objA0.sprite_priority = 0x80
-	objA0.box_size.x = 0x0c
-	objA0.box_size.y = 0x04
-	objA0.animation.sprite = 1
-
-	if (TS_KNUCKLES == 0)
-	{
-		// Move it down
-		objA0.position.y.u16 += 0x1c
-	}
-
-	objA0.update_address = 0x00495c
-
-	fn00495c()
 }
 
 
@@ -1419,50 +1408,15 @@ function void fn004924()
 function void fn00495c()
 {
 	drawTrademark = 1
+	base.fn00495c()
 }
-
-
-
-// "& Knuckles" logo -- all you need for a meme
-
-//# address-hook(0x00496a) end(0x004996)
-function void fn00496a()
-{
-	if (TS_KNUCKLES != 1)
-	{
-		UnloadObject()
-		return
-	}
-
-	objA0.mapping_offset = 0x0049ae
-	objA0.sprite_attributes = (sprite_attribute.PRIORITY | sprite_attribute.PALETTE.LINE3 | (TitleScreen.AndKnucklesTitle.targetInVRAM >> 5))
-	objA0.position.x.u16 = 0x0120 + getScreenExtend()
-	objA0.position.y.u16 = 0x0108
-	objA0.sprite_priority = 0x80
-	objA0.box_size.x = 0x54
-	objA0.box_size.y = 0x0c
-
-	objA0.update_address = 0x00499c
-	fn00499c()
-}
-
-
-//# address-hook(0x00499c) end(0x0049a8)
-function void fn00499c()
-{
-	D0.u16 = u16[0xffffb000 + 0x14] + 0x5c
-	objA0.position.y.u16 = D0.u16
-	//DrawObject()
-}
-
-
 
 // Copyright
 
 //# address-hook(0x004a56) end(0x004a56)
 function void fn004a56()
 {
-	//DrawObject()
+	UnloadObject()
 }
 
 // Sonic's hand wiggling
@@ -1470,12 +1424,10 @@ function void fn004a56()
 //# address-hook(0x004b16) end(0x004b2e)
 function void fn004b16()
 {
-	D0.u16 = 0xdc - scrolloffset.y.planeA
-	objA0.position.y.u16 = D0.u16
-
-	Object.animationUpdate(0x004b34)
-	if (!EM_MODDED_GFX)
-		DrawObject()
+	if (EM_MODDED_GFX)
+		UnloadObject()
+	objA0.position.x.u16 = 0x0148 + getScreenExtend()
+	base.fn004b16()
 }
 
 // Sonic's eye blinking
@@ -1483,12 +1435,10 @@ function void fn004b16()
 //# address-hook(0x004b86) end(0x004b9e)
 function void fn004b86()
 {
-	D0.u16 = 0xc8 - scrolloffset.y.planeA
-	objA0.position.y.u16 = D0.u16
-
-	Object.AlternativeAnimationUpdate(0x004ba4)
-	if (!EM_MODDED_GFX)
-		DrawObject()
+	if (EM_MODDED_GFX)
+		UnloadObject()
+	objA0.position.x.u16 = 0xf8 + getScreenExtend()
+	base.fn004b86()
 }
 
 // Tails in the Tornado

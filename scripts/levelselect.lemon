@@ -57,7 +57,8 @@ function void LevelSelect()
 		FadeOutScreenBlocking()
 		Renderer.resetSprites()
 		LevelSelect.init()
-
+		Level.loadPaletteData(0x03)
+		Level.loadNonfadingPaletteData(0x03)
 		Menu.FadeInAfterInit()
 
 		// Perform main update now
