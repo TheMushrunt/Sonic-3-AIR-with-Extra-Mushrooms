@@ -404,12 +404,6 @@ function void Menu.FadeInAfterInit()
 	}
 }
 
-//-------------------------------------------------------//
-// SEGA Logo Screen                                      //
-//-------------------------------------------------------//
-
-global s16 airHighlightAnimationTimer
-
 //# address-hook(0x00440c) end(0x0044fe)
 function void fn00440c()
 {
@@ -894,7 +888,7 @@ constant array<u16> TITLESCREEN_AIR_FRAMEDELAY =
 }
 constant array<u16> TITLESCREEN_ORIGINS_FRAMEDELAY =
 {
-	8, 8, 10, 5, 5, 7, 16, 12, 11, 10, 5
+	16, 5, 5, 5, 5, 7, 16, 12, 11, 10, 5
 }
 constant array<u16> TITLESCREEN_MUSHRUNT_FRAMEDELAY = // this is what the previous Extra Mushrooms builds used for S3 Genesis/S3 Origins
 {
@@ -970,24 +964,27 @@ function void fn004352()
 
 // Banner ("Sonic 3 - Sonic The Hedgehog")
 
+function bool OriginsFreak()
+{
+	return TS_BRANDING == 2 && TS_KNUCKLES == 1 && TS_COPYRIGHT == 3
+}
+
 //# address-hook(0x00486c) end(0x0048d8)
 function void fn00486c()
 {
 	base.fn00486c()
-	
-	if (TS_KNUCKLES)
+	if (TS_KNUCKLES && OriginsFreak())
 	{
-		// Move it back up
+		// move the emblem up
 		objA0.position.y.u16 -= 0x0d
 	}
-	bool OriginsFreak = TS_BRANDING == 2 && TS_KNUCKLES == 1 && TS_COPYRIGHT == 3
-	u8 maxScrollOffset = (OriginsFreak ? 0x04 : 0x10)
+	u8 maxScrollOffset = (OriginsFreak() ? 0x04 : 0x10)
 	if (TS_KNUCKLES)
-		objA0.position.y.u16 += (OriginsFreak ? 0x0d : 0)
+		objA0.position.y.u16 += (OriginsFreak() ? 0x0d : 0)
 	
 	if (!EM_MODDED_GFX && TS_KNUCKLES)
 	{
-		if (OriginsFreak) // more accurate to Origins? i'm not sure if everyone would like this so i'm forcing it to only do this with all the important Origins options turned on
+		if (OriginsFreak()) // more accurate to Origins? i'm not sure if everyone would like this so i'm forcing it to only do this with all the important Origins options turned on
 		{
 			if (objA0.position.y.u16 == 0x13d)
 				scrolloffset.y.planeA -= 0x08
@@ -1000,7 +997,7 @@ function void fn00486c()
 	}
 	else if (EM_MODDED_GFX)
 	{
-		if (OriginsFreak)
+		if (OriginsFreak())
 		{
 			if (objA0.position.y.u16 == 0x13d)
 				snkmoddedtitlespriteoffset += 0x0d
@@ -1018,10 +1015,10 @@ function void fn0048dc()
 	for (u8 i = 0; i < getScreenHeight(); ++i)
 		u32[0xffffe000 + i*4] = getScreenExtend() * 0x10001
 	
+	// move the emblem here too
 	if (!drawTrademark && TS_KNUCKLES)
 	{
-		// Moving the emblem here too
-		objA0.position.y.u16 -= 0x0f
+		objA0.position.y.u16 -= (OriginsFreak() ? 0x0f : 0x1C)
 	}
 	++titleintro.frames
 	#if EXPANSION_PACK_ACTIVE

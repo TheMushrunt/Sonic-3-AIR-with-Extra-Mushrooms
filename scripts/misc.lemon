@@ -29,6 +29,27 @@ function void Renderer.drawCustomSprite(u64 key, s16 px, s16 py, u8 atex, u8 fla
 	base.Renderer.drawCustomSprite(key, px, py, atex, flags, renderQueue)
 }
 
+// for fun, let's add a bit of polish to the aiz1 miniboss fleeing during the transition cutscene because i don't give a darn
+
+//# address-hook(0x068646) end(0x06868e)
+function void fn068646()
+{
+	base.fn068646()
+	if (global.zone_act != 0x0000)
+		return
+	if (objA0.velocity.x == 0x400)
+		objA0.velocity.x = 0
+}
+
+//# address-hook(0x068690) end(0x0686b8)
+function void fn068690()
+{
+	fn0847e6()
+	if (global.zone_act == 0x0000 && objA0.velocity.x < 0x450)
+		objA0.velocity.x += 0x30
+	base.fn068690()
+}
+
 #if GAMEAPP >= 0x23082700
 function void MainMenuBG.Update(u16 cameraForegroundX, u16 cameraBackgroundX)
 {
